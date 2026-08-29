@@ -57,20 +57,28 @@ struct RootView: View {
                     .foregroundStyle(dependencies.selectedDestination == destination ? theme.selectionForeground.color : theme.primaryText.color)
                     .accessibilityLabel(destination.title)
                 }
+                .accessibilityIdentifier("sidebar-\(destination.rawValue)")
             }
             .navigationTitle("每日记账")
             .scrollContentBackground(.hidden)
             .background(theme.chrome.color)
             .listStyle(.sidebar)
-            .frame(minWidth: 190)
+            .navigationSplitViewColumnWidth(min: 190, ideal: 220, max: 260)
         } detail: {
-            DestinationPlaceholder(destination: dependencies.selectedDestination, theme: theme, typography: dependencies.typographyStyle)
+            switch dependencies.selectedDestination {
+            case .ledger:
+                LedgerView(repository: dependencies.repository, deletionUndoCoordinator: dependencies.deletionUndoCoordinator, theme: theme, typography: dependencies.typographyStyle)
+            case .calendar:
+                CalendarView(repository: dependencies.repository, theme: theme, typography: dependencies.typographyStyle)
+            default:
+                DestinationPlaceholder(destination: dependencies.selectedDestination, theme: theme, typography: dependencies.typographyStyle)
+            }
         }
         .tint(theme.primaryAccent.color)
         .preferredColorScheme(preferredScheme(for: dependencies.themeMode))
         .background { AppCommands(dependencies: dependencies) }
         .animation(animation(for: MotionPolicy(slider: dependencies.motionIntensity, systemReduceMotion: systemReduceMotion)), value: dependencies.selectedDestination)
-        .frame(minWidth: 820, minHeight: 560)
+        .frame(minWidth: 980, minHeight: 560)
     }
 
     private func preferredScheme(for mode: ThemeMode) -> ColorScheme? {

@@ -1,0 +1,63 @@
+import SwiftUI
+
+struct LedgerView: View {
+    @State private var model: LedgerViewModel
+    @State private var isDeleteConfirmationPresented = false
+    let repository: LedgerRepository
+    let theme: AppTheme
+    let typography: AppTypography.Style
+
+    init(repository: LedgerRepository, deletionUndoCoordinator: DeletionUndoCoordinator, theme: AppTheme, typography: AppTypography.Style) {
+        _model = State(initialValue: LedgerViewModel(repository: repository, deletionUndoCoordinator: deletionUndoCoordinator))
+        self.repository = repository
+        self.theme = theme
+        self.typography = typography
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("记账").font(AppTypography.display(typography))
+                    Text("快速记录今天的每一笔收支")
+                        .font(AppTypography.body(typography))
+                        .foregroundStyle(theme.secondaryText.color)
+                }
+                Spacer()
+                if model.canUndo {
+                    Button("撤销删除") { Task { await model.undoDelete() } }
+                        .accessibilityIdentifier("undo-delete")
+                }
+            }
+            QuickEntryView(model: model, theme: theme, typography: typography)
+            EntryListView(model: model, theme: theme, typography: typography)
+            if !model.selectedEntryIDs.isEmpty {
+                SelectionSummaryBar(summary: model.selectionSummary, theme: theme, typography: typography) {
+                    isDeleteConfirmationPresented = true
+                }
+            }
+        }
+        .padding(28)
+        .foregroundStyle(theme.primaryText.color)
+        .background(theme.canvas.color)
+        .task { await model.start() }
+        .sheet(item: $model.editingEntry) { entry in
+            EntryEditorView(entry: entry, repository: repository, theme: theme, typography: typography) {
+                try? await model.reload()
+            }
+        }
+        .confirmationDialog(
+            "确认删除所选账目？",
+            isPresented: $isDeleteConfirmationPresented,
+            titleVisibility: .visible
+        ) {
+            Button("确认删除", role: .destructive) {
+                Task { await model.deleteSelection() }
+            }
+            .accessibilityIdentifier("confirm-delete-selected")
+            Button("取消", role: .cancel) { }
+        } message: {
+            Text("删除后可在 5 秒内撤销。")
+        }
+    }
+}

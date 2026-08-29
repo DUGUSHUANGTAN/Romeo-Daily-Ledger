@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 
 @MainActor
 protocol DeletionUndoScheduling: AnyObject {
@@ -46,6 +47,7 @@ final class TaskDeletionUndoScheduler: DeletionUndoScheduling {
 }
 
 @MainActor
+@Observable
 final class DeletionUndoCoordinator {
     private struct EntrySnapshot: Sendable {
         let kind: EntryKind

@@ -5,6 +5,33 @@ import Testing
 @MainActor
 @Suite("LedgerViewModelTests")
 struct LedgerViewModelTests {
+    @Test func reloadUsesInjectedClockForTheRequestedLocalDay() async throws {
+        let repository = RecordingLedgerRepository()
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Asia/Shanghai")!
+        let date = try #require(ISO8601DateFormatter().date(from: "2024-02-10T12:00:00+08:00"))
+        let model = LedgerViewModel(repository: repository, calendar: calendar, now: { date })
+
+        try await model.reload()
+
+        let interval = try #require(repository.requestedEntryIntervals.last)
+        #expect(interval == calendar.dateInterval(of: .day, for: date))
+    }
+
+    @Test func quickEntryRefreshesOccurrenceTimeAtSave() async throws {
+        let repository = RecordingLedgerRepository()
+        let launchDate = Date(timeIntervalSince1970: 1_700_000_000)
+        let saveDate = Date(timeIntervalSince1970: 1_800_000_000)
+        let model = LedgerViewModel(repository: repository, now: { saveDate })
+        model.draft.amountText = "12.50"
+        model.draft.occurredAt = launchDate
+
+        try await model.saveQuickEntry()
+
+        #expect(repository.insertedDrafts.first?.occurredAt == saveDate)
+        #expect(model.draft.occurredAt == saveDate)
+    }
+
     @Test func successfulSaveClearsTransientInputButKeepsContext() async throws {
         let repository = RecordingLedgerRepository()
         let date = Date(timeIntervalSince1970: 1_700_000_000)
