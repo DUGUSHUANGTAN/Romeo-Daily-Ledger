@@ -11,6 +11,7 @@ struct RomeoDailyLedgerApp: App {
         WindowGroup {
             RootView()
         }
+        .defaultSize(width: 1_100, height: 700)
 
         Settings {
             Text("Settings")

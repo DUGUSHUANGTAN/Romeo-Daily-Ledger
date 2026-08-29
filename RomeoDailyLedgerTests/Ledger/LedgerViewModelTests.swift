@@ -5,6 +5,20 @@ import Testing
 @MainActor
 @Suite("LedgerViewModelTests")
 struct LedgerViewModelTests {
+    @Test func quickEntryRefreshesOccurrenceTimeAtSave() async throws {
+        let repository = RecordingLedgerRepository()
+        let launchDate = Date(timeIntervalSince1970: 1_700_000_000)
+        let saveDate = Date(timeIntervalSince1970: 1_800_000_000)
+        let model = LedgerViewModel(repository: repository, now: { saveDate })
+        model.draft.amountText = "12.50"
+        model.draft.occurredAt = launchDate
+
+        try await model.saveQuickEntry()
+
+        #expect(repository.insertedDrafts.first?.occurredAt == saveDate)
+        #expect(model.draft.occurredAt == saveDate)
+    }
+
     @Test func successfulSaveClearsTransientInputButKeepsContext() async throws {
         let repository = RecordingLedgerRepository()
         let date = Date(timeIntervalSince1970: 1_700_000_000)
