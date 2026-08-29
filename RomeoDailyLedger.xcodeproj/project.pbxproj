@@ -43,6 +43,7 @@
 		9C9011EBD97AF5490D2C348B /* LedgerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BEEED90FA47DABABCB16315 /* LedgerViewModel.swift */; };
 		9F05EAC093C637D0C6DDAF60 /* RepositoryDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF8AE56FB62B72CFAC12FD6F /* RepositoryDoubles.swift */; };
 		A0774D4B0ED73C111059DFC3 /* SelectionSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8223A5E2F57043F92EF567D7 /* SelectionSummary.swift */; };
+		A861722774503EE34AE5C225 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F5C627C143CE7ADCFC039511 /* Assets.xcassets */; };
 		A97393F233911E70D2F42D58 /* CalendarViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92988B2E0EBB876FBD9EF53D /* CalendarViewModelTests.swift */; };
 		A9AD8366C903BDF3BD7656B5 /* LedgerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE05E7DA8BC3A1B08A8655D /* LedgerView.swift */; };
 		B1832F2C4790A72682A556D0 /* chart-no-axes-column-increasing.svg in Resources */ = {isa = PBXBuildFile; fileRef = 2EF6AF603A9AB92209141350 /* chart-no-axes-column-increasing.svg */; };
@@ -121,6 +122,7 @@
 		EDA585BD4B2A6A21D84CA811 /* RomeoDailyLedgerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RomeoDailyLedgerApp.swift; sourceTree = "<group>"; };
 		F0FF0593F5A3A86424BEE71E /* SelectionSummaryBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionSummaryBar.swift; sourceTree = "<group>"; };
 		F4DA7773C3AE81E413A09227 /* LedgerEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LedgerEntry.swift; sourceTree = "<group>"; };
+		F5C627C143CE7ADCFC039511 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F78E68DFB6F04C1E88A1E275 /* QuickEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickEntryView.swift; sourceTree = "<group>"; };
 		FDB17D03C00B550BB027F9C0 /* LucideIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LucideIcon.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -174,6 +176,7 @@
 		49A0F4038BEC9293FDCBB850 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				F5C627C143CE7ADCFC039511 /* Assets.xcassets */,
 				2D4C059999A1C91C66518790 /* Info.plist */,
 				BE17FE7B8051CE666D09003C /* Lucide */,
 			);
@@ -448,6 +451,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A861722774503EE34AE5C225 /* Assets.xcassets in Resources */,
 				1105FD2C09C94AEB72323B17 /* bot.svg in Resources */,
 				75C4D5B8712E22259C191873 /* calendar-days.svg in Resources */,
 				B1832F2C4790A72682A556D0 /* chart-no-axes-column-increasing.svg in Resources */,
