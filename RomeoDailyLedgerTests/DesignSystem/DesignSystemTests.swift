@@ -11,6 +11,11 @@ struct DesignSystemTests {
         #expect(AppTheme.dark.primaryAccent.hex == "B8E78C")
     }
 
+    @Test func selectedSidebarContentKeepsReadableContrastInBothThemes() {
+        #expect(AppTheme.light.selectionForeground.hex == "FFFDF8")
+        #expect(AppTheme.dark.selectionForeground.hex == "101318")
+    }
+
     @Test func everyThemeModeResolvesWithoutChangingTokenStructure() {
         #expect(ThemeMode.system.resolve(systemIsDark: false) == .light)
         #expect(ThemeMode.system.resolve(systemIsDark: true) == .dark)

@@ -52,9 +52,9 @@ struct RootView: View {
                         Text(destination.title)
                     } icon: {
                         LucideIconView(icon: destination.icon)
-                            .foregroundStyle(dependencies.selectedDestination == destination ? Color.white : theme.primaryText.color)
+                            .foregroundStyle(dependencies.selectedDestination == destination ? theme.selectionForeground.color : theme.primaryText.color)
                     }
-                    .foregroundStyle(dependencies.selectedDestination == destination ? Color.white : theme.primaryText.color)
+                    .foregroundStyle(dependencies.selectedDestination == destination ? theme.selectionForeground.color : theme.primaryText.color)
                     .accessibilityLabel(destination.title)
                 }
             }
