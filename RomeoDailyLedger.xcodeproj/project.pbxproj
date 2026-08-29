@@ -1,0 +1,513 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2E2870569D23E41B733FDFFB /* AppSmokeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B42970BD82248CFCC9F339B /* AppSmokeUITests.swift */; };
+		45BB6752D9350589B0F68091 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 778FF49608FC6315C122CA90 /* RootView.swift */; };
+		74D5256A3F38B169045BAD6F /* AppLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 285C8C72B8327ACDF2A99E12 /* AppLaunchTests.swift */; };
+		C1C7F6337BC32CA38FA0D68E /* RomeoDailyLedgerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA585BD4B2A6A21D84CA811 /* RomeoDailyLedgerApp.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		5F9359DBFAF9FC046FA17D23 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7E0EDD132EE9AB7807B9CD26 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AD59B0D017FA8249296E460C;
+			remoteInfo = RomeoDailyLedger;
+		};
+		BF10F2B60514C9C4435A4781 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7E0EDD132EE9AB7807B9CD26 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AD59B0D017FA8249296E460C;
+			remoteInfo = RomeoDailyLedger;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		165C6F4961A516A3C4BEDBBE /* RomeoDailyLedgerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RomeoDailyLedgerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		285C8C72B8327ACDF2A99E12 /* AppLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLaunchTests.swift; sourceTree = "<group>"; };
+		2B42970BD82248CFCC9F339B /* AppSmokeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSmokeUITests.swift; sourceTree = "<group>"; };
+		2D4C059999A1C91C66518790 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		778FF49608FC6315C122CA90 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		81AB2F72DE14DE048D965954 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
+		8A34ECAA59A845F2BE01B83C /* RomeoDailyLedger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RomeoDailyLedger.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A86AB2C645BD94FEA4864A32 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		DA089AFA028DF85DE6C2E69E /* RomeoDailyLedgerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RomeoDailyLedgerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EDA585BD4B2A6A21D84CA811 /* RomeoDailyLedgerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RomeoDailyLedgerApp.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		49A0F4038BEC9293FDCBB850 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				2D4C059999A1C91C66518790 /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		59E32C86EC87E6C02FE3EFCA /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				A86AB2C645BD94FEA4864A32 /* Debug.xcconfig */,
+				81AB2F72DE14DE048D965954 /* Release.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		7F7FECFAD1EE10E4BF885C0A = {
+			isa = PBXGroup;
+			children = (
+				59E32C86EC87E6C02FE3EFCA /* Config */,
+				95D48617F39AE58DFD36DBEB /* RomeoDailyLedger */,
+				CCFE3FA12F5DFDE6C9397B8F /* RomeoDailyLedgerTests */,
+				D1E52FBF8F17809A88C5FEED /* RomeoDailyLedgerUITests */,
+				CFE8247AA6ABED2B4B1A8FF8 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		95D48617F39AE58DFD36DBEB /* RomeoDailyLedger */ = {
+			isa = PBXGroup;
+			children = (
+				BD8295AE73C46540B2D6A533 /* App */,
+				49A0F4038BEC9293FDCBB850 /* Resources */,
+			);
+			path = RomeoDailyLedger;
+			sourceTree = "<group>";
+		};
+		BD8295AE73C46540B2D6A533 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				EDA585BD4B2A6A21D84CA811 /* RomeoDailyLedgerApp.swift */,
+				778FF49608FC6315C122CA90 /* RootView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		CCFE3FA12F5DFDE6C9397B8F /* RomeoDailyLedgerTests */ = {
+			isa = PBXGroup;
+			children = (
+				285C8C72B8327ACDF2A99E12 /* AppLaunchTests.swift */,
+			);
+			path = RomeoDailyLedgerTests;
+			sourceTree = "<group>";
+		};
+		CFE8247AA6ABED2B4B1A8FF8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8A34ECAA59A845F2BE01B83C /* RomeoDailyLedger.app */,
+				DA089AFA028DF85DE6C2E69E /* RomeoDailyLedgerTests.xctest */,
+				165C6F4961A516A3C4BEDBBE /* RomeoDailyLedgerUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D1E52FBF8F17809A88C5FEED /* RomeoDailyLedgerUITests */ = {
+			isa = PBXGroup;
+			children = (
+				2B42970BD82248CFCC9F339B /* AppSmokeUITests.swift */,
+			);
+			path = RomeoDailyLedgerUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		422829583734EE63BE6AEC2B /* RomeoDailyLedgerUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D4F2D9E101E8B0DF56E829EC /* Build configuration list for PBXNativeTarget "RomeoDailyLedgerUITests" */;
+			buildPhases = (
+				7817E02C06830ADC597C0828 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				02B382654E3893EEEDB91F04 /* PBXTargetDependency */,
+			);
+			name = RomeoDailyLedgerUITests;
+			packageProductDependencies = (
+			);
+			productName = RomeoDailyLedgerUITests;
+			productReference = 165C6F4961A516A3C4BEDBBE /* RomeoDailyLedgerUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		9793F05C916E7B0C84CEDCC9 /* RomeoDailyLedgerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 20B6D7BCE7FC59D6F975F78D /* Build configuration list for PBXNativeTarget "RomeoDailyLedgerTests" */;
+			buildPhases = (
+				7D9E21C5A1F1BACB965A7F52 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4B2BF740BFFC3E120246F593 /* PBXTargetDependency */,
+			);
+			name = RomeoDailyLedgerTests;
+			packageProductDependencies = (
+			);
+			productName = RomeoDailyLedgerTests;
+			productReference = DA089AFA028DF85DE6C2E69E /* RomeoDailyLedgerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		AD59B0D017FA8249296E460C /* RomeoDailyLedger */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D28639CD0A00863B1AB2F627 /* Build configuration list for PBXNativeTarget "RomeoDailyLedger" */;
+			buildPhases = (
+				C6F7CCF9F0AC7D4267C3D42A /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RomeoDailyLedger;
+			packageProductDependencies = (
+			);
+			productName = RomeoDailyLedger;
+			productReference = 8A34ECAA59A845F2BE01B83C /* RomeoDailyLedger.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7E0EDD132EE9AB7807B9CD26 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					422829583734EE63BE6AEC2B = {
+						TestTargetID = AD59B0D017FA8249296E460C;
+					};
+				};
+			};
+			buildConfigurationList = A854C8B2535C207713BA2E5D /* Build configuration list for PBXProject "RomeoDailyLedger" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 7F7FECFAD1EE10E4BF885C0A;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = CFE8247AA6ABED2B4B1A8FF8 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AD59B0D017FA8249296E460C /* RomeoDailyLedger */,
+				9793F05C916E7B0C84CEDCC9 /* RomeoDailyLedgerTests */,
+				422829583734EE63BE6AEC2B /* RomeoDailyLedgerUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7817E02C06830ADC597C0828 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2E2870569D23E41B733FDFFB /* AppSmokeUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7D9E21C5A1F1BACB965A7F52 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				74D5256A3F38B169045BAD6F /* AppLaunchTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C6F7CCF9F0AC7D4267C3D42A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C1C7F6337BC32CA38FA0D68E /* RomeoDailyLedgerApp.swift in Sources */,
+				45BB6752D9350589B0F68091 /* RootView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		02B382654E3893EEEDB91F04 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AD59B0D017FA8249296E460C /* RomeoDailyLedger */;
+			targetProxy = 5F9359DBFAF9FC046FA17D23 /* PBXContainerItemProxy */;
+		};
+		4B2BF740BFFC3E120246F593 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AD59B0D017FA8249296E460C /* RomeoDailyLedger */;
+			targetProxy = BF10F2B60514C9C4435A4781 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		6051A044DD7932AE204E9F92 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.romeoke.RomeoDailyLedger;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		78F69F9B0F03349281607656 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 81AB2F72DE14DE048D965954 /* Release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = RomeoDailyLedger/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		8235AB1C2B425413EC906437 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.romeoke.RomeoDailyLedgerTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RomeoDailyLedger.app/Contents/MacOS/RomeoDailyLedger";
+			};
+			name = Release;
+		};
+		8F38D7C652263399ABE91C50 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.romeoke.RomeoDailyLedger;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		93626E363B9A8429E799AC58 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.romeoke.RomeoDailyLedgerTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RomeoDailyLedger.app/Contents/MacOS/RomeoDailyLedger";
+			};
+			name = Debug;
+		};
+		C09F29E77FA7B50F5CB1E7F5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.romeoke.RomeoDailyLedgerUITests;
+				SDKROOT = macosx;
+				TEST_TARGET_NAME = RomeoDailyLedger;
+			};
+			name = Release;
+		};
+		C9B004B23857C3C768558F9D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A86AB2C645BD94FEA4864A32 /* Debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = RomeoDailyLedger/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		FD81C0C308C3DF2A7F131191 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.romeoke.RomeoDailyLedgerUITests;
+				SDKROOT = macosx;
+				TEST_TARGET_NAME = RomeoDailyLedger;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		20B6D7BCE7FC59D6F975F78D /* Build configuration list for PBXNativeTarget "RomeoDailyLedgerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				93626E363B9A8429E799AC58 /* Debug */,
+				8235AB1C2B425413EC906437 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A854C8B2535C207713BA2E5D /* Build configuration list for PBXProject "RomeoDailyLedger" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8F38D7C652263399ABE91C50 /* Debug */,
+				6051A044DD7932AE204E9F92 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D28639CD0A00863B1AB2F627 /* Build configuration list for PBXNativeTarget "RomeoDailyLedger" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C9B004B23857C3C768558F9D /* Debug */,
+				78F69F9B0F03349281607656 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D4F2D9E101E8B0DF56E829EC /* Build configuration list for PBXNativeTarget "RomeoDailyLedgerUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FD81C0C308C3DF2A7F131191 /* Debug */,
+				C09F29E77FA7B50F5CB1E7F5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 7E0EDD132EE9AB7807B9CD26 /* Project object */;
+}

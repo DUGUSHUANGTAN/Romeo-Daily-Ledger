@@ -1,0 +1,41 @@
+name: RomeoDailyLedger
+options:
+  deploymentTarget:
+    macOS: "14.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    PRODUCT_BUNDLE_IDENTIFIER: com.romeoke.RomeoDailyLedger
+targets:
+  RomeoDailyLedger:
+    type: application
+    platform: macOS
+    sources: [RomeoDailyLedger]
+    configFiles:
+      Debug: Config/Debug.xcconfig
+      Release: Config/Release.xcconfig
+    info:
+      path: RomeoDailyLedger/Resources/Info.plist
+      properties:
+        CFBundleDisplayName: Romeo Daily Ledger
+        LSMinimumSystemVersion: "14.0"
+  RomeoDailyLedgerTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources: [RomeoDailyLedgerTests]
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.romeoke.RomeoDailyLedgerTests
+    dependencies:
+      - target: RomeoDailyLedger
+  RomeoDailyLedgerUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    sources: [RomeoDailyLedgerUITests]
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.romeoke.RomeoDailyLedgerUITests
+    dependencies:
+      - target: RomeoDailyLedger
