@@ -8,7 +8,8 @@ enum LedgerFormatting {
         formatter.minimumFractionDigits = 2
         formatter.maximumFractionDigits = 2
         formatter.usesGroupingSeparator = true
-        return "¥" + (formatter.string(from: NSDecimalNumber(decimal: value)) ?? "0.00")
+        let number = formatter.string(from: NSDecimalNumber(decimal: value)) ?? "0.00"
+        return number.hasPrefix("-") ? "-$" + number.dropFirst() : "$" + number
     }
 
     static func categoryName(_ category: Category) -> String {

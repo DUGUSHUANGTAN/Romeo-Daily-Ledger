@@ -47,6 +47,7 @@
 		A9AD8366C903BDF3BD7656B5 /* LedgerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE05E7DA8BC3A1B08A8655D /* LedgerView.swift */; };
 		B1832F2C4790A72682A556D0 /* chart-no-axes-column-increasing.svg in Resources */ = {isa = PBXBuildFile; fileRef = 2EF6AF603A9AB92209141350 /* chart-no-axes-column-increasing.svg */; };
 		B82086FCDAF6537711CC5BC2 /* DefaultCategorySeeder.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5C3232742B10B85D4ABE3D7 /* DefaultCategorySeeder.swift */; };
+		BB488B5EA80FE6CE396B151D /* LedgerFormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CA531A262148C6E925475EA /* LedgerFormattingTests.swift */; };
 		BE156DBB13E9D40150542611 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CCBDC91A541B5225CB3F876 /* Category.swift */; };
 		C1C7F6337BC32CA38FA0D68E /* RomeoDailyLedgerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA585BD4B2A6A21D84CA811 /* RomeoDailyLedgerApp.swift */; };
 		DC9149DB8708C52EA3401BB9 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30F00DA6AD2A46896549DE3D /* AppTheme.swift */; };
@@ -104,6 +105,7 @@
 		8DFE762FFCA72A30EBA4B055 /* LedgerRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LedgerRepository.swift; sourceTree = "<group>"; };
 		8E42157E0D58C5DAD1CFDD36 /* DesignSystemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystemTests.swift; sourceTree = "<group>"; };
 		92988B2E0EBB876FBD9EF53D /* CalendarViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewModelTests.swift; sourceTree = "<group>"; };
+		9CA531A262148C6E925475EA /* LedgerFormattingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LedgerFormattingTests.swift; sourceTree = "<group>"; };
 		9D7E67A84CB67EA6810931F9 /* EntryKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryKind.swift; sourceTree = "<group>"; };
 		A86AB2C645BD94FEA4864A32 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		B17EB2627356AD4DBBE8C2BD /* EntryEditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryEditorViewModel.swift; sourceTree = "<group>"; };
@@ -250,6 +252,7 @@
 		A6E4EBE8A541A23E60E4BB55 /* Ledger */ = {
 			isa = PBXGroup;
 			children = (
+				9CA531A262148C6E925475EA /* LedgerFormattingTests.swift */,
 				0778F870C489EBF3638530C0 /* LedgerViewModelTests.swift */,
 				33B4113230441C97FE52D658 /* SelectionSummaryTests.swift */,
 			);
@@ -472,6 +475,7 @@
 				74D5256A3F38B169045BAD6F /* AppLaunchTests.swift in Sources */,
 				A97393F233911E70D2F42D58 /* CalendarViewModelTests.swift in Sources */,
 				1BC5EB464ED5066492BCB972 /* DesignSystemTests.swift in Sources */,
+				BB488B5EA80FE6CE396B151D /* LedgerFormattingTests.swift in Sources */,
 				6440B21D0E2A99787A783EFB /* LedgerModelTests.swift in Sources */,
 				86E5AD343BB89B0A4B2CA0BD /* LedgerRepositoryTests.swift in Sources */,
 				5B649BDCD397D5B05053BEB5 /* LedgerViewModelTests.swift in Sources */,

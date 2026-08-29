@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LedgerView: View {
     @State private var model: LedgerViewModel
+    @State private var isDeleteConfirmationPresented = false
     let repository: LedgerRepository
     let theme: AppTheme
     let typography: AppTypography.Style
@@ -32,7 +33,7 @@ struct LedgerView: View {
             EntryListView(model: model, theme: theme, typography: typography)
             if !model.selectedEntryIDs.isEmpty {
                 SelectionSummaryBar(summary: model.selectionSummary, theme: theme, typography: typography) {
-                    Task { await model.deleteSelection() }
+                    isDeleteConfirmationPresented = true
                 }
             }
         }
@@ -44,6 +45,19 @@ struct LedgerView: View {
             EntryEditorView(entry: entry, repository: repository, theme: theme, typography: typography) {
                 try? await model.reload()
             }
+        }
+        .confirmationDialog(
+            "确认删除所选账目？",
+            isPresented: $isDeleteConfirmationPresented,
+            titleVisibility: .visible
+        ) {
+            Button("确认删除", role: .destructive) {
+                Task { await model.deleteSelection() }
+            }
+            .accessibilityIdentifier("confirm-delete-selected")
+            Button("取消", role: .cancel) { }
+        } message: {
+            Text("删除后可在 5 秒内撤销。")
         }
     }
 }

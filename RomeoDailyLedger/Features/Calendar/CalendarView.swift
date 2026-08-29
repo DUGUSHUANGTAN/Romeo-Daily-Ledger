@@ -48,6 +48,8 @@ struct CalendarView: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(day.date.formatted(date: .long, time: .omitted))
+                    .accessibilityAddTraits(model.calendar.isDate(day.date, inSameDayAs: model.selectedDate) ? .isSelected : [])
+                    .accessibilityValue(model.calendar.isDate(day.date, inSameDayAs: model.selectedDate) ? "已选择" : "未选择")
                     .accessibilityIdentifier("calendar-day-\(Int(day.date.timeIntervalSince1970))")
                 }
             }
@@ -59,10 +61,21 @@ struct CalendarView: View {
             Divider()
             Text(model.selectedDate, format: .dateTime.year().month().day())
                 .font(AppTypography.title(typography))
+            let summary = SelectionSummary(entries: entries)
+            HStack(spacing: 16) {
+                Text("当日收入 \(LedgerFormatting.amount(summary.income))")
+                    .accessibilityIdentifier("calendar-day-income")
+                Text("当日支出 \(LedgerFormatting.amount(summary.expense))")
+                    .accessibilityIdentifier("calendar-day-expense")
+            }
+            .font(AppTypography.caption(typography))
+            .foregroundStyle(theme.secondaryText.color)
             if let errorMessage {
                 Text(errorMessage).foregroundStyle(.red)
             } else if entries.isEmpty {
-                Text("当天没有账目").foregroundStyle(theme.secondaryText.color)
+                Text("当天没有账目")
+                    .foregroundStyle(theme.secondaryText.color)
+                    .accessibilityIdentifier("calendar-empty-state")
             } else {
                 ScrollView {
                     LazyVStack(spacing: 8) {
@@ -70,7 +83,10 @@ struct CalendarView: View {
                             Button {
                                 editingEntry = entry
                             } label: {
-                                HStack {
+                                HStack(spacing: 12) {
+                                    Text(entry.kind == .income ? "收入" : "支出")
+                                        .font(AppTypography.caption(typography))
+                                        .foregroundStyle(theme.secondaryText.color)
                                     Text(entry.note.isEmpty ? "无备注" : entry.note)
                                     Spacer()
                                     Text(LedgerFormatting.amount(entry.amount))
@@ -79,7 +95,7 @@ struct CalendarView: View {
                                 .background(theme.surface.color, in: RoundedRectangle(cornerRadius: 10))
                             }
                             .buttonStyle(.plain)
-                            .accessibilityLabel("\(entry.note.isEmpty ? "无备注" : entry.note) \(LedgerFormatting.amount(entry.amount))")
+                            .accessibilityLabel("\(entry.kind == .income ? "收入" : "支出") \(entry.note.isEmpty ? "无备注" : entry.note) \(LedgerFormatting.amount(entry.amount))")
                             .accessibilityIdentifier("calendar-entry-\(entry.id.uuidString.lowercased())")
                             .contextMenu {
                                 Button("编辑账目") { editingEntry = entry }

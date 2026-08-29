@@ -84,7 +84,7 @@ final class LedgerViewModel {
     }
 
     func reload() async throws {
-        let interval = calendar.dateInterval(of: .day, for: .now)!
+        let interval = calendar.dateInterval(of: .day, for: now())!
         entries = try await repository.entries(in: interval)
         selectedEntryIDs.formIntersection(Set(entries.map(\.id)))
     }

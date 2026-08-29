@@ -81,6 +81,8 @@ struct EntryEditorView: View {
         }
         .buttonStyle(.bordered)
         .tint(model.draft.kind == kind ? theme.primaryAccent.color : theme.secondaryText.color)
+        .accessibilityAddTraits(model.draft.kind == kind ? .isSelected : [])
+        .accessibilityValue(model.draft.kind == kind ? "已选择" : "未选择")
         .accessibilityIdentifier("editor-kind-\(kind.rawValue)")
     }
 

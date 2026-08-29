@@ -10,6 +10,7 @@ final class RecordingLedgerRepository: LedgerRepository {
     private(set) var insertedDrafts: [LedgerDraft] = []
     private(set) var updatedEntries: [(id: UUID, draft: LedgerDraft)] = []
     private(set) var deletedIDSets: [Set<UUID>] = []
+    private(set) var requestedEntryIntervals: [DateInterval] = []
 
     func seedDefaultsIfNeeded() async throws {}
 
@@ -32,7 +33,10 @@ final class RecordingLedgerRepository: LedgerRepository {
         deletedIDSets.append(ids)
     }
 
-    func entries(in interval: DateInterval) async throws -> [LedgerEntry] { [] }
+    func entries(in interval: DateInterval) async throws -> [LedgerEntry] {
+        requestedEntryIntervals.append(interval)
+        return []
+    }
     func categories(kind: EntryKind) async throws -> [RomeoDailyLedger.Category] { [] }
     func category(id: UUID) async throws -> RomeoDailyLedger.Category? { nil }
 }

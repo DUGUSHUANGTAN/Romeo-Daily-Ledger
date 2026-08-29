@@ -44,6 +44,8 @@ struct EntryListView: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("\(entry.kind == .income ? "收入" : "支出") \(LedgerFormatting.amount(entry.amount)) \(entry.note)")
+                    .accessibilityAddTraits(model.selectedEntryIDs.contains(entry.id) ? .isSelected : [])
+                    .accessibilityValue(model.selectedEntryIDs.contains(entry.id) ? "已选择" : "未选择")
                     .accessibilityIdentifier("entry-row-\(entry.id.uuidString.lowercased())")
                     .simultaneousGesture(TapGesture(count: 2).onEnded { model.editingEntry = entry })
                     .contextMenu {
