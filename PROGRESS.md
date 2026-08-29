@@ -44,6 +44,7 @@
 - 错误处理与测试策略已确认：AI 故障不影响手动功能，导入先预览，恢复先快照，协议使用模拟服务测试，真实 API 测试手动启用。
 - 项目采用 MIT 开源许可证。
 - 正式规格文件位于 `docs/superpowers/specs/2026-08-29-romeo-daily-ledger-design.md`，目标仓库为 `https://github.com/DUGUSHUANGTAN/Romeo-Daily-Ledger`。
+- 新增软件更新需求：设置中的通用分栏提供当前版本、每日自动检查开关和立即检查；使用 Sparkle 2 读取 GitHub Pages 更新清单与 GitHub Releases 更新包，用户确认后安装。
 
 ## 🔄 上下文恢复信息
-最终产品定位与 v1 范围已批准；正式规格已编写并完成占位符、一致性、范围和歧义自检。下一步提交规格并请用户审查，批准后调用 writing-plans。
+规格审查期间新增软件更新功能，已选择“自动检查、确认后安装”。下一步完成规格修订、自检与提交，再请用户复审。
