@@ -18,11 +18,14 @@
 		5B649BDCD397D5B05053BEB5 /* LedgerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0778F870C489EBF3638530C0 /* LedgerViewModelTests.swift */; };
 		6440B21D0E2A99787A783EFB /* LedgerModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE9B638973FC4A6905811674 /* LedgerModelTests.swift */; };
 		684A19A53E9BFE22CFCD3C2D /* ModelContainerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC254E45CF35D0869B1AACC /* ModelContainerFactory.swift */; };
+		6F32AF6BB9F1D8F554D45704 /* DeletionUndoCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1847841CB115A1A27FC9E978 /* DeletionUndoCoordinator.swift */; };
 		74D5256A3F38B169045BAD6F /* AppLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 285C8C72B8327ACDF2A99E12 /* AppLaunchTests.swift */; };
 		7AA8FBEBBCC5B532058D644D /* SwiftDataLedgerRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D080AF2B7E4CBB1FACBD127 /* SwiftDataLedgerRepository.swift */; };
 		86E5AD343BB89B0A4B2CA0BD /* LedgerRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 736B3807812C26473D7F882E /* LedgerRepositoryTests.swift */; };
+		8B894F197D73ED9D79B5B56F /* SelectionSummaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33B4113230441C97FE52D658 /* SelectionSummaryTests.swift */; };
 		9C9011EBD97AF5490D2C348B /* LedgerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BEEED90FA47DABABCB16315 /* LedgerViewModel.swift */; };
 		9F05EAC093C637D0C6DDAF60 /* RepositoryDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF8AE56FB62B72CFAC12FD6F /* RepositoryDoubles.swift */; };
+		A0774D4B0ED73C111059DFC3 /* SelectionSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8223A5E2F57043F92EF567D7 /* SelectionSummary.swift */; };
 		B82086FCDAF6537711CC5BC2 /* DefaultCategorySeeder.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5C3232742B10B85D4ABE3D7 /* DefaultCategorySeeder.swift */; };
 		BE156DBB13E9D40150542611 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CCBDC91A541B5225CB3F876 /* Category.swift */; };
 		C1C7F6337BC32CA38FA0D68E /* RomeoDailyLedgerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA585BD4B2A6A21D84CA811 /* RomeoDailyLedgerApp.swift */; };
@@ -48,17 +51,20 @@
 /* Begin PBXFileReference section */
 		0778F870C489EBF3638530C0 /* LedgerViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LedgerViewModelTests.swift; sourceTree = "<group>"; };
 		165C6F4961A516A3C4BEDBBE /* RomeoDailyLedgerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RomeoDailyLedgerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1847841CB115A1A27FC9E978 /* DeletionUndoCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeletionUndoCoordinator.swift; sourceTree = "<group>"; };
 		1914DEDBDDF1625BED2D5D3F /* LedgerDraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LedgerDraft.swift; sourceTree = "<group>"; };
 		1CCBDC91A541B5225CB3F876 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
 		285C8C72B8327ACDF2A99E12 /* AppLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLaunchTests.swift; sourceTree = "<group>"; };
 		2B42970BD82248CFCC9F339B /* AppSmokeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSmokeUITests.swift; sourceTree = "<group>"; };
 		2D4C059999A1C91C66518790 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		33B4113230441C97FE52D658 /* SelectionSummaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionSummaryTests.swift; sourceTree = "<group>"; };
 		3D080AF2B7E4CBB1FACBD127 /* SwiftDataLedgerRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataLedgerRepository.swift; sourceTree = "<group>"; };
 		4BEEED90FA47DABABCB16315 /* LedgerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LedgerViewModel.swift; sourceTree = "<group>"; };
 		736B3807812C26473D7F882E /* LedgerRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LedgerRepositoryTests.swift; sourceTree = "<group>"; };
 		778FF49608FC6315C122CA90 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		7DC254E45CF35D0869B1AACC /* ModelContainerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelContainerFactory.swift; sourceTree = "<group>"; };
 		81AB2F72DE14DE048D965954 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
+		8223A5E2F57043F92EF567D7 /* SelectionSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionSummary.swift; sourceTree = "<group>"; };
 		8A34ECAA59A845F2BE01B83C /* RomeoDailyLedger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RomeoDailyLedger.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8DFE762FFCA72A30EBA4B055 /* LedgerRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LedgerRepository.swift; sourceTree = "<group>"; };
 		9D7E67A84CB67EA6810931F9 /* EntryKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryKind.swift; sourceTree = "<group>"; };
@@ -173,6 +179,7 @@
 			isa = PBXGroup;
 			children = (
 				0778F870C489EBF3638530C0 /* LedgerViewModelTests.swift */,
+				33B4113230441C97FE52D658 /* SelectionSummaryTests.swift */,
 			);
 			path = Ledger;
 			sourceTree = "<group>";
@@ -211,8 +218,10 @@
 		D17D30E0722947271CDCEC47 /* Ledger */ = {
 			isa = PBXGroup;
 			children = (
+				1847841CB115A1A27FC9E978 /* DeletionUndoCoordinator.swift */,
 				B17EB2627356AD4DBBE8C2BD /* EntryEditorViewModel.swift */,
 				4BEEED90FA47DABABCB16315 /* LedgerViewModel.swift */,
+				8223A5E2F57043F92EF567D7 /* SelectionSummary.swift */,
 			);
 			path = Ledger;
 			sourceTree = "<group>";
@@ -342,6 +351,7 @@
 				86E5AD343BB89B0A4B2CA0BD /* LedgerRepositoryTests.swift in Sources */,
 				5B649BDCD397D5B05053BEB5 /* LedgerViewModelTests.swift in Sources */,
 				9F05EAC093C637D0C6DDAF60 /* RepositoryDoubles.swift in Sources */,
+				8B894F197D73ED9D79B5B56F /* SelectionSummaryTests.swift in Sources */,
 				39493364396C24DA2824403C /* TestRepository.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -352,6 +362,7 @@
 			files = (
 				BE156DBB13E9D40150542611 /* Category.swift in Sources */,
 				B82086FCDAF6537711CC5BC2 /* DefaultCategorySeeder.swift in Sources */,
+				6F32AF6BB9F1D8F554D45704 /* DeletionUndoCoordinator.swift in Sources */,
 				0C0CBADAB2CB382E58FF8937 /* EntryEditorViewModel.swift in Sources */,
 				448D089EA6AD0124E8AD64FC /* EntryKind.swift in Sources */,
 				3B2177D1EFCD13CFC5844089 /* LedgerDraft.swift in Sources */,
@@ -361,6 +372,7 @@
 				684A19A53E9BFE22CFCD3C2D /* ModelContainerFactory.swift in Sources */,
 				C1C7F6337BC32CA38FA0D68E /* RomeoDailyLedgerApp.swift in Sources */,
 				45BB6752D9350589B0F68091 /* RootView.swift in Sources */,
+				A0774D4B0ED73C111059DFC3 /* SelectionSummary.swift in Sources */,
 				7AA8FBEBBCC5B532058D644D /* SwiftDataLedgerRepository.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
