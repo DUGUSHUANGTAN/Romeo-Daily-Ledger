@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct SelectionSummaryBar: View {
+    @Environment(\.appLanguage) private var language
+    @Environment(\.appCurrencyCode) private var currencyCode
     let summary: SelectionSummary
     let theme: AppTheme
     let typography: AppTypography.Style
@@ -8,11 +10,11 @@ struct SelectionSummaryBar: View {
 
     var body: some View {
         HStack(spacing: 20) {
-            Text("收入 \(LedgerFormatting.amount(summary.income))")
-            Text("支出 \(LedgerFormatting.amount(summary.expense))")
-            Text("净额 \(LedgerFormatting.amount(summary.net))")
+            Text(AppLocalization.format("summary.income", language: language, LedgerFormatting.amount(summary.income, currencyCode: currencyCode)))
+            Text(AppLocalization.format("summary.expense", language: language, LedgerFormatting.amount(summary.expense, currencyCode: currencyCode)))
+            Text(AppLocalization.format("summary.net", language: language, LedgerFormatting.amount(summary.net, currencyCode: currencyCode)))
             Spacer()
-            Button("删除所选", action: onDelete)
+            Button(AppLocalization.text("button.deleteSelected", language: language), action: onDelete)
                 .accessibilityIdentifier("delete-selected-entries")
         }
         .font(AppTypography.caption(typography))
@@ -20,7 +22,7 @@ struct SelectionSummaryBar: View {
         .padding(.vertical, 10)
         .background(theme.chrome.color, in: RoundedRectangle(cornerRadius: 10))
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("多选汇总")
+        .accessibilityLabel(AppLocalization.text("accessibility.selectionSummary", language: language))
         .accessibilityIdentifier("selection-summary-bar")
     }
 }

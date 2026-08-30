@@ -1,7 +1,7 @@
 import Foundation
 
 enum LedgerFormatting {
-    static func amount(_ value: Decimal) -> String {
+    static func amount(_ value: Decimal, currencyCode: String = "USD") -> String {
         let formatter = NumberFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.numberStyle = .decimal
@@ -9,7 +9,8 @@ enum LedgerFormatting {
         formatter.maximumFractionDigits = 2
         formatter.usesGroupingSeparator = true
         let number = formatter.string(from: NSDecimalNumber(decimal: value)) ?? "0.00"
-        return number.hasPrefix("-") ? "-$" + number.dropFirst() : "$" + number
+        let symbol = currencyCode == "USD" ? "$" : "\(currencyCode) "
+        return number.hasPrefix("-") ? "-" + symbol + number.dropFirst() : symbol + number
     }
 
     static func categoryName(_ category: Category) -> String {
@@ -26,5 +27,9 @@ enum LedgerFormatting {
         case "refund": "退款"
         default: "其他"
         }
+    }
+
+    static func categoryName(_ category: Category, language: AppLanguage) -> String {
+        AppLocalization.categoryName(systemKey: category.systemKey, customName: category.customName, language: language)
     }
 }
