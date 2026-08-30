@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct CalendarView: View {
+    @Environment(\.appLanguage) private var language
+    @Environment(\.appCurrencyCode) private var currencyCode
     @State private var model = CalendarViewModel()
     @State private var entries: [LedgerEntry] = []
     @State private var errorMessage: String?
@@ -15,21 +17,21 @@ struct CalendarView: View {
         VStack(alignment: .leading, spacing: 18) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("日历").font(AppTypography.display(typography))
+                    Text(AppLocalization.text("nav.calendar.title", language: language)).font(AppTypography.display(typography))
                     Text(model.displayedMonth, format: .dateTime.year().month(.wide))
                         .font(AppTypography.body(typography))
                         .foregroundStyle(theme.secondaryText.color)
                 }
                 Spacer()
-                Button("上个月") { model.moveMonth(by: -1) }
+                Button(AppLocalization.text("button.previousMonth", language: language)) { model.moveMonth(by: -1) }
                     .accessibilityIdentifier("calendar-previous-month")
-                Button("今天") {
+                Button(AppLocalization.text("button.today", language: language)) {
                     model.selectedDate = .now
                     model.displayedMonth = model.calendar.dateInterval(of: .month, for: .now)!.start
                     Task { await loadEntries() }
                 }
                 .accessibilityIdentifier("calendar-today")
-                Button("下个月") { model.moveMonth(by: 1) }
+                Button(AppLocalization.text("button.nextMonth", language: language)) { model.moveMonth(by: 1) }
                     .accessibilityIdentifier("calendar-next-month")
             }
             LazyVGrid(columns: columns, spacing: 6) {
@@ -49,31 +51,32 @@ struct CalendarView: View {
                     .buttonStyle(.plain)
                     .accessibilityLabel(day.date.formatted(date: .long, time: .omitted))
                     .accessibilityAddTraits(model.calendar.isDate(day.date, inSameDayAs: model.selectedDate) ? .isSelected : [])
-                    .accessibilityValue(model.calendar.isDate(day.date, inSameDayAs: model.selectedDate) ? "已选择" : "未选择")
+                    .accessibilityValue(AppLocalization.text(model.calendar.isDate(day.date, inSameDayAs: model.selectedDate) ? "accessibility.selected" : "accessibility.notSelected", language: language))
                     .accessibilityIdentifier("calendar-day-\(Int(day.date.timeIntervalSince1970))")
                 }
             }
             .padding(14)
             .background(theme.surface.color, in: RoundedRectangle(cornerRadius: 14))
             .accessibilityElement(children: .contain)
-            .accessibilityLabel("月历")
+            .accessibilityLabel(AppLocalization.text("accessibility.monthCalendar", language: language))
             .accessibilityIdentifier("calendar-grid")
             Divider()
             Text(model.selectedDate, format: .dateTime.year().month().day())
                 .font(AppTypography.title(typography))
             let summary = SelectionSummary(entries: entries)
             HStack(spacing: 16) {
-                Text("当日收入 \(LedgerFormatting.amount(summary.income))")
+                Text(AppLocalization.format("calendar.dayIncome", language: language, LedgerFormatting.amount(summary.income, currencyCode: currencyCode)))
                     .accessibilityIdentifier("calendar-day-income")
-                Text("当日支出 \(LedgerFormatting.amount(summary.expense))")
+                Text(AppLocalization.format("calendar.dayExpense", language: language, LedgerFormatting.amount(summary.expense, currencyCode: currencyCode)))
                     .accessibilityIdentifier("calendar-day-expense")
             }
             .font(AppTypography.caption(typography))
             .foregroundStyle(theme.secondaryText.color)
-            if let errorMessage {
-                Text(errorMessage).foregroundStyle(.red)
+            if errorMessage != nil {
+                Text(AppLocalization.text("error.loadEntries", language: language))
+                    .foregroundStyle(.red)
             } else if entries.isEmpty {
-                Text("当天没有账目")
+                Text(AppLocalization.text("calendar.empty", language: language))
                     .foregroundStyle(theme.secondaryText.color)
                     .accessibilityIdentifier("calendar-empty-state")
             } else {
@@ -84,21 +87,21 @@ struct CalendarView: View {
                                 editingEntry = entry
                             } label: {
                                 HStack(spacing: 12) {
-                                    Text(entry.kind == .income ? "收入" : "支出")
+                                    Text(AppLocalization.text(entry.kind == .income ? "entry.income" : "entry.expense", language: language))
                                         .font(AppTypography.caption(typography))
                                         .foregroundStyle(theme.secondaryText.color)
-                                    Text(entry.note.isEmpty ? "无备注" : entry.note)
+                                    Text(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note)
                                     Spacer()
-                                    Text(LedgerFormatting.amount(entry.amount))
+                                    Text(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode))
                                 }
                                 .padding(12)
                                 .background(theme.surface.color, in: RoundedRectangle(cornerRadius: 10))
                             }
                             .buttonStyle(.plain)
-                            .accessibilityLabel("\(entry.kind == .income ? "收入" : "支出") \(entry.note.isEmpty ? "无备注" : entry.note) \(LedgerFormatting.amount(entry.amount))")
+                            .accessibilityLabel("\(AppLocalization.text(entry.kind == .income ? "entry.income" : "entry.expense", language: language)) \(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note) \(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode))")
                             .accessibilityIdentifier("calendar-entry-\(entry.id.uuidString.lowercased())")
                             .contextMenu {
-                                Button("编辑账目") { editingEntry = entry }
+                                Button(AppLocalization.text("button.editEntry", language: language)) { editingEntry = entry }
                             }
                         }
                     }

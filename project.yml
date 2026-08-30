@@ -1,5 +1,6 @@
 name: RomeoDailyLedger
 options:
+  developmentLanguage: en
   deploymentTarget:
     macOS: "14.0"
 settings:
@@ -17,7 +18,7 @@ targets:
     info:
       path: RomeoDailyLedger/Resources/Info.plist
       properties:
-        CFBundleDisplayName: Romeo Daily Ledger
+        CFBundleDisplayName: $(PRODUCT_NAME)
         LSMinimumSystemVersion: "14.0"
   RomeoDailyLedgerTests:
     type: bundle.unit-test

@@ -1,18 +1,18 @@
 import SwiftUI
 
 struct AppCommands: View {
+    static let settingsShortcutKey: KeyEquivalent = ","
+
     @Bindable var dependencies: AppDependencies
 
     var body: some View {
         Group {
-            Button("打开记账") { dependencies.selectedDestination = .ledger }
+            Button(AppLocalization.text("command.openLedger", language: dependencies.preferences.language)) { dependencies.selectedDestination = .ledger }
                 .keyboardShortcut("1", modifiers: .command)
-            Button("打开日历") { dependencies.selectedDestination = .calendar }
+            Button(AppLocalization.text("command.openCalendar", language: dependencies.preferences.language)) { dependencies.selectedDestination = .calendar }
                 .keyboardShortcut("2", modifiers: .command)
-            Button("打开统计") { dependencies.selectedDestination = .insights }
+            Button(AppLocalization.text("command.openInsights", language: dependencies.preferences.language)) { dependencies.selectedDestination = .insights }
                 .keyboardShortcut("3", modifiers: .command)
-            Button("打开设置") { dependencies.selectedDestination = .settings }
-                .keyboardShortcut(",", modifiers: .command)
         }
         .frame(width: 0, height: 0)
         .opacity(0)

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct LedgerView: View {
+    @Environment(\.appLanguage) private var language
     @State private var model: LedgerViewModel
     @State private var isDeleteConfirmationPresented = false
     let repository: LedgerRepository
@@ -18,14 +19,14 @@ struct LedgerView: View {
         VStack(alignment: .leading, spacing: 18) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("记账").font(AppTypography.display(typography))
-                    Text("快速记录今天的每一笔收支")
+                    Text(AppLocalization.text("nav.ledger.title", language: language)).font(AppTypography.display(typography))
+                    Text(AppLocalization.text("ledger.subtitle", language: language))
                         .font(AppTypography.body(typography))
                         .foregroundStyle(theme.secondaryText.color)
                 }
                 Spacer()
                 if model.canUndo {
-                    Button("撤销删除") { Task { await model.undoDelete() } }
+                    Button(AppLocalization.text("button.undoDelete", language: language)) { Task { await model.undoDelete() } }
                         .accessibilityIdentifier("undo-delete")
                 }
             }
@@ -47,17 +48,17 @@ struct LedgerView: View {
             }
         }
         .confirmationDialog(
-            "确认删除所选账目？",
+            AppLocalization.text("ledger.delete.confirmTitle", language: language),
             isPresented: $isDeleteConfirmationPresented,
             titleVisibility: .visible
         ) {
-            Button("确认删除", role: .destructive) {
+            Button(AppLocalization.text("button.confirmDelete", language: language), role: .destructive) {
                 Task { await model.deleteSelection() }
             }
             .accessibilityIdentifier("confirm-delete-selected")
-            Button("取消", role: .cancel) { }
+            Button(AppLocalization.text("button.cancel", language: language), role: .cancel) { }
         } message: {
-            Text("删除后可在 5 秒内撤销。")
+            Text(AppLocalization.text("ledger.delete.undoHelp", language: language))
         }
     }
 }

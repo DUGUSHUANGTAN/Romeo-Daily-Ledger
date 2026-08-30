@@ -2,6 +2,7 @@ import SwiftUI
 
 struct EntryEditorView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.appLanguage) private var language
     @State private var model: EntryEditorViewModel
     @State private var categories: [Category] = []
     let repository: LedgerRepository
@@ -20,40 +21,42 @@ struct EntryEditorView: View {
     var body: some View {
         @Bindable var model = model
         VStack(alignment: .leading, spacing: 18) {
-            Text("编辑账目").font(AppTypography.display(typography))
+            Text(AppLocalization.text("editor.title", language: language)).font(AppTypography.display(typography))
             HStack {
-                kindButton(.expense, title: "支出")
-                kindButton(.income, title: "收入")
+                kindButton(.expense, title: AppLocalization.text("entry.expense", language: language))
+                kindButton(.income, title: AppLocalization.text("entry.income", language: language))
             }
-            labeled("金额") {
-                TextField("金额", text: $model.draft.amountText)
+            labeled(AppLocalization.text("field.amount", language: language)) {
+                TextField(AppLocalization.text("field.amount", language: language), text: $model.draft.amountText)
                     .accessibilityIdentifier("editor-amount")
             }
-            labeled("分类") {
-                Picker("分类", selection: $model.draft.categoryID) {
-                    Text("未选择（归入其他）").tag(UUID?.none)
+            labeled(AppLocalization.text("field.category", language: language)) {
+                Picker(AppLocalization.text("field.category", language: language), selection: $model.draft.categoryID) {
+                    Text(AppLocalization.text("category.unselectedFallback", language: language)).tag(UUID?.none)
                     ForEach(categories) { category in
-                        Text(LedgerFormatting.categoryName(category)).tag(Optional(category.id))
+                        Text(LedgerFormatting.categoryName(category, language: language)).tag(Optional(category.id))
                     }
                 }
                 .accessibilityIdentifier("editor-category")
             }
-            labeled("日期") {
-                DatePicker("日期", selection: $model.draft.occurredAt)
+            labeled(AppLocalization.text("field.date", language: language)) {
+                DatePicker(AppLocalization.text("field.date", language: language), selection: $model.draft.occurredAt)
                     .labelsHidden()
                     .accessibilityIdentifier("editor-date")
             }
-            labeled("备注") {
-                TextField("备注", text: $model.draft.note)
+            labeled(AppLocalization.text("field.note", language: language)) {
+                TextField(AppLocalization.text("field.note", language: language), text: $model.draft.note)
                     .accessibilityIdentifier("editor-note")
             }
-            if let error = model.errorMessage {
-                Text(error).foregroundStyle(.red).accessibilityIdentifier("editor-error")
+            if model.errorMessage != nil {
+                Text(AppLocalization.text("error.updateEntry", language: language))
+                    .foregroundStyle(.red)
+                    .accessibilityIdentifier("editor-error")
             }
             HStack {
                 Spacer()
-                Button("取消") { dismiss() }.accessibilityIdentifier("editor-cancel")
-                Button("保存账目") {
+                Button(AppLocalization.text("button.cancel", language: language)) { dismiss() }.accessibilityIdentifier("editor-cancel")
+                Button(AppLocalization.text("button.saveEntry", language: language)) {
                     Task {
                         do {
                             try await model.save()
@@ -82,7 +85,7 @@ struct EntryEditorView: View {
         .buttonStyle(.bordered)
         .tint(model.draft.kind == kind ? theme.primaryAccent.color : theme.secondaryText.color)
         .accessibilityAddTraits(model.draft.kind == kind ? .isSelected : [])
-        .accessibilityValue(model.draft.kind == kind ? "已选择" : "未选择")
+        .accessibilityValue(AppLocalization.text(model.draft.kind == kind ? "accessibility.selected" : "accessibility.notSelected", language: language))
         .accessibilityIdentifier("editor-kind-\(kind.rawValue)")
     }
 

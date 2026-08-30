@@ -7,14 +7,24 @@ enum AppIdentity {
 
 @main
 struct RomeoDailyLedgerApp: App {
+    @State private var dependencies = AppDependencies()
+
     var body: some Scene {
         WindowGroup {
-            RootView()
+            RootView(dependencies: dependencies)
         }
         .defaultSize(width: 1_100, height: 700)
+        .commands {
+            CommandGroup(replacing: .appSettings) {
+                SettingsLink {
+                    Text(AppLocalization.text("command.openSettings", language: dependencies.preferences.language))
+                }
+                .keyboardShortcut(AppCommands.settingsShortcutKey, modifiers: .command)
+            }
+        }
 
         Settings {
-            Text("Settings")
+            SettingsRootView(dependencies: dependencies)
         }
     }
 }
