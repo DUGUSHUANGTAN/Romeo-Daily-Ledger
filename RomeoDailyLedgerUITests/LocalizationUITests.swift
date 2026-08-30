@@ -43,6 +43,11 @@ final class LocalizationUITests: XCTestCase {
         app.typeKey(",", modifierFlags: .command)
 
         XCTAssertTrue(app.buttons["settings-open-categories"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["settings-check-for-updates"].exists)
+        app.buttons["settings-check-for-updates"].click()
+        XCTAssertTrue(app.staticTexts["检查更新"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["1.0.0"].exists)
+        app.buttons["关闭"].click()
         XCTAssertFalse(app.staticTexts["⌘,"].exists)
         app.buttons["settings-open-categories"].click()
         XCTAssertTrue(app.descendants(matching: .any)["settings-categories"].waitForExistence(timeout: 2))

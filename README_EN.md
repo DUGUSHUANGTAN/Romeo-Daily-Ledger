@@ -80,6 +80,19 @@ This repository is not yet a complete bookkeeping application. A SwiftData repos
      -destination 'platform=macOS'
    ```
 
+## V1.0.0 Release Packaging
+
+The Release configuration uses `MARKETING_VERSION = 1.0.0` and `CURRENT_PROJECT_VERSION = 1`. The app name remains “Romeo Daily Ledger” (English) and “罗密欧每日记账” (Simplified Chinese); the version appears only in app metadata and package filenames.
+
+```bash
+./scripts/build_release.sh  # Build the Release .app
+./scripts/create_dmg.sh     # Create the DMG and SHA-256 checksum
+```
+
+Artifacts are written to `build/release/` by default: `Romeo Daily Ledger.app`, `Romeo-Daily-Ledger-1.0.0.dmg`, and its `.sha256` file. The DMG contains the app and an `/Applications` shortcut. Set `BUILD_DIR=/path/to/output` to change the destination, or use `SKIP_BUILD=1 ./scripts/create_dmg.sh` when the app has already been built.
+
+The scripts create an unsigned archive for local validation and GitHub Release preparation. Complete Developer ID signing and notarization in a trusted release environment before public distribution. These scripts do not create a GitHub Release or upload files.
+
 ## Project Structure
 
 ```text

@@ -3,6 +3,7 @@ import SwiftUI
 struct GeneralSettingsView: View {
     @Bindable var preferences: AppPreferences
     let openCategories: () -> Void
+    @State private var showingUpdateCheck = false
 
     var body: some View {
         Form {
@@ -32,10 +33,20 @@ struct GeneralSettingsView: View {
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("settings-open-categories")
             }
+
+            Section(AppLocalization.text("settings.update.section", language: preferences.language)) {
+                Button { showingUpdateCheck = true } label: {
+                    Label(AppLocalization.text("settings.update.check", language: preferences.language), systemImage: "arrow.triangle.2.circlepath")
+                }
+                .accessibilityIdentifier("settings-check-for-updates")
+            }
         }
         .formStyle(.grouped)
         .navigationTitle(AppLocalization.text("settings.general.title", language: preferences.language))
         .padding(24)
         .accessibilityIdentifier("settings-general")
+        .sheet(isPresented: $showingUpdateCheck) {
+            UpdateCheckView(language: preferences.language)
+        }
     }
 }
