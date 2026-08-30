@@ -68,7 +68,7 @@ struct RootView: View {
             case .settings:
                 SettingsRootView(dependencies: dependencies)
             case .aiAssistant:
-                DestinationPlaceholder(destination: dependencies.selectedDestination, theme: theme, typography: preferences.typographyStyle, language: preferences.language)
+                AILedgerAssistantView(dependencies: dependencies, theme: theme, typography: preferences.typographyStyle)
             }
         }
         .tint(theme.primaryAccent.color)

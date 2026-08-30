@@ -10,11 +10,24 @@ struct InsightsCategorySummary: Equatable, Identifiable, Sendable {
     var id: String { "\(kind.rawValue)-\(categoryID.uuidString)" }
 }
 
+struct InsightsTrendPoint: Equatable, Identifiable, Sendable {
+    let date: Date
+    let income: Decimal
+    let expense: Decimal
+    var id: Date { date }
+    var net: Decimal { income - expense }
+}
+
 struct InsightsReport: Equatable, Sendable {
     let interval: DateInterval
     let income: Decimal
     let expense: Decimal
     let categories: [InsightsCategorySummary]
+    let trend: [InsightsTrendPoint]
+
+    init(interval: DateInterval, income: Decimal, expense: Decimal, categories: [InsightsCategorySummary], trend: [InsightsTrendPoint] = []) {
+        self.interval = interval; self.income = income; self.expense = expense; self.categories = categories; self.trend = trend
+    }
 
     var net: Decimal { income - expense }
     var balance: Decimal { net }
@@ -36,8 +49,12 @@ struct InsightsAggregator: Sendable {
     /// entries follow the same rule without introducing repository access here.
     static let uncategorizedCategoryID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
 
+    func filteredEntries(entries: [LedgerEntry], interval: DateInterval) -> [LedgerEntry] {
+        entries.filter { interval.containsHalfOpen($0.occurredAt) }
+    }
+
     func makeReport(entries: [LedgerEntry], interval: DateInterval) -> InsightsReport {
-        let included = entries.filter { interval.containsHalfOpen($0.occurredAt) }
+        let included = filteredEntries(entries: entries, interval: interval)
         let income = total(for: .income, in: included)
         let expense = total(for: .expense, in: included)
         let kindTotals: [EntryKind: Decimal] = [.income: income, .expense: expense]
@@ -68,7 +85,21 @@ struct InsightsAggregator: Sendable {
             return $0.categoryID.uuidString < $1.categoryID.uuidString
         }
 
-        return InsightsReport(interval: interval, income: income, expense: expense, categories: categories)
+        return InsightsReport(interval: interval, income: income, expense: expense, categories: categories, trend: makeTrend(entries: included))
+    }
+
+    func makeTrend(entries: [LedgerEntry], calendar: Calendar = .autoupdatingCurrent) -> [InsightsTrendPoint] {
+        var values: [Date: (income: Decimal, expense: Decimal)] = [:]
+        for entry in entries {
+            let day = calendar.startOfDay(for: entry.occurredAt)
+            var value = values[day, default: (0, 0)]
+            if entry.kind == .income { value.income += entry.amount } else { value.expense += entry.amount }
+            values[day] = value
+        }
+        return values.keys.sorted().map { day in
+            let value = values[day]!
+            return InsightsTrendPoint(date: day, income: value.income, expense: value.expense)
+        }
     }
 
     private func total(for kind: EntryKind, in entries: [LedgerEntry]) -> Decimal {
