@@ -60,8 +60,10 @@ final class InsightsViewModel {
         await load()
     }
 
-    func displayName(for summary: InsightsCategorySummary) -> String {
-        guard !summary.isOther, let category = categoriesByID[summary.categoryID] else { return "其他" }
-        return LedgerFormatting.categoryName(category)
+    func displayName(for summary: InsightsCategorySummary, language: AppLanguage = .simplifiedChinese) -> String {
+        guard !summary.isOther, let category = categoriesByID[summary.categoryID] else {
+            return AppLocalization.text("category.other", language: language)
+        }
+        return LedgerFormatting.categoryName(category, language: language)
     }
 }

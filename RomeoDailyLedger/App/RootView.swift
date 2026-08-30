@@ -4,25 +4,16 @@ enum SidebarDestination: String, CaseIterable, Identifiable, Sendable {
     case ledger, aiAssistant, calendar, insights, settings
     var id: Self { self }
 
-    var title: String {
-        switch self {
-        case .ledger: "记账"
-        case .aiAssistant: "AI 助手"
-        case .calendar: "日历"
-        case .insights: "统计"
-        case .settings: "设置"
-        }
+    func localizedTitle(language: AppLanguage) -> String {
+        AppLocalization.text("nav.\(rawValue).title", language: language)
     }
 
-    var subtitle: String {
-        switch self {
-        case .ledger: "快速记录与今日流水"
-        case .aiAssistant: "自然语言记账与分析"
-        case .calendar: "按日期回看账目"
-        case .insights: "收支与趋势概览"
-        case .settings: "主题、字体与偏好"
-        }
+    func localizedSubtitle(language: AppLanguage) -> String {
+        AppLocalization.text("nav.\(rawValue).subtitle", language: language)
     }
+
+    var title: String { localizedTitle(language: .simplifiedChinese) }
+    var subtitle: String { localizedSubtitle(language: .simplifiedChinese) }
 
     var icon: LucideIcon {
         switch self {
@@ -38,29 +29,30 @@ enum SidebarDestination: String, CaseIterable, Identifiable, Sendable {
 struct RootView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
-    @State private var dependencies = AppDependencies()
+    let dependencies: AppDependencies
 
     var body: some View {
         @Bindable var dependencies = dependencies
-        let resolved = dependencies.themeMode.resolve(systemIsDark: colorScheme == .dark)
+        @Bindable var preferences = dependencies.preferences
+        let resolved = preferences.themeMode.resolve(systemIsDark: colorScheme == .dark)
         let theme = resolved == .dark ? AppTheme.dark : AppTheme.light
-        let motion = MotionPolicy(slider: dependencies.motionIntensity, systemReduceMotion: systemReduceMotion)
+        let motion = MotionPolicy(slider: preferences.motionIntensity, systemReduceMotion: systemReduceMotion)
 
         NavigationSplitView {
             List(SidebarDestination.allCases, selection: $dependencies.selectedDestination) { destination in
                 NavigationLink(value: destination) {
                     Label {
-                        Text(destination.title)
+                        Text(destination.localizedTitle(language: preferences.language))
                     } icon: {
                         LucideIconView(icon: destination.icon)
                             .foregroundStyle(dependencies.selectedDestination == destination ? theme.selectionForeground.color : theme.primaryText.color)
                     }
                     .foregroundStyle(dependencies.selectedDestination == destination ? theme.selectionForeground.color : theme.primaryText.color)
-                    .accessibilityLabel(destination.title)
+                    .accessibilityLabel(destination.localizedTitle(language: preferences.language))
                 }
                 .accessibilityIdentifier("sidebar-\(destination.rawValue)")
             }
-            .navigationTitle("每日记账")
+            .navigationTitle(AppLocalization.text("app.name", language: preferences.language))
             .scrollContentBackground(.hidden)
             .background(theme.chrome.color)
             .listStyle(.sidebar)
@@ -68,17 +60,22 @@ struct RootView: View {
         } detail: {
             switch dependencies.selectedDestination {
             case .ledger:
-                LedgerView(repository: dependencies.repository, deletionUndoCoordinator: dependencies.deletionUndoCoordinator, theme: theme, typography: dependencies.typographyStyle)
+                LedgerView(repository: dependencies.repository, deletionUndoCoordinator: dependencies.deletionUndoCoordinator, theme: theme, typography: preferences.typographyStyle)
             case .calendar:
-                CalendarView(repository: dependencies.repository, theme: theme, typography: dependencies.typographyStyle)
+                CalendarView(repository: dependencies.repository, theme: theme, typography: preferences.typographyStyle)
             case .insights:
-                InsightsView(repository: dependencies.repository, theme: theme, typography: dependencies.typographyStyle, motion: motion)
-            default:
-                DestinationPlaceholder(destination: dependencies.selectedDestination, theme: theme, typography: dependencies.typographyStyle)
+                InsightsView(repository: dependencies.repository, theme: theme, typography: preferences.typographyStyle, motion: motion)
+            case .settings:
+                SettingsRootView(dependencies: dependencies)
+            case .aiAssistant:
+                DestinationPlaceholder(destination: dependencies.selectedDestination, theme: theme, typography: preferences.typographyStyle, language: preferences.language)
             }
         }
         .tint(theme.primaryAccent.color)
-        .preferredColorScheme(preferredScheme(for: dependencies.themeMode))
+        .preferredColorScheme(preferredScheme(for: preferences.themeMode))
+        .environment(\.locale, preferences.language.locale)
+        .environment(\.appLanguage, preferences.language)
+        .environment(\.appCurrencyCode, preferences.currencyCode)
         .background { AppCommands(dependencies: dependencies) }
         .animation(animation(for: motion), value: dependencies.selectedDestination)
         .frame(minWidth: 980, minHeight: 560)
@@ -102,16 +99,17 @@ private struct DestinationPlaceholder: View {
     let destination: SidebarDestination
     let theme: AppTheme
     let typography: AppTypography.Style
+    let language: AppLanguage
 
     var body: some View {
         VStack(alignment: .leading, spacing: 22) {
             LucideIconView(icon: destination.icon, size: 34)
                 .foregroundStyle(theme.primaryAccent.color)
             VStack(alignment: .leading, spacing: 8) {
-                Text(destination.title)
+                Text(destination.localizedTitle(language: language))
                     .font(AppTypography.display(typography))
                     .foregroundStyle(theme.primaryText.color)
-                Text(destination.subtitle)
+                Text(destination.localizedSubtitle(language: language))
                     .font(AppTypography.body(typography))
                     .foregroundStyle(theme.secondaryText.color)
             }
@@ -119,7 +117,7 @@ private struct DestinationPlaceholder: View {
                 .fill(theme.secondaryAccent.color)
                 .frame(width: 48, height: 3)
                 .accessibilityHidden(true)
-            Text("此区域将在后续任务中接入完整功能。")
+            Text(AppLocalization.text("placeholder.futureFeature", language: language))
                 .font(AppTypography.caption(typography))
                 .foregroundStyle(theme.secondaryText.color)
             Spacer()
