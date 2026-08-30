@@ -44,6 +44,7 @@ struct RootView: View {
         @Bindable var dependencies = dependencies
         let resolved = dependencies.themeMode.resolve(systemIsDark: colorScheme == .dark)
         let theme = resolved == .dark ? AppTheme.dark : AppTheme.light
+        let motion = MotionPolicy(slider: dependencies.motionIntensity, systemReduceMotion: systemReduceMotion)
 
         NavigationSplitView {
             List(SidebarDestination.allCases, selection: $dependencies.selectedDestination) { destination in
@@ -70,6 +71,8 @@ struct RootView: View {
                 LedgerView(repository: dependencies.repository, deletionUndoCoordinator: dependencies.deletionUndoCoordinator, theme: theme, typography: dependencies.typographyStyle)
             case .calendar:
                 CalendarView(repository: dependencies.repository, theme: theme, typography: dependencies.typographyStyle)
+            case .insights:
+                InsightsView(repository: dependencies.repository, theme: theme, typography: dependencies.typographyStyle, motion: motion)
             default:
                 DestinationPlaceholder(destination: dependencies.selectedDestination, theme: theme, typography: dependencies.typographyStyle)
             }
@@ -77,7 +80,7 @@ struct RootView: View {
         .tint(theme.primaryAccent.color)
         .preferredColorScheme(preferredScheme(for: dependencies.themeMode))
         .background { AppCommands(dependencies: dependencies) }
-        .animation(animation(for: MotionPolicy(slider: dependencies.motionIntensity, systemReduceMotion: systemReduceMotion)), value: dependencies.selectedDestination)
+        .animation(animation(for: motion), value: dependencies.selectedDestination)
         .frame(minWidth: 980, minHeight: 560)
     }
 

@@ -109,6 +109,18 @@ final class LedgerFlowUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["quick-entry-error"].waitForExistence(timeout: 2))
     }
 
+    func testInsightsEmptyStateKeepsBothChartsUnderstandableWithoutColor() {
+        let app = launchApp()
+
+        app.typeKey("3", modifierFlags: .command)
+
+        XCTAssertTrue(app.staticTexts["insights-month-summary"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["insights-monthly-empty-state"].exists)
+        XCTAssertTrue(app.staticTexts["insights-category-empty-state"].exists)
+        XCTAssertTrue(app.buttons["insights-previous-month"].exists)
+        XCTAssertTrue(app.buttons["insights-next-month"].exists)
+    }
+
     private func launchApp() -> XCUIApplication {
         continueAfterFailure = false
         let app = XCUIApplication()

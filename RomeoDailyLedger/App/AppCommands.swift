@@ -9,6 +9,8 @@ struct AppCommands: View {
                 .keyboardShortcut("1", modifiers: .command)
             Button("打开日历") { dependencies.selectedDestination = .calendar }
                 .keyboardShortcut("2", modifiers: .command)
+            Button("打开统计") { dependencies.selectedDestination = .insights }
+                .keyboardShortcut("3", modifiers: .command)
             Button("打开设置") { dependencies.selectedDestination = .settings }
                 .keyboardShortcut(",", modifiers: .command)
         }
