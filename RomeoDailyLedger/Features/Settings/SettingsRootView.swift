@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SettingsRootView: View {
     enum Page: String, CaseIterable, Identifiable {
-        case general, appearance, categories
+        case general, appearance, categories, ai
         var id: Self { self }
     }
 
@@ -36,6 +36,8 @@ struct SettingsRootView: View {
                     AppearanceSettingsView(preferences: preferences, systemReduceMotion: systemReduceMotion)
                 case .categories:
                     CategoryManagementView(repository: dependencies.repository, language: preferences.language)
+                case .ai:
+                    AISettingsView(preferences: preferences)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)

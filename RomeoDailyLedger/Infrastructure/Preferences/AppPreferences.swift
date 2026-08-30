@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import Foundation
 
 enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
     case simplifiedChinese = "zh-Hans"
@@ -17,6 +18,7 @@ final class AppPreferences {
         static let themeMode = "preferences.themeMode"
         static let typographyStyle = "preferences.typographyStyle"
         static let motionIntensity = "preferences.motionIntensity"
+        static let aiConfiguration = "preferences.aiConfiguration"
     }
 
     private let defaults: UserDefaults
@@ -55,6 +57,14 @@ final class AppPreferences {
         }
     }
 
+    var aiConfiguration: AIConfiguration {
+        didSet {
+            if let data = try? JSONEncoder().encode(aiConfiguration) {
+                defaults.set(data, forKey: Key.aiConfiguration)
+            }
+        }
+    }
+
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         currencyCode = Self.normalizedCurrencyCode(defaults.string(forKey: Key.currencyCode) ?? "USD")
@@ -64,6 +74,12 @@ final class AppPreferences {
         motionIntensity = defaults.object(forKey: Key.motionIntensity) == nil
             ? 50
             : min(max(defaults.integer(forKey: Key.motionIntensity), 0), 100)
+        if let data = defaults.data(forKey: Key.aiConfiguration),
+           let saved = try? JSONDecoder().decode(AIConfiguration.self, from: data) {
+            aiConfiguration = saved
+        } else {
+            aiConfiguration = AIConfiguration()
+        }
     }
 
     private static func normalizedCurrencyCode(_ value: String) -> String {
