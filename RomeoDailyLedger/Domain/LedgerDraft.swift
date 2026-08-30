@@ -5,6 +5,7 @@ struct LedgerDraft {
         case invalidAmount
     }
 
+    var id: UUID? = nil
     var kind: EntryKind
     var amountText: String
     var categoryID: UUID?

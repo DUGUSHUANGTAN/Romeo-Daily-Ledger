@@ -17,7 +17,11 @@ ditto "$APP_PATH" "$STAGING_DIR/$APP_NAME"
 ln -s /Applications "$STAGING_DIR/Applications"
 hdiutil create -volname "Romeo Daily Ledger" -srcfolder "$STAGING_DIR" \
   -ov -format UDZO "$BUILD_DIR/$DMG_NAME"
-shasum -a 256 "$BUILD_DIR/$DMG_NAME" > "$BUILD_DIR/$DMG_NAME.sha256"
+if [[ -n "${NOTARY_PROFILE:-}" ]]; then
+  xcrun notarytool submit "$BUILD_DIR/$DMG_NAME" --keychain-profile "$NOTARY_PROFILE" --wait
+  xcrun stapler staple "$BUILD_DIR/$DMG_NAME"
+fi
+(cd "$BUILD_DIR" && shasum -a 256 "$DMG_NAME" > "$DMG_NAME.sha256")
 rm -rf "$STAGING_DIR"
 echo "$BUILD_DIR/$DMG_NAME"
 echo "$BUILD_DIR/$DMG_NAME.sha256"

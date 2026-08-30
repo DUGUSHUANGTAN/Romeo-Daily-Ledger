@@ -19,16 +19,28 @@ final class SwiftDataLedgerRepository: LedgerRepository {
     }
 
     func insert(_ draft: LedgerDraft) async throws -> LedgerEntry {
-        let entry = LedgerEntry(
-            kind: draft.kind,
-            amount: try draft.validatedAmount(),
-            categoryID: try resolvedCategoryID(for: draft),
-            note: draft.note,
-            occurredAt: draft.occurredAt
-        )
-        context.insert(entry)
-        try context.save()
-        return entry
+        try await insert([draft])[0]
+    }
+
+    func insert(_ drafts: [LedgerDraft]) async throws -> [LedgerEntry] {
+        let entries = try drafts.map { draft in
+            LedgerEntry(
+                id: draft.id ?? UUID(),
+                kind: draft.kind,
+                amount: try draft.validatedAmount(),
+                categoryID: try resolvedCategoryID(for: draft),
+                note: draft.note,
+                occurredAt: draft.occurredAt
+            )
+        }
+        for entry in entries { context.insert(entry) }
+        do {
+            try context.save()
+            return entries
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func update(id: UUID, draft: LedgerDraft) async throws {
@@ -80,6 +92,29 @@ final class SwiftDataLedgerRepository: LedgerRepository {
         )
         descriptor.fetchLimit = 1
         return try context.fetch(descriptor).first
+    }
+
+    func ensureCustomCategory(named name: String, kind: EntryKind) async throws -> Category {
+        let normalized = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let kindRaw = kind.rawValue
+        let categories = try context.fetch(
+            FetchDescriptor<Category>(predicate: #Predicate { category in category.kindRaw == kindRaw })
+        )
+        if let existing = categories.first(where: {
+            $0.customName?.caseInsensitiveCompare(normalized) == .orderedSame
+        }) {
+            return existing
+        }
+        let category = Category(
+            kind: kind,
+            customName: normalized,
+            iconName: "ellipsis",
+            colorToken: "other",
+            sortOrder: (categories.map(\.sortOrder).max() ?? -1) + 1
+        )
+        context.insert(category)
+        try context.save()
+        return category
     }
 
     private func resolvedCategoryID(for draft: LedgerDraft) throws -> UUID {

@@ -4,23 +4,21 @@
 
 ## Overview
 
-Romeo Daily Ledger is a native personal ledger app for macOS 14 and later. The project is in early development: the current interface is an application shell that displays **“Romeo Daily Ledger”**, while the initial domain model and test foundation are in place.
+Romeo Daily Ledger is a native, local-first personal ledger app for macOS 14 and later. It requires no account and keeps ledger data on the Mac.
 
 ## Project Status
 
-This repository is not yet a complete bookkeeping application. A SwiftData repository implementation now exists, but it is not wired into the application lifecycle. Transaction recording, category management, and reports remain planned work rather than finished features.
+V1.0.0 includes daily bookkeeping, calendar review, multi-selection totals, categories, basic insights, bilingual themes, AI-assisted entry and analysis, JSON/CSV transfer, and manual GitHub update checks.
 
-## Implemented Foundation
+## Features
 
-- Expense and income entry types through `EntryKind`
-- `LedgerEntry` with a `Decimal` amount, category identifier, note, occurrence timestamp, and created/updated timestamps
-- `Category` with an expense or income kind, a system-category identifier or a custom name, icon, color, sort order, and hidden state
-- `LedgerDraft` amount parsing and validation that rejects zero, negative, and unparseable values
-- An in-memory SwiftData `ModelContainer` factory
-- `LedgerRepository` and `SwiftDataLedgerRepository` operations for insertion, updates, batch deletion, half-open date-range entry queries, kind-filtered category queries, and category lookup
-- Idempotent default expense and income category seeding, with a matching `other` category fallback for uncategorized entries
-- Unit tests for app naming, amount validation, decimal precision, default seeding and idempotence, category fallback, half-open date queries, updates, and batch deletion
-- A UI launch smoke test
+- Create, edit, and delete income and expense entries; choose the ledger currency in General settings.
+- Calendar review, multi-selection totals, monthly income/expense/balance trends, and category breakdowns.
+- Light/dark themes, typography and motion settings, with complete English and Simplified Chinese UI.
+- OpenAI Chat Completions and Responses-compatible AI services without vendor SDKs. API keys stay in macOS Keychain.
+- AI drafts remain editable and are saved only after confirmation. AI analysis requires explicit permission and a visible date scope.
+- JSON/CSV import and export with preview, duplicate handling, currency validation, and atomic batch insertion.
+- Manual GitHub Release update checks with no automatic installation.
 
 ## Tech Stack
 
@@ -91,7 +89,9 @@ The Release configuration uses `MARKETING_VERSION = 1.0.0` and `CURRENT_PROJECT_
 
 Artifacts are written to `build/release/` by default: `Romeo Daily Ledger.app`, `Romeo-Daily-Ledger-1.0.0.dmg`, and its `.sha256` file. The DMG contains the app and an `/Applications` shortcut. Set `BUILD_DIR=/path/to/output` to change the destination, or use `SKIP_BUILD=1 ./scripts/create_dmg.sh` when the app has already been built.
 
-The scripts create an unsigned archive for local validation and GitHub Release preparation. Complete Developer ID signing and notarization in a trusted release environment before public distribution. These scripts do not create a GitHub Release or upload files.
+Unsigned builds are supported for local use. For public distribution, run `SIGNING_IDENTITY="Developer ID Application: …" ./scripts/build_release.sh`, then notarize with `NOTARY_PROFILE=profile SKIP_BUILD=1 ./scripts/create_dmg.sh`. From the artifact directory, verify a download with `shasum -a 256 -c Romeo-Daily-Ledger-1.0.0.dmg.sha256`.
+
+Open the DMG and drag Romeo Daily Ledger to Applications. An unsigned local build may require choosing **Open** from Finder’s context menu on first launch.
 
 ## Project Structure
 
@@ -109,17 +109,11 @@ The scripts create an unsigned archive for local validation and GitHub Release p
 └── project.yml                     # XcodeGen project specification
 ```
 
-## Roadmap
+## Future Direction
 
-- [ ] Build the income and expense recording interface and complete its interactions
-- [ ] Wire the existing repository and persistent SwiftData container into the application lifecycle
-- [ ] Add entry lists, details, editing, and deletion
-- [ ] Add category creation, editing, sorting, hiding, and system category presentation
-- [ ] Add income and expense summaries, trends, and category breakdowns
-- [ ] Add search, filtering, and date-range queries
-- [ ] Expand unit, integration, and UI test coverage
-
-The roadmap describes intended direction and is not a delivery commitment.
+- Optional iCloud sync and automated backups
+- Additional insight dimensions and customizable reports
+- A signed and notarized public release pipeline
 
 ## Contributing
 

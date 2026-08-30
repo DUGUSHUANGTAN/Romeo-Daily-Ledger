@@ -1,9 +1,105 @@
 import Foundation
-enum AIProtocol:String,Codable,CaseIterable,Identifiable,Sendable{case chatCompletions,responses;var id:String{rawValue};var displayName:String{self == .chatCompletions ? "Chat Completions":"Responses"}}
-struct AIConfiguration:Codable,Equatable,Sendable{var protocolType:AIProtocol;var baseURL:URL;var model:String;var allowsLedgerData:Bool;init(protocolType:AIProtocol = .chatCompletions,baseURL:URL = URL(string:"https://api.openai.com/v1")!,model:String = "",allowsLedgerData:Bool = false){self.protocolType=protocolType;self.baseURL=baseURL;self.model=model;self.allowsLedgerData=allowsLedgerData}}
-struct AILedgerDraft:Codable,Equatable,Sendable{var kind:EntryKind;var amount:Decimal;var currency:String;var date:Date;var note:String;var category:String
- init(from decoder: Decoder) throws { let c = try decoder.container(keyedBy: CodingKeys.self); kind = try c.decode(EntryKind.self, forKey: .kind); amount = try c.decode(Decimal.self, forKey: .amount); currency = try c.decode(String.self, forKey: .currency); note = try c.decode(String.self, forKey: .note); category = try c.decode(String.self, forKey: .category); let value = try c.decode(String.self, forKey: .date); let f = ISO8601DateFormatter(); f.formatOptions = [.withFullDate]; guard let parsed = f.date(from: value) else { throw AIClientError.invalidStructuredResult("Invalid date") }; date = parsed }
- private enum CodingKeys: String, CodingKey { case kind, amount, currency, date, note, category }
+
+enum AIProtocol: String, Codable, CaseIterable, Identifiable, Sendable {
+    case chatCompletions
+    case responses
+
+    var id: String { rawValue }
+    var displayName: String { self == .chatCompletions ? "Chat Completions" : "Responses" }
 }
-struct AILedgerDraftEnvelope:Codable,Equatable,Sendable{var entries:[AILedgerDraft]}
-enum AIClientError:LocalizedError,Equatable,Sendable{case apiKeyMissing,invalidBaseURL,invalidModel,network(String),httpStatus(Int,String?),responseDecoding(String),invalidStructuredResult(String);var errorDescription:String?{switch self{case .apiKeyMissing:return "API key is missing.";case .invalidBaseURL:return "The API base URL is invalid.";case .invalidModel:return "The model name is missing.";case let .network(m):return "Network request failed: \(m)";case let .httpStatus(c,m):return "The AI service returned HTTP \(c).\(m.map{" \($0)"} ?? "")";case let .responseDecoding(m):return "Unable to decode the AI response: \(m)";case let .invalidStructuredResult(m):return "The AI returned an invalid ledger result: \(m)"}}}
+
+struct AIConfiguration: Codable, Equatable, Sendable {
+    var protocolType: AIProtocol
+    var baseURL: URL
+    var model: String
+    var allowsLedgerData: Bool
+
+    init(
+        protocolType: AIProtocol = .chatCompletions,
+        baseURL: URL = URL(string: "https://api.openai.com/v1")!,
+        model: String = "",
+        allowsLedgerData: Bool = false
+    ) {
+        self.protocolType = protocolType
+        self.baseURL = baseURL
+        self.model = model
+        self.allowsLedgerData = allowsLedgerData
+    }
+}
+
+struct AILedgerDraft: Codable, Equatable, Sendable {
+    var kind: EntryKind
+    var amount: Decimal
+    var currency: String
+    var date: Date
+    var note: String
+    var category: String
+
+    init(kind: EntryKind, amount: Decimal, currency: String, date: Date, note: String, category: String) {
+        self.kind = kind
+        self.amount = amount
+        self.currency = currency
+        self.date = date
+        self.note = note
+        self.category = category
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        kind = try container.decode(EntryKind.self, forKey: .kind)
+        amount = try container.decode(Decimal.self, forKey: .amount)
+        currency = try container.decode(String.self, forKey: .currency)
+        note = try container.decode(String.self, forKey: .note)
+        category = try container.decode(String.self, forKey: .category)
+        let value = try container.decode(String.self, forKey: .date)
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = .autoupdatingCurrent
+        formatter.dateFormat = "yyyy-MM-dd"
+        guard let parsed = formatter.date(from: value) else {
+            throw AIClientError.invalidStructuredResult("Invalid date")
+        }
+        date = parsed
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case kind, amount, currency, date, note, category
+    }
+}
+
+struct AILedgerDraftEnvelope: Codable, Equatable, Sendable {
+    var entries: [AILedgerDraft]
+}
+
+enum AIClientError: LocalizedError, Equatable, Sendable {
+    case apiKeyMissing
+    case invalidBaseURL
+    case invalidModel
+    case ledgerDataPermissionRequired
+    case network(String)
+    case httpStatus(Int, String?)
+    case responseDecoding(String)
+    case invalidStructuredResult(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .apiKeyMissing:
+            "API key is missing."
+        case .invalidBaseURL:
+            "The API base URL is invalid."
+        case .invalidModel:
+            "The model name is missing."
+        case .ledgerDataPermissionRequired:
+            "Ledger data access has not been authorized."
+        case .network(let message):
+            "Network request failed: \(message)"
+        case .httpStatus(let code, let message):
+            "The AI service returned HTTP \(code).\(message.map { " \($0)" } ?? "")"
+        case .responseDecoding(let message):
+            "Unable to decode the AI response: \(message)"
+        case .invalidStructuredResult(let message):
+            "The AI returned an invalid ledger result: \(message)"
+        }
+    }
+}

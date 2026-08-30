@@ -18,13 +18,14 @@ final class LedgerEntry {
     }
 
     init(
+        id: UUID = UUID(),
         kind: EntryKind,
         amount: Decimal,
         categoryID: UUID,
         note: String,
         occurredAt: Date
     ) {
-        self.id = UUID()
+        self.id = id
         self.kindRaw = kind.rawValue
         self.amount = amount
         self.categoryID = categoryID

@@ -23,6 +23,7 @@ struct UpdateCheckView: View {
         }
         .padding(24)
         .frame(width: 460)
+        .task { check() }
     }
 
     @ViewBuilder private var resultView: some View {
@@ -30,11 +31,11 @@ struct UpdateCheckView: View {
             switch result {
             case .updateAvailable(let release):
                 LabeledContent(text("settings.update.latest"), value: release.tagName)
-                Label(text("settings.update.available"), systemImage: "arrow.down.circle")
+                Text(text("settings.update.available"))
                 Link(text("settings.update.openRelease"), destination: release.htmlURL)
             case .upToDate(let release):
                 LabeledContent(text("settings.update.latest"), value: release.tagName)
-                Label(text("settings.update.upToDate"), systemImage: "checkmark.circle")
+                Text(text("settings.update.upToDate"))
             }
         }
     }

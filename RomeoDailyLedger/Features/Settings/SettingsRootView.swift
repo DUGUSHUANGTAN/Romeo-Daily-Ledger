@@ -37,7 +37,7 @@ struct SettingsRootView: View {
                 case .categories:
                     CategoryManagementView(repository: dependencies.repository, language: preferences.language)
                 case .ai:
-                    AISettingsView(preferences: preferences)
+                    AISettingsView(preferences: preferences, client: dependencies.aiClient)
                 case .data:
                     DataSettingsView(repository: dependencies.repository, language: preferences.language, currencyCode: preferences.currencyCode)
                 }

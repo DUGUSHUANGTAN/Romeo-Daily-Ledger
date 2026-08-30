@@ -49,6 +49,46 @@ struct LocalizationTests {
         }
     }
 
+    @Test func dataTransferCopyIsCompleteInBothLanguages() {
+        let keys = [
+            "settings.data.title", "settings.data.export.title", "settings.data.export.help",
+            "settings.data.export.json", "settings.data.export.csv", "settings.data.import.title",
+            "settings.data.import.help", "settings.data.import.button",
+            "settings.data.import.preview.title", "settings.data.import.preview.total",
+            "settings.data.import.preview.income", "settings.data.import.preview.expense",
+            "settings.data.import.preview.dateRange", "settings.data.import.preview.categories",
+            "settings.data.import.strategy", "settings.data.import.skipDuplicates",
+            "settings.data.import.keepBoth", "settings.data.import.confirm",
+            "settings.data.error.invalidData", "settings.data.error.export",
+            "settings.data.error.import", "settings.data.error.currencyMismatch",
+            "settings.data.error.missingField", "settings.data.error.invalidAmount",
+            "settings.data.error.invalidDate", "settings.data.error.invalidKind",
+            "settings.data.error.malformedCSV"
+        ]
+        for language in AppLanguage.allCases {
+            for key in keys { #expect(AppLocalization.text(key, language: language) != key) }
+        }
+    }
+
+    @Test func keychainFailureUsesKeychainCopyInsteadOfNetworkCopy() {
+        let message = localizedAIError(AIKeychainError.status(-1), language: .english)
+        #expect(message == AppLocalization.text("settings.ai.keychainError", language: .english))
+    }
+
+    @Test func aiAssistantCopyIsCompleteInBothLanguages() {
+        let keys = [
+            "ai.mode.entry", "ai.mode.analysis", "ai.analysis.question",
+            "ai.analysis.start", "ai.analysis.end", "ai.analysis.scope",
+            "ai.analysis.run", "ai.analysis.permissionRequired",
+            "ai.error.apiKey", "ai.error.baseURL", "ai.error.model",
+            "ai.error.network", "ai.error.http", "ai.error.decoding",
+            "ai.error.invalidResult", "settings.ai.testing"
+        ]
+        for language in AppLanguage.allCases {
+            for key in keys { #expect(AppLocalization.text(key, language: language) != key) }
+        }
+    }
+
     @Test func customCategoryNamesAndUserNotesRemainUntranslated() {
         #expect(AppLocalization.categoryName(systemKey: nil, customName: "My Side Project", language: .simplifiedChinese) == "My Side Project")
         #expect(AppLocalization.categoryName(systemKey: nil, customName: "旅行基金", language: .english) == "旅行基金")

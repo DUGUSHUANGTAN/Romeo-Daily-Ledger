@@ -17,12 +17,19 @@ final class RecordingLedgerRepository: LedgerRepository {
     func insert(_ draft: LedgerDraft) async throws -> LedgerEntry {
         insertedDrafts.append(draft)
         return LedgerEntry(
+            id: draft.id ?? UUID(),
             kind: draft.kind,
             amount: try draft.validatedAmount(),
             categoryID: draft.categoryID ?? UUID(),
             note: draft.note,
             occurredAt: draft.occurredAt
         )
+    }
+
+    func insert(_ drafts: [LedgerDraft]) async throws -> [LedgerEntry] {
+        var entries: [LedgerEntry] = []
+        for draft in drafts { entries.append(try await insert(draft)) }
+        return entries
     }
 
     func update(id: UUID, draft: LedgerDraft) async throws {
@@ -48,6 +55,10 @@ final class FailingLedgerRepository: LedgerRepository {
     }
 
     func insert(_ draft: LedgerDraft) async throws -> LedgerEntry {
+        throw TestRepositoryError.forcedFailure
+    }
+
+    func insert(_ drafts: [LedgerDraft]) async throws -> [LedgerEntry] {
         throw TestRepositoryError.forcedFailure
     }
 

@@ -6,33 +6,22 @@
 
 罗密欧每日记账（Romeo Daily Ledger）是一个面向 macOS 14 及以上版本的原生记账应用项目，使用 Swift 6、SwiftUI 与 SwiftData 开发。
 
-项目目前处于早期开发阶段。现有界面仅为显示“Romeo Daily Ledger”的应用骨架，尚不具备可供日常使用的记账流程。
+应用采用本地优先设计：无需账号，账目保存在 Mac 本地，适合日常快速记账与自用。
 
 ## 开发状态
 
-当前仓库已建立基础领域模型、SwiftData 仓储实现和测试框架，但仓储尚未接入 App 生命周期，录入、查询、分类管理与统计等产品界面也尚未完成。仓库已包含可直接打开的 Xcode 工程，也可以根据 `project.yml` 使用 XcodeGen 重新生成工程。
+V1.0.0 已实现记账、日历回看、多选汇总、分类管理、基础统计、中英文与深浅主题、AI 记账/分析、JSON/CSV 数据迁移及 GitHub 更新检查。
 
 ## 当前已有能力
 
-- 区分支出（`expense`）与收入（`income`）两种流水类型。
-- `LedgerEntry` 流水模型支持：
-  - 使用 `Decimal` 保存金额；
-  - 关联分类 ID；
-  - 保存备注、发生时间、创建时间与更新时间。
-- `Category` 分类模型支持：
-  - 支出或收入类型；
-  - 系统分类标识或自定义名称；
-  - 图标、颜色、排序顺序与隐藏状态。
-- `LedgerDraft` 可解析金额文本，并拒绝零值、负数和无法解析的金额。
-- 提供基于 SwiftData 的内存 `ModelContainer`，目前主要用于开发与测试基础设施。
-- `LedgerRepository` 与 `SwiftDataLedgerRepository` 支持流水插入、更新、批量删除、半开日期区间查询，以及按类型查询分类和查询单个分类。
-- 支持幂等播种默认收支分类；录入时未选择分类，会回退到对应收支类型的 `other` 分类。
-- 已有以下自动化测试：
-  - 中英文应用名称校验；
-  - 金额正数校验与 `Decimal` 精度校验；
-  - 默认收支分类、幂等播种与未选分类回退校验；
-  - 半开日期区间查询、流水更新与批量删除校验；
-  - 应用启动 UI 冒烟测试。
+- 快速新增、编辑、删除收入和支出，默认币种可在 General 中修改。
+- 按日历查看账目，多选流水后计算汇总。
+- 支出与收入分类、“其他”回退、月度收支、结余、趋势与分类统计。
+- 浅色/深色主题、字体与动效强度设置，完整中英文界面。
+- 通过 OpenAI Chat Completions 或 Responses 协议连接兼容服务；API Key 仅保存在 macOS Keychain。
+- AI 自然语言记账草稿需预览确认后才保存；AI 分析需显式授权并限定日期范围。
+- 从设置导入 JSON/CSV，导出 JSON/CSV；提供预览、重复项策略、币种校验和原子批量写入。
+- 手动检查 GitHub Release 更新，不会自动安装。
 
 ## 技术栈
 
@@ -100,7 +89,9 @@ Release 配置使用 `MARKETING_VERSION = 1.0.0` 和 `CURRENT_PROJECT_VERSION = 
 
 产物默认位于 `build/release/`：`Romeo Daily Ledger.app`、`Romeo-Daily-Ledger-1.0.0.dmg` 和对应的 `.sha256` 文件。DMG 包含应用以及指向 `/Applications` 的快捷方式。可通过 `BUILD_DIR=/path/to/output` 自定义输出目录；已有 `.app` 时可用 `SKIP_BUILD=1 ./scripts/create_dmg.sh` 跳过重新构建。
 
-脚本生成未签名归档，适合本地验收和 GitHub Release 产物准备。正式分发前应在可信构建环境中完成 Developer ID 签名与公证。脚本不会创建 GitHub Release，也不会上传文件。
+本地自用可不签名构建。公开分发时可使用 `SIGNING_IDENTITY="Developer ID Application: …" ./scripts/build_release.sh` 签名，并用 `NOTARY_PROFILE=profile SKIP_BUILD=1 ./scripts/create_dmg.sh` 公证和 staple。进入产物目录后可执行 `shasum -a 256 -c Romeo-Daily-Ledger-1.0.0.dmg.sha256` 校验下载。
+
+安装时打开 DMG，将“Romeo Daily Ledger”拖入 Applications。未签名的自用构建首次打开可能需要在 Finder 中右键选择“打开”。
 
 ## 目录结构
 
@@ -118,19 +109,11 @@ Release 配置使用 `MARKETING_VERSION = 1.0.0` 和 `CURRENT_PROJECT_VERSION = 
 └── project.yml                     # XcodeGen 项目配置
 ```
 
-## 路线图
+## 后续方向
 
-以下功能尚未完成：
-
-- [ ] 收入与支出的录入界面及完整交互
-- [ ] 将 SwiftData 持久化容器与仓储接入 App 生命周期
-- [ ] 流水列表、详情、编辑与删除
-- [ ] 分类的创建、编辑、排序、隐藏与系统分类展示
-- [ ] 收支汇总、趋势和分类统计
-- [ ] 搜索、筛选与日期范围查询
-- [ ] 更完整的单元测试、集成测试与 UI 测试
-
-路线图不代表发布日期或实现顺序，实际开发计划可能调整。
+- 可选 iCloud 同步与自动备份。
+- 更多统计维度和可自定义的报表。
+- 经签名、公证的公开发布流程。
 
 ## 贡献
 

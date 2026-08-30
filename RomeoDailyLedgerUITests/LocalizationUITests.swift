@@ -49,7 +49,7 @@ final class LocalizationUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["1.0.0"].exists)
         app.buttons["关闭"].click()
         XCTAssertFalse(app.staticTexts["⌘,"].exists)
-        app.buttons["settings-open-categories"].click()
+        app.staticTexts["settings-page-categories"].click()
         XCTAssertTrue(app.descendants(matching: .any)["settings-categories"].waitForExistence(timeout: 2))
         for category in ["衣", "食", "住", "行", "娱乐", "其他", "工资", "奖金", "投资", "退款"] {
             XCTAssertTrue(app.staticTexts[category].exists, "缺少内置分类：\(category)")

@@ -35,8 +35,8 @@ struct GeneralSettingsView: View {
             }
 
             Section(AppLocalization.text("settings.update.section", language: preferences.language)) {
-                Button { showingUpdateCheck = true } label: {
-                    Label(AppLocalization.text("settings.update.check", language: preferences.language), systemImage: "arrow.triangle.2.circlepath")
+                Button(AppLocalization.text("settings.update.check", language: preferences.language)) {
+                    showingUpdateCheck = true
                 }
                 .accessibilityIdentifier("settings-check-for-updates")
             }

@@ -88,6 +88,7 @@ enum LedgerTransferError: Error, Equatable, LocalizedError {
     case invalidDate
     case invalidKind
     case malformedCSV
+    case currencyMismatch(expected: String, actual: String)
 
     var errorDescription: String? {
         switch self {
@@ -97,6 +98,8 @@ enum LedgerTransferError: Error, Equatable, LocalizedError {
         case .invalidDate: return "Date is invalid or not in ISO-8601 format."
         case .invalidKind: return "Type must be income or expense."
         case .malformedCSV: return "The CSV file is malformed or has an invalid header."
+        case .currencyMismatch(let expected, let actual):
+            return "The file uses \(actual), but this ledger uses \(expected)."
         }
     }
 }
@@ -178,7 +181,7 @@ struct CSVCodec {
 
     func decode(_ type: [LedgerTransferRecord].Type, from data: Data) throws -> [LedgerTransferRecord] {
         guard let text = String(data: data, encoding: .utf8) else { throw LedgerTransferError.invalidData }
-        let rows = parse(text)
+        let rows = try parse(text)
         guard let first = rows.first, header.allSatisfy({ first.contains($0) }) else { throw LedgerTransferError.malformedCSV }
         let indexes = Dictionary(uniqueKeysWithValues: first.enumerated().map { ($1, $0) })
         var result: [LedgerTransferRecord] = []
@@ -186,7 +189,9 @@ struct CSVCodec {
             func value(_ key: String) -> String? { indexes[key].flatMap { $0 < row.count ? row[$0] : nil } }
             guard let idText = value("id"), let id = UUID(uuidString: idText) else { throw LedgerTransferError.missingField("id") }
             guard let kindText = value("kind"), let kind = EntryKind(rawValue: kindText) else { throw LedgerTransferError.invalidKind }
-            guard let amountText = value("amount"), let amount = Decimal(string: amountText), amount > 0 else { throw LedgerTransferError.invalidAmount }
+            guard let amountText = value("amount"),
+                  let amount = Decimal(string: amountText, locale: Locale(identifier: "en_US_POSIX")),
+                  amount > 0 else { throw LedgerTransferError.invalidAmount }
             guard let dateText = value("occurredAt"), let date = ISO8601DateFormatter.parseTransferDate(dateText) else { throw LedgerTransferError.invalidDate }
             result.append(LedgerTransferRecord(id: id, kind: kind, amount: amount,
                 currencyCode: value("currencyCode") ?? "USD", categoryID: value("categoryID").flatMap(UUID.init(uuidString:)),
@@ -200,7 +205,7 @@ struct CSVCodec {
         return "\"" + value.replacingOccurrences(of: "\"", with: "\"\"") + "\""
     }
 
-    private func parse(_ text: String) -> [[String]] {
+    private func parse(_ text: String) throws -> [[String]] {
         var rows: [[String]] = [[]]; var field = ""; var quoted = false; var i = text.startIndex
         while i < text.endIndex {
             let ch = text[i]
@@ -210,6 +215,7 @@ struct CSVCodec {
             else { field.append(ch) }
             i = text.index(after: i)
         }
+        guard !quoted else { throw LedgerTransferError.malformedCSV }
         if !field.isEmpty || rows.last?.isEmpty == false { rows[rows.count - 1].append(field) }
         return rows.filter { !$0.isEmpty }
     }

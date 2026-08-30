@@ -16,7 +16,8 @@ final class LedgerTransferService {
         var records: [LedgerTransferRecord] = []
         records.reserveCapacity(entries.count)
         for entry in entries {
-            let categoryKey = try await repository.category(id: entry.categoryID)?.systemKey
+            let category = try await repository.category(id: entry.categoryID)
+            let categoryKey = category?.systemKey ?? category?.customName
             records.append(LedgerTransferRecord(id: entry.id, kind: entry.kind, amount: entry.amount,
                 currencyCode: currencyCode, categoryID: entry.categoryID, categoryKey: categoryKey,
                 note: entry.note, occurredAt: entry.occurredAt))
@@ -38,15 +39,29 @@ final class LedgerTransferService {
         try LedgerTransferCodec.preview(decode(data: data, format: format))
     }
 
+    func validateCurrency(_ records: [LedgerTransferRecord], expected: String) throws {
+        let normalizedExpected = expected.uppercased()
+        if let actual = records.lazy.map({ $0.currencyCode.uppercased() }).first(where: { $0 != normalizedExpected }) {
+            throw LedgerTransferError.currencyMismatch(expected: normalizedExpected, actual: actual)
+        }
+    }
+
     /// Resolves category IDs while retaining the imported category key. A
     /// missing/unknown key is assigned to the seeded "other" category.
     func draft(for record: LedgerTransferRecord) async throws -> LedgerDraft {
         let categories = try await repository.categories(kind: record.kind)
         let wanted = record.categoryKey?.trimmingCharacters(in: .whitespacesAndNewlines)
-        let category = categories.first { $0.id == record.categoryID }
-            ?? categories.first { $0.systemKey == wanted }
-            ?? categories.first { $0.systemKey == "other" }
-        return LedgerDraft(kind: record.kind, amountText: NSDecimalNumber(decimal: record.amount).stringValue,
+        var category = categories.first { $0.id == record.categoryID }
+            ?? categories.first { $0.systemKey?.caseInsensitiveCompare(wanted ?? "") == .orderedSame }
+            ?? categories.first { $0.customName?.caseInsensitiveCompare(wanted ?? "") == .orderedSame }
+        if category == nil,
+           let wanted,
+           !wanted.isEmpty,
+           wanted.caseInsensitiveCompare("other") != .orderedSame {
+            category = try await repository.ensureCustomCategory(named: wanted, kind: record.kind)
+        }
+        category = category ?? categories.first { $0.systemKey == "other" }
+        return LedgerDraft(id: record.id, kind: record.kind, amountText: NSDecimalNumber(decimal: record.amount).stringValue,
                            categoryID: category?.id, note: record.note, occurredAt: record.occurredAt)
     }
 

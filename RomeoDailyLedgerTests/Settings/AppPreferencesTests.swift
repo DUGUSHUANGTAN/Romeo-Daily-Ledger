@@ -47,6 +47,22 @@ struct AppPreferencesTests {
         #expect(AppTypography.Style.allCases.allSatisfy { !$0.usesBundledFont })
     }
 
+    @Test func aiConfigurationNeverPersistsAnAPIKeyInUserDefaults() throws {
+        let defaults = isolatedDefaults()
+        let preferences = AppPreferences(defaults: defaults)
+        preferences.aiConfiguration = AIConfiguration(
+            protocolType: .chatCompletions,
+            baseURL: URL(string: "https://example.com/v1")!,
+            model: "compatible-model",
+            allowsLedgerData: true
+        )
+
+        let persisted = try #require(defaults.data(forKey: "preferences.aiConfiguration"))
+        let text = try #require(String(data: persisted, encoding: .utf8))
+        #expect(!text.lowercased().contains("apikey"))
+        #expect(!text.lowercased().contains("authorization"))
+    }
+
     private func isolatedDefaults() -> UserDefaults {
         let suiteName = "AppPreferencesTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!

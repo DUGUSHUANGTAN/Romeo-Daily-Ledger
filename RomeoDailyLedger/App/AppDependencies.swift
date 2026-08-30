@@ -9,8 +9,13 @@ final class AppDependencies {
     let modelContainer: ModelContainer
     let repository: LedgerRepository
     let deletionUndoCoordinator: DeletionUndoCoordinator
+    let aiClient: any AIRequesting
 
-    init(selectedDestination: SidebarDestination = .ledger, preferences: AppPreferences? = nil) {
+    init(
+        selectedDestination: SidebarDestination = .ledger,
+        preferences: AppPreferences? = nil,
+        aiClient: (any AIRequesting)? = nil
+    ) {
         let usesInMemoryStore = ProcessInfo.processInfo.arguments.contains("--ui-testing")
         let container = try! (usesInMemoryStore ? ModelContainerFactory.inMemory() : ModelContainerFactory.persistent())
         let repository = SwiftDataLedgerRepository(context: container.mainContext)
@@ -33,5 +38,35 @@ final class AppDependencies {
         self.modelContainer = container
         self.repository = repository
         self.deletionUndoCoordinator = DeletionUndoCoordinator(repository: repository)
+        self.aiClient = aiClient ?? (usesInMemoryStore ? UITestingAIClient() : AIClient())
+    }
+}
+
+private struct UITestingAIClient: AIRequesting {
+    func parseLedger(
+        text: String,
+        currencyCode: String,
+        configuration: AIConfiguration
+    ) async throws -> AILedgerDraftEnvelope {
+        AILedgerDraftEnvelope(entries: [
+            AILedgerDraft(
+                kind: .expense,
+                amount: 25,
+                currency: currencyCode,
+                date: .now,
+                note: "UI Test Lunch",
+                category: "food"
+            )
+        ])
+    }
+
+    func testConnection(configuration: AIConfiguration) async throws {}
+
+    func analyze(
+        question: String,
+        scope: AIAnalysisScope,
+        configuration: AIConfiguration
+    ) async throws -> String {
+        "UI test analysis"
     }
 }

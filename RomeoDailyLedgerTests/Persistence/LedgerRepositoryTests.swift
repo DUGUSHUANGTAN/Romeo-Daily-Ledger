@@ -131,6 +131,22 @@ private func expectFallbackToOther(kind: EntryKind) async throws {
     #expect(remaining.isEmpty)
 }
 
+@MainActor
+@Test func batchInsertPreservesImportedIdentifiers() async throws {
+    let repository = try TestRepository.make()
+    try await repository.seedDefaultsIfNeeded()
+    let firstID = UUID()
+    let secondID = UUID()
+    let date = Date(timeIntervalSince1970: 1_700_000_000)
+
+    let saved = try await repository.insert([
+        LedgerDraft(id: firstID, kind: .expense, amountText: "10", categoryID: nil, note: "first", occurredAt: date),
+        LedgerDraft(id: secondID, kind: .income, amountText: "20", categoryID: nil, note: "second", occurredAt: date)
+    ])
+
+    #expect(Set(saved.map(\.id)) == [firstID, secondID])
+}
+
 private func draft(at date: Date, note: String) -> LedgerDraft {
     LedgerDraft(
         kind: .expense,

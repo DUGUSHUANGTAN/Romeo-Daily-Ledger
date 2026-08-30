@@ -49,6 +49,24 @@ struct DataTransferTests {
         #expect(kept.imported[0].id != records[0].id)
     }
 
+    @MainActor
+    @Test func importingTheSameRecordTwiceCanBeSkipped() async throws {
+        let repository = try TestRepository.make()
+        try await repository.seedDefaultsIfNeeded()
+        let service = LedgerTransferService(repository: repository)
+        let record = records[0]
+
+        let firstSaved = try await repository.insert(try await service.draft(for: record))
+        let secondAttempt = LedgerTransferCodec.resolveDuplicates(
+            [record],
+            existingIDs: [firstSaved.id],
+            strategy: .skipDuplicates
+        )
+
+        #expect(secondAttempt.imported.isEmpty)
+        #expect(secondAttempt.skippedCount == 1)
+    }
+
     @Test func invalidAmountAndDateProduceReadableErrors() {
         let badAmount = "[{\"id\":\"AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA\",\"kind\":\"expense\",\"amount\":\"wat\",\"occurredAt\":\"2023-11-14T22:13:20Z\"}]".data(using: .utf8)!
         #expect(throws: LedgerTransferError.invalidAmount) {
@@ -59,10 +77,98 @@ struct DataTransferTests {
         #expect(throws: LedgerTransferError.invalidDate) {
             _ = try LedgerTransferCodec.json.decode([LedgerTransferRecord].self, from: badDate)
         }
+
+        let missingID = "[{\"kind\":\"expense\",\"amount\":\"1.00\",\"occurredAt\":\"2023-11-14T22:13:20Z\"}]".data(using: .utf8)!
+        #expect(throws: LedgerTransferError.missingField("id")) {
+            _ = try LedgerTransferCodec.json.decode([LedgerTransferRecord].self, from: missingID)
+        }
+
+        let malformedCSV = "id,kind,amount,currencyCode,categoryID,categoryKey,note,occurredAt\nAAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA,expense,1,USD,,,\"unfinished,2023-11-14T22:13:20Z".data(using: .utf8)!
+        #expect(throws: LedgerTransferError.malformedCSV) {
+            _ = try LedgerTransferCodec.csv.decode([LedgerTransferRecord].self, from: malformedCSV)
+        }
     }
 
     @Test func missingCategoryFallsBackToOther() throws {
         let record = records[1]
         #expect(record.resolvedCategoryKey == "other")
+    }
+
+    @MainActor
+    @Test func importingAnotherCurrencyIsRejectedInsteadOfRelabeled() async throws {
+        let repository = try TestRepository.make()
+        let service = LedgerTransferService(repository: repository)
+
+        #expect(throws: LedgerTransferError.currencyMismatch(expected: "USD", actual: "CNY")) {
+            try service.validateCurrency(records, expected: "USD")
+        }
+        #expect(throws: Never.self) {
+            try service.validateCurrency(records, expected: "CNY")
+        }
+    }
+
+    @MainActor
+    @Test func customCategoryNameSurvivesExportAndImportWhenCategoryExists() async throws {
+        let category = RomeoDailyLedger.Category(
+            id: UUID(uuidString: "CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC")!,
+            kind: .expense,
+            customName: "Travel",
+            iconName: "plane",
+            colorToken: "other",
+            sortOrder: 10
+        )
+        let entry = LedgerEntry(kind: .expense, amount: 88, categoryID: category.id, note: "Train", occurredAt: date)
+        let exportRepository = TransferRepositoryStub(entries: [entry], categories: [category])
+        let service = LedgerTransferService(repository: exportRepository)
+
+        let data = try await service.exportData(format: .json, currencyCode: "USD")
+        let exported = try service.decode(data: data, format: .json)
+        #expect(exported.first?.categoryKey == "Travel")
+
+        var portable = try #require(exported.first)
+        portable.categoryID = UUID()
+        let fallback = RomeoDailyLedger.Category(
+            kind: .expense,
+            systemKey: "other",
+            iconName: "ellipsis",
+            colorToken: "other",
+            sortOrder: 0
+        )
+        let importRepository = TransferRepositoryStub(entries: [], categories: [fallback])
+        let importService = LedgerTransferService(repository: importRepository)
+        let draft = try await importService.draft(for: portable)
+        let importedCategory = try await importRepository.category(id: try #require(draft.categoryID))
+        #expect(importedCategory?.customName == "Travel")
+    }
+}
+
+@MainActor
+private final class TransferRepositoryStub: LedgerRepository {
+    let storedEntries: [LedgerEntry]
+    private(set) var storedCategories: [RomeoDailyLedger.Category]
+
+    init(entries: [LedgerEntry], categories: [RomeoDailyLedger.Category]) {
+        storedEntries = entries
+        storedCategories = categories
+    }
+
+    func seedDefaultsIfNeeded() async throws {}
+    func insert(_ draft: LedgerDraft) async throws -> LedgerEntry { throw LedgerTransferError.invalidData }
+    func update(id: UUID, draft: LedgerDraft) async throws {}
+    func delete(ids: Set<UUID>) async throws {}
+    func entries(in interval: DateInterval) async throws -> [LedgerEntry] { storedEntries }
+    func categories(kind: EntryKind) async throws -> [RomeoDailyLedger.Category] { storedCategories.filter { $0.kind == kind } }
+    func category(id: UUID) async throws -> RomeoDailyLedger.Category? { storedCategories.first { $0.id == id } }
+    func ensureCustomCategory(named name: String, kind: EntryKind) async throws -> RomeoDailyLedger.Category {
+        if let existing = storedCategories.first(where: { $0.kind == kind && $0.customName == name }) { return existing }
+        let category = RomeoDailyLedger.Category(
+            kind: kind,
+            customName: name,
+            iconName: "ellipsis",
+            colorToken: "other",
+            sortOrder: storedCategories.count
+        )
+        storedCategories.append(category)
+        return category
     }
 }
