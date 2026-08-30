@@ -35,6 +35,20 @@ struct LocalizationTests {
         }
     }
 
+    @Test func updateCheckCopyIsCompleteInBothLanguages() {
+        let keys = [
+            "settings.update.section", "settings.update.title", "settings.update.current",
+            "settings.update.latest", "settings.update.check", "settings.update.checking",
+            "settings.update.available", "settings.update.upToDate", "settings.update.openRelease",
+            "settings.update.releasePage", "settings.update.error.noRelease",
+            "settings.update.error.notFound", "settings.update.error.rateLimited",
+            "settings.update.error.invalidResponse", "settings.update.error.network"
+        ]
+        for language in AppLanguage.allCases {
+            for key in keys { #expect(AppLocalization.text(key, language: language) != key) }
+        }
+    }
+
     @Test func customCategoryNamesAndUserNotesRemainUntranslated() {
         #expect(AppLocalization.categoryName(systemKey: nil, customName: "My Side Project", language: .simplifiedChinese) == "My Side Project")
         #expect(AppLocalization.categoryName(systemKey: nil, customName: "旅行基金", language: .english) == "旅行基金")

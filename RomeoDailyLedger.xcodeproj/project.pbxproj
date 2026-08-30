@@ -10,6 +10,7 @@
 		011392DCA1EB206ACDDEA78A /* AppPreferencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E9974BA0EB077B6B59FCEFC /* AppPreferencesTests.swift */; };
 		01530AA3A35D830CB4FB7A8B /* CalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 285509CC4EA990C1FC002118 /* CalendarViewModel.swift */; };
 		023BC2BCDBDAC6CE827B64EC /* CategoryManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D48E2B9FFE5CBC898B99D9FB /* CategoryManagementView.swift */; };
+		09147D5B202C0A41DB457507 /* ReleaseConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A25021F3EB9DA4C59A8A6827 /* ReleaseConfigurationTests.swift */; };
 		092B0604180758520981F051 /* MotionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDB25855C60DB7A89DF69739 /* MotionPolicy.swift */; };
 		0C0CBADAB2CB382E58FF8937 /* EntryEditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17EB2627356AD4DBBE8C2BD /* EntryEditorViewModel.swift */; };
 		1105FD2C09C94AEB72323B17 /* bot.svg in Resources */ = {isa = PBXBuildFile; fileRef = 14BAE2EB96226004271CF832 /* bot.svg */; };
@@ -28,6 +29,7 @@
 		448D089EA6AD0124E8AD64FC /* EntryKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D7E67A84CB67EA6810931F9 /* EntryKind.swift */; };
 		45872D375A65704792003125 /* wallet-cards.svg in Resources */ = {isa = PBXBuildFile; fileRef = 7ECB73CC6115D74216A197B4 /* wallet-cards.svg */; };
 		45BB6752D9350589B0F68091 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 778FF49608FC6315C122CA90 /* RootView.swift */; };
+		4639F57364FF4A7D13F94303 /* ReleaseUpdateServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B639E5C13E8D64C2B0716811 /* ReleaseUpdateServiceTests.swift */; };
 		5AAC5D7EB34A29B57F171320 /* LedgerEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4DA7773C3AE81E413A09227 /* LedgerEntry.swift */; };
 		5B649BDCD397D5B05053BEB5 /* LedgerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0778F870C489EBF3638530C0 /* LedgerViewModelTests.swift */; };
 		60579EC3E5D1C8AFB691B67A /* LocalizationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 101D7743834FD0F7A30D5BED /* LocalizationUITests.swift */; };
@@ -38,6 +40,7 @@
 		6B4C5AC427C96CA24022C314 /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF99A064E4EE51565E242869 /* AppPreferences.swift */; };
 		6E4631F216C85329251E22A1 /* settings.svg in Resources */ = {isa = PBXBuildFile; fileRef = 722D486921FA67B9CA74ECCF /* settings.svg */; };
 		6F32AF6BB9F1D8F554D45704 /* DeletionUndoCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1847841CB115A1A27FC9E978 /* DeletionUndoCoordinator.swift */; };
+		7233F95ED6C30E36FF8B9904 /* ReleaseUpdateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0763AB15861B74108C3F8A9B /* ReleaseUpdateService.swift */; };
 		74D5256A3F38B169045BAD6F /* AppLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 285C8C72B8327ACDF2A99E12 /* AppLaunchTests.swift */; };
 		75C4D5B8712E22259C191873 /* calendar-days.svg in Resources */ = {isa = PBXBuildFile; fileRef = D4A7FD72D4943AD4B3C02EB5 /* calendar-days.svg */; };
 		7AA8FBEBBCC5B532058D644D /* SwiftDataLedgerRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D080AF2B7E4CBB1FACBD127 /* SwiftDataLedgerRepository.swift */; };
@@ -66,6 +69,7 @@
 		CA6F75B15DE09E3B905F3C85 /* InsightsAggregatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 515D950653ACAF767AC15977 /* InsightsAggregatorTests.swift */; };
 		D5BF6095475660EBBE49735F /* InsightsAggregator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05A885D8484B0584D71867AC /* InsightsAggregator.swift */; };
 		DC9149DB8708C52EA3401BB9 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30F00DA6AD2A46896549DE3D /* AppTheme.swift */; };
+		E17A406D90DB0EA740D84ECF /* UpdateCheckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4159122C65420F1933DE1498 /* UpdateCheckView.swift */; };
 		E801873011ED7BEE2C202F3F /* AppCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6260AABBF7B6FE7A9747BF15 /* AppCommands.swift */; };
 		EDDE9FBAE609B2BD93AAC29A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 6400FC8EF43B356EB5BF857B /* Localizable.xcstrings */; };
 		FED427BC35A8884B5202C714 /* AppearanceSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8A6E3117FFDD8D02D2DED82 /* AppearanceSettingsView.swift */; };
@@ -92,6 +96,7 @@
 		04212990091380DA964BA3D4 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
 		04ED95803D67504259A80C68 /* LedgerFlowUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LedgerFlowUITests.swift; sourceTree = "<group>"; };
 		05A885D8484B0584D71867AC /* InsightsAggregator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsAggregator.swift; sourceTree = "<group>"; };
+		0763AB15861B74108C3F8A9B /* ReleaseUpdateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReleaseUpdateService.swift; sourceTree = "<group>"; };
 		0778F870C489EBF3638530C0 /* LedgerViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LedgerViewModelTests.swift; sourceTree = "<group>"; };
 		101D7743834FD0F7A30D5BED /* LocalizationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationUITests.swift; sourceTree = "<group>"; };
 		14BAE2EB96226004271CF832 /* bot.svg */ = {isa = PBXFileReference; path = bot.svg; sourceTree = "<group>"; };
@@ -110,6 +115,7 @@
 		30F00DA6AD2A46896549DE3D /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		33B4113230441C97FE52D658 /* SelectionSummaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionSummaryTests.swift; sourceTree = "<group>"; };
 		3D080AF2B7E4CBB1FACBD127 /* SwiftDataLedgerRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataLedgerRepository.swift; sourceTree = "<group>"; };
+		4159122C65420F1933DE1498 /* UpdateCheckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateCheckView.swift; sourceTree = "<group>"; };
 		468915B2438A93AA40583459 /* AppLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLocalization.swift; sourceTree = "<group>"; };
 		4BEEED90FA47DABABCB16315 /* LedgerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LedgerViewModel.swift; sourceTree = "<group>"; };
 		515D950653ACAF767AC15977 /* InsightsAggregatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsAggregatorTests.swift; sourceTree = "<group>"; };
@@ -135,8 +141,10 @@
 		9CA531A262148C6E925475EA /* LedgerFormattingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LedgerFormattingTests.swift; sourceTree = "<group>"; };
 		9D7E67A84CB67EA6810931F9 /* EntryKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryKind.swift; sourceTree = "<group>"; };
 		9E9974BA0EB077B6B59FCEFC /* AppPreferencesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferencesTests.swift; sourceTree = "<group>"; };
+		A25021F3EB9DA4C59A8A6827 /* ReleaseConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReleaseConfigurationTests.swift; sourceTree = "<group>"; };
 		A86AB2C645BD94FEA4864A32 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		B17EB2627356AD4DBBE8C2BD /* EntryEditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryEditorViewModel.swift; sourceTree = "<group>"; };
+		B639E5C13E8D64C2B0716811 /* ReleaseUpdateServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReleaseUpdateServiceTests.swift; sourceTree = "<group>"; };
 		B8A6E3117FFDD8D02D2DED82 /* AppearanceSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceSettingsView.swift; sourceTree = "<group>"; };
 		C6FF4ADEFE90029DF29C28C4 /* TestRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestRepository.swift; sourceTree = "<group>"; };
 		CDB25855C60DB7A89DF69739 /* MotionPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionPolicy.swift; sourceTree = "<group>"; };
@@ -260,6 +268,7 @@
 				D48E2B9FFE5CBC898B99D9FB /* CategoryManagementView.swift */,
 				6F4122964B4373AE4BEC8CC1 /* GeneralSettingsView.swift */,
 				8253AE6BB7FB3EF28BC155DE /* SettingsRootView.swift */,
+				4159122C65420F1933DE1498 /* UpdateCheckView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -304,11 +313,20 @@
 			path = Features;
 			sourceTree = "<group>";
 		};
+		78DB43E4C15680242561C2E1 /* Release */ = {
+			isa = PBXGroup;
+			children = (
+				0763AB15861B74108C3F8A9B /* ReleaseUpdateService.swift */,
+			);
+			path = Release;
+			sourceTree = "<group>";
+		};
 		7C900B868FE8E7E3F7C6AB3E /* Infrastructure */ = {
 			isa = PBXGroup;
 			children = (
 				3D9CB5F6608E31B0F0B24D91 /* Persistence */,
 				0743AB2A37E4CB6EF760D3C2 /* Preferences */,
+				78DB43E4C15680242561C2E1 /* Release */,
 			);
 			path = Infrastructure;
 			sourceTree = "<group>";
@@ -322,6 +340,15 @@
 				D1E52FBF8F17809A88C5FEED /* RomeoDailyLedgerUITests */,
 				CFE8247AA6ABED2B4B1A8FF8 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		89FDDBBB6F75E0E81DA58BAC /* Release */ = {
+			isa = PBXGroup;
+			children = (
+				A25021F3EB9DA4C59A8A6827 /* ReleaseConfigurationTests.swift */,
+				B639E5C13E8D64C2B0716811 /* ReleaseUpdateServiceTests.swift */,
+			);
+			path = Release;
 			sourceTree = "<group>";
 		};
 		95D48617F39AE58DFD36DBEB /* RomeoDailyLedger */ = {
@@ -391,6 +418,7 @@
 				3EF4304E680931D851997CDC /* Insights */,
 				A6E4EBE8A541A23E60E4BB55 /* Ledger */,
 				5196F60D22765D14971580B3 /* Persistence */,
+				89FDDBBB6F75E0E81DA58BAC /* Release */,
 				581823D53BDBB98E550EE854 /* Settings */,
 				2295D584D775B602188BEC61 /* Support */,
 			);
@@ -579,6 +607,8 @@
 				86E5AD343BB89B0A4B2CA0BD /* LedgerRepositoryTests.swift in Sources */,
 				5B649BDCD397D5B05053BEB5 /* LedgerViewModelTests.swift in Sources */,
 				1C74165CF292A1A4BE09BEED /* LocalizationTests.swift in Sources */,
+				09147D5B202C0A41DB457507 /* ReleaseConfigurationTests.swift in Sources */,
+				4639F57364FF4A7D13F94303 /* ReleaseUpdateServiceTests.swift in Sources */,
 				9F05EAC093C637D0C6DDAF60 /* RepositoryDoubles.swift in Sources */,
 				8B894F197D73ED9D79B5B56F /* SelectionSummaryTests.swift in Sources */,
 				39493364396C24DA2824403C /* TestRepository.swift in Sources */,
@@ -620,12 +650,14 @@
 				684A19A53E9BFE22CFCD3C2D /* ModelContainerFactory.swift in Sources */,
 				092B0604180758520981F051 /* MotionPolicy.swift in Sources */,
 				981A97F8835969E6D36141A1 /* QuickEntryView.swift in Sources */,
+				7233F95ED6C30E36FF8B9904 /* ReleaseUpdateService.swift in Sources */,
 				C1C7F6337BC32CA38FA0D68E /* RomeoDailyLedgerApp.swift in Sources */,
 				45BB6752D9350589B0F68091 /* RootView.swift in Sources */,
 				A0774D4B0ED73C111059DFC3 /* SelectionSummary.swift in Sources */,
 				8EA896D1BA519C53D8C74E4B /* SelectionSummaryBar.swift in Sources */,
 				2568C94510F9B7C59EF3FDE8 /* SettingsRootView.swift in Sources */,
 				7AA8FBEBBCC5B532058D644D /* SwiftDataLedgerRepository.swift in Sources */,
+				E17A406D90DB0EA740D84ECF /* UpdateCheckView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -679,6 +711,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -691,6 +724,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.romeoke.RomeoDailyLedger;
@@ -713,6 +747,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				PRODUCT_MODULE_NAME = RomeoDailyLedger;
+				PRODUCT_NAME = "Romeo Daily Ledger";
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -730,7 +766,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.romeoke.RomeoDailyLedgerTests;
 				SDKROOT = macosx;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RomeoDailyLedger.app/Contents/MacOS/RomeoDailyLedger";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Romeo Daily Ledger.app/Contents/MacOS/Romeo Daily Ledger";
 			};
 			name = Release;
 		};
@@ -768,6 +804,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -786,6 +823,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -811,7 +849,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.romeoke.RomeoDailyLedgerTests;
 				SDKROOT = macosx;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RomeoDailyLedger.app/Contents/MacOS/RomeoDailyLedger";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Romeo Daily Ledger.app/Contents/MacOS/Romeo Daily Ledger";
 			};
 			name = Debug;
 		};
@@ -843,6 +881,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				PRODUCT_MODULE_NAME = RomeoDailyLedger;
+				PRODUCT_NAME = "Romeo Daily Ledger";
 				SDKROOT = macosx;
 			};
 			name = Debug;

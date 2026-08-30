@@ -89,6 +89,19 @@ xcodebuild test \
   -destination 'platform=macOS'
 ```
 
+## V1.0.0 Release 打包
+
+Release 配置使用 `MARKETING_VERSION = 1.0.0` 和 `CURRENT_PROJECT_VERSION = 1`。应用名称保持“罗密欧每日记账”/“Romeo Daily Ledger”，版本号仅用于应用元数据和安装包文件名。
+
+```bash
+./scripts/build_release.sh  # 生成 Release .app
+./scripts/create_dmg.sh     # 生成 DMG 和 SHA-256 校验文件
+```
+
+产物默认位于 `build/release/`：`Romeo Daily Ledger.app`、`Romeo-Daily-Ledger-1.0.0.dmg` 和对应的 `.sha256` 文件。DMG 包含应用以及指向 `/Applications` 的快捷方式。可通过 `BUILD_DIR=/path/to/output` 自定义输出目录；已有 `.app` 时可用 `SKIP_BUILD=1 ./scripts/create_dmg.sh` 跳过重新构建。
+
+脚本生成未签名归档，适合本地验收和 GitHub Release 产物准备。正式分发前应在可信构建环境中完成 Developer ID 签名与公证。脚本不会创建 GitHub Release，也不会上传文件。
+
 ## 目录结构
 
 ```text
