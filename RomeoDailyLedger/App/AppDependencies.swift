@@ -10,6 +10,7 @@ final class AppDependencies {
     let repository: LedgerRepository
     let deletionUndoCoordinator: DeletionUndoCoordinator
     let aiClient: any AIRequesting
+    let storage: StorageCoordinator
 
     init(
         selectedDestination: SidebarDestination = .ledger,
@@ -17,7 +18,9 @@ final class AppDependencies {
         aiClient: (any AIRequesting)? = nil
     ) {
         let usesInMemoryStore = ProcessInfo.processInfo.arguments.contains("--ui-testing")
-        let container = try! (usesInMemoryStore ? ModelContainerFactory.inMemory() : ModelContainerFactory.persistent())
+        let storage = StorageCoordinator()
+        if !usesInMemoryStore { try! storage.prepareBeforeOpeningContainer() }
+        let container = try! (usesInMemoryStore ? ModelContainerFactory.inMemory() : ModelContainerFactory.persistent(storeURL: StorageLayout(directory: storage.activeDirectory).storeURL))
         let repository = SwiftDataLedgerRepository(context: container.mainContext)
         let resolvedPreferences: AppPreferences
         if let preferences {
@@ -37,6 +40,7 @@ final class AppDependencies {
         self.preferences = resolvedPreferences
         self.modelContainer = container
         self.repository = repository
+        self.storage = storage
         self.deletionUndoCoordinator = DeletionUndoCoordinator(repository: repository)
         self.aiClient = aiClient ?? (usesInMemoryStore ? UITestingAIClient() : AIClient())
     }
