@@ -18,24 +18,24 @@ struct GeneralSettingsView: View {
                     ForEach(commonCurrencies, id: \.self) { Text($0).tag($0) }
                     if !commonCurrencies.contains(preferences.currencyCode) { Text(preferences.currencyCode).tag(preferences.currencyCode) }
                 }.frame(maxWidth: 220)
-                TextField("Custom 3-letter code", text: $preferences.currencyCode).frame(maxWidth: 180).accessibilityIdentifier("settings-currency")
+                TextField(AppLocalization.text("settings.general.customCurrency", language: preferences.language), text: $preferences.currencyCode).frame(maxWidth: 180).accessibilityIdentifier("settings-currency")
                 Picker(AppLocalization.text("settings.general.language", language: preferences.language), selection: $preferences.language) {
                     Text(AppLocalization.text("language.zhHans", language: preferences.language)).tag(AppLanguage.simplifiedChinese)
                     Text(AppLocalization.text("language.en", language: preferences.language)).tag(AppLanguage.english)
                 }.pickerStyle(.segmented).frame(maxWidth: 300).accessibilityIdentifier("settings-language")
             }
-            Section("Data & Storage") {
+            Section(AppLocalization.text("settings.storage.title", language: preferences.language)) {
                 Text(storage.activeDirectory.path).textSelection(.enabled)
-                if storage.pendingDirectory != nil { Text("Quit and migrate on next launch").foregroundStyle(.secondary) }
+                if storage.pendingDirectory != nil { Text(AppLocalization.text("settings.storage.pending", language: preferences.language)).foregroundStyle(.secondary) }
                 HStack {
-                    Button("Change Location…", action: chooseLocation)
-                    Button("Show in Finder") { NSWorkspace.shared.activateFileViewerSelecting([storage.activeDirectory]) }
-                    Button("Restore Default") { storage.restoreDefaultOnNextLaunch() }
+                    Button(AppLocalization.text("settings.storage.change", language: preferences.language), action: chooseLocation)
+                    Button(AppLocalization.text("settings.storage.showFinder", language: preferences.language)) { NSWorkspace.shared.activateFileViewerSelecting([storage.activeDirectory]) }
+                    Button(AppLocalization.text("settings.storage.restore", language: preferences.language)) { storage.restoreDefaultOnNextLaunch() }
                 }
                 if let storageMessage { Text(storageMessage).foregroundStyle(.red) }
             }
             Section {
-                Button("Erase All Entries", role: .destructive) { showingEraseConfirmation = true }
+                Button(AppLocalization.text("settings.storage.erase", language: preferences.language), role: .destructive) { showingEraseConfirmation = true }
                 if let eraseMessage { Text(eraseMessage).foregroundStyle(.red) }
             }
             Section(AppLocalization.text("settings.update.section", language: preferences.language)) {
@@ -45,8 +45,8 @@ struct GeneralSettingsView: View {
         .formStyle(.grouped).navigationTitle(AppLocalization.text("settings.general.title", language: preferences.language)).padding(24)
         .accessibilityIdentifier("settings-general")
         .sheet(isPresented: $showingUpdateCheck) { UpdateCheckView(language: preferences.language) }
-        .confirmationDialog("Permanently erase every ledger entry? Categories, settings and exports will be kept.", isPresented: $showingEraseConfirmation, titleVisibility: .visible) {
-            Button("Erase All Entries", role: .destructive) {
+        .confirmationDialog(AppLocalization.text("settings.storage.eraseConfirm", language: preferences.language), isPresented: $showingEraseConfirmation, titleVisibility: .visible) {
+            Button(AppLocalization.text("settings.storage.erase", language: preferences.language), role: .destructive) {
                 Task {
                     do {
                         try await repository.deleteAllEntries()
@@ -55,7 +55,7 @@ struct GeneralSettingsView: View {
                     } catch { eraseMessage = error.localizedDescription }
                 }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(AppLocalization.text("button.cancel", language: preferences.language), role: .cancel) {}
         }
     }
 

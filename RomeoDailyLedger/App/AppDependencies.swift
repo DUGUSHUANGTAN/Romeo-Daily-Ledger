@@ -2,6 +2,16 @@ import Foundation
 import Observation
 import SwiftData
 
+struct AppLaunchState {
+    let recoveryMessage: String?
+
+    init(storageError: Error? = nil) {
+        recoveryMessage = storageError?.localizedDescription
+    }
+
+    var canOpenLedger: Bool { recoveryMessage == nil }
+}
+
 @MainActor @Observable
 final class AppDependencies {
     var selectedDestination: SidebarDestination
@@ -11,6 +21,7 @@ final class AppDependencies {
     let deletionUndoCoordinator: DeletionUndoCoordinator
     let aiClient: any AIRequesting
     let storage: StorageCoordinator
+    let launchState: AppLaunchState
 
     init(
         selectedDestination: SidebarDestination = .ledger,
@@ -19,8 +30,19 @@ final class AppDependencies {
     ) {
         let usesInMemoryStore = ProcessInfo.processInfo.arguments.contains("--ui-testing")
         let storage = StorageCoordinator()
-        if !usesInMemoryStore { try! storage.prepareBeforeOpeningContainer() }
-        let container = try! (usesInMemoryStore ? ModelContainerFactory.inMemory() : ModelContainerFactory.persistent(storeURL: StorageLayout(directory: storage.activeDirectory).storeURL))
+        var launchError: Error?
+        let container: ModelContainer
+        do {
+            if !usesInMemoryStore { try storage.prepareBeforeOpeningContainer() }
+            container = try usesInMemoryStore
+                ? ModelContainerFactory.inMemory()
+                : ModelContainerFactory.persistent(storeURL: StorageLayout(directory: storage.activeDirectory).storeURL)
+        } catch {
+            launchError = error
+            // The temporary container only satisfies dependency construction. RootView
+            // gates all ledger access while recovery is required.
+            container = try! ModelContainerFactory.inMemory()
+        }
         let repository = SwiftDataLedgerRepository(context: container.mainContext)
         let resolvedPreferences: AppPreferences
         if let preferences {
@@ -41,6 +63,7 @@ final class AppDependencies {
         self.modelContainer = container
         self.repository = repository
         self.storage = storage
+        self.launchState = AppLaunchState(storageError: launchError)
         self.deletionUndoCoordinator = DeletionUndoCoordinator(repository: repository)
         self.aiClient = aiClient ?? (usesInMemoryStore ? UITestingAIClient() : AIClient())
     }

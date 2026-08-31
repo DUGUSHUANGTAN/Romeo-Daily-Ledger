@@ -48,7 +48,7 @@ struct LedgerView: View {
             }
             HStack {
                 Spacer()
-                Button(language == .simplifiedChinese ? "全部" : "All") { showsAllEntries = true }
+                Button(AppLocalization.text("ledger.all", language: language)) { showsAllEntries = true }
                     .accessibilityIdentifier("ledger-show-all")
             }
         }
@@ -90,9 +90,9 @@ private struct AllEntriesView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack {
-                Button(language == .simplifiedChinese ? "返回" : "Back", action: onBack)
+                Button(AppLocalization.text("button.back", language: language), action: onBack)
                     .accessibilityIdentifier("ledger-all-back")
-                Text(language == .simplifiedChinese ? "全部账目" : "All Entries").font(AppTypography.display(typography))
+                Text(AppLocalization.text("ledger.allEntries", language: language)).font(AppTypography.display(typography))
                 Spacer()
             }
             if errorMessage != nil { Text(AppLocalization.text("error.loadEntries", language: language)).foregroundStyle(.red) }

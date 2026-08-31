@@ -54,11 +54,11 @@ struct InsightsView: View {
                     .foregroundStyle(theme.secondaryText.color)
             }
             Spacer()
-            Picker("Year", selection: yearBinding) {
+            Picker(AppLocalization.text("calendar.year", language: language), selection: yearBinding) {
                 ForEach(CalendarViewModel.supportedYears, id: \.self) { Text(String($0)).tag($0) }
             }
             .labelsHidden().frame(width: 92).accessibilityIdentifier("insights-year")
-            Picker("Month", selection: monthBinding) {
+            Picker(AppLocalization.text("calendar.month", language: language), selection: monthBinding) {
                 ForEach(1...12, id: \.self) { Text(model.calendar.monthSymbols[$0 - 1]).tag($0) }
             }
             .labelsHidden().frame(width: 110).accessibilityIdentifier("insights-month")
@@ -68,7 +68,7 @@ struct InsightsView: View {
             Button(AppLocalization.text("button.nextMonth", language: language)) { Task { await model.moveMonth(by: 1) } }
                 .accessibilityLabel(AppLocalization.text("accessibility.nextInsights", language: language))
                 .accessibilityIdentifier("insights-next-month")
-            Button(language == .simplifiedChinese ? "这个月" : "This Month") { Task { await model.selectCurrentMonth() } }
+            Button(AppLocalization.text("insights.thisMonth", language: language)) { Task { await model.selectCurrentMonth() } }
                 .accessibilityIdentifier("insights-current-month")
         }
     }

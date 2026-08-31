@@ -6,50 +6,41 @@ import Testing
 struct AppPreferencesTests {
     @Test func defaultsMatchSpecification() {
         let defaults = isolatedDefaults()
-        let preferences = AppPreferences(defaults: defaults)
+        let preferences = AppPreferences(defaults: defaults, settingsStore: temporaryStore())
 
         #expect(preferences.currencyCode == "USD")
         #expect(preferences.themeMode == .system)
-        #expect(preferences.motionIntensity == 50)
         #expect(preferences.language == .simplifiedChinese)
-        #expect(preferences.typographyStyle == .system)
     }
 
     @Test func preferencesPersistThroughInjectedUserDefaults() {
         let defaults = isolatedDefaults()
-        let first = AppPreferences(defaults: defaults)
+        let store = temporaryStore()
+        let first = AppPreferences(defaults: defaults, settingsStore: store)
         first.currencyCode = "EUR"
         first.themeMode = .dark
-        first.motionIntensity = 82
         first.language = .english
-        first.typographyStyle = .rounded
 
-        let restored = AppPreferences(defaults: defaults)
+        let restored = AppPreferences(defaults: defaults, settingsStore: store)
         #expect(restored.currencyCode == "EUR")
         #expect(restored.themeMode == .dark)
-        #expect(restored.motionIntensity == 82)
         #expect(restored.language == .english)
-        #expect(restored.typographyStyle == .rounded)
     }
 
-    @Test func motionIntensityIsClampedBeforePersistence() {
-        let defaults = isolatedDefaults()
-        let preferences = AppPreferences(defaults: defaults)
-
-        preferences.motionIntensity = 140
-        #expect(preferences.motionIntensity == 100)
-        preferences.motionIntensity = -2
-        #expect(preferences.motionIntensity == 0)
-    }
-
-    @Test func allThreeNativeTypographyStrategiesRemainAvailable() {
-        #expect(AppTypography.Style.allCases == [.system, .editorial, .rounded])
-        #expect(AppTypography.Style.allCases.allSatisfy { !$0.usesBundledFont })
+    @Test func settingsJSONDoesNotPersistRemovedTypographyOrMotionControls() throws {
+        let directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        let store = SettingsStore(directory: directory)
+        _ = AppPreferences(defaults: isolatedDefaults(), settingsStore: store)
+        let text = try String(contentsOf: store.url, encoding: .utf8)
+        #expect(!text.contains("typographyStyle"))
+        #expect(!text.contains("motionIntensity"))
     }
 
     @Test func aiConfigurationPersistsAPIKeyForVisibleRestartField() throws {
         let defaults = isolatedDefaults()
-        let preferences = AppPreferences(defaults: defaults)
+        let directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        let store = SettingsStore(directory: directory)
+        let preferences = AppPreferences(defaults: defaults, settingsStore: store)
         preferences.aiConfiguration = AIConfiguration(
             protocolType: .chatCompletions,
             baseURL: URL(string: "https://example.com/v1")!,
@@ -58,7 +49,7 @@ struct AppPreferencesTests {
             apiKey: "secret-value"
         )
 
-        let restored = AppPreferences(defaults: defaults)
+        let restored = AppPreferences(defaults: defaults, settingsStore: store)
         #expect(restored.aiConfiguration.apiKey == "secret-value")
     }
 
@@ -82,5 +73,9 @@ struct AppPreferencesTests {
         let defaults = UserDefaults(suiteName: suiteName)!
         defaults.removePersistentDomain(forName: suiteName)
         return defaults
+    }
+
+    private func temporaryStore() -> SettingsStore {
+        SettingsStore(directory: FileManager.default.temporaryDirectory.appending(path: UUID().uuidString))
     }
 }

@@ -42,7 +42,7 @@ struct CategoryManagementView: View {
                     .onSubmit { Task { await save(category) } }
                     .accessibilityIdentifier("category-name-\(category.id.uuidString.lowercased())")
                     Spacer()
-                    Toggle(language == .simplifiedChinese ? "隐藏" : "Hidden", isOn: Binding(
+                    Toggle(AppLocalization.text("settings.categories.hidden", language: language), isOn: Binding(
                         get: { draftHidden[category.id] ?? category.isHidden },
                         set: { value in draftHidden[category.id] = value; Task { await save(category) } }
                     )).toggleStyle(.switch)

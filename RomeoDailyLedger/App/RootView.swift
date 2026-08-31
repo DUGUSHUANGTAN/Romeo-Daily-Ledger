@@ -31,12 +31,49 @@ struct RootView: View {
 
     var body: some View {
         @Bindable var preferences = dependencies.preferences
-        RootContentView(dependencies: dependencies)
+        Group {
+            if dependencies.launchState.canOpenLedger {
+                RootContentView(dependencies: dependencies)
+            } else {
+                StorageRecoveryView(dependencies: dependencies)
+            }
+        }
             .preferredColorScheme(preferredScheme(for: preferences.themeMode))
     }
 
     private func preferredScheme(for mode: ThemeMode) -> ColorScheme? {
         switch mode { case .system: nil; case .light: .light; case .dark: .dark }
+    }
+}
+
+private struct StorageRecoveryView: View {
+    let dependencies: AppDependencies
+
+    var body: some View {
+        @Bindable var preferences = dependencies.preferences
+        VStack(alignment: .leading, spacing: 16) {
+            Text(AppLocalization.text("storage.recovery.title", language: preferences.language))
+                .font(.title2.weight(.semibold))
+            Text(AppLocalization.text("storage.recovery.message", language: preferences.language))
+            if let message = dependencies.launchState.recoveryMessage {
+                Text(message)
+                    .font(.callout)
+                    .textSelection(.enabled)
+            }
+            LabeledContent(
+                AppLocalization.text("storage.recovery.source", language: preferences.language),
+                value: dependencies.storage.activeDirectory.path
+            )
+            if let pending = dependencies.storage.pendingDirectory {
+                LabeledContent(
+                    AppLocalization.text("storage.recovery.target", language: preferences.language),
+                    value: pending.path
+                )
+            }
+        }
+        .padding(32)
+        .frame(minWidth: 640, minHeight: 360, alignment: .topLeading)
+        .accessibilityElement(children: .contain)
     }
 }
 

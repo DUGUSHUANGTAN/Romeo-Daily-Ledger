@@ -21,8 +21,6 @@ struct StoredSettings: Codable, Equatable, Sendable {
     var currencyCode = "USD"
     var language = AppLanguage.simplifiedChinese.rawValue
     var themeMode = ThemeMode.system.rawValue
-    var typographyStyle = AppTypography.Style.system.rawValue
-    var motionIntensity = 50
     var aiConfiguration = AIConfiguration()
 }
 
@@ -196,7 +194,6 @@ struct StorageMigrator: Sendable {
         settings.currencyCode = defaults.string(forKey: "preferences.currencyCode") ?? settings.currencyCode
         settings.language = defaults.string(forKey: "preferences.language") ?? settings.language
         settings.themeMode = defaults.string(forKey: "preferences.themeMode") ?? settings.themeMode
-        settings.motionIntensity = defaults.object(forKey: "preferences.motionIntensity") == nil ? settings.motionIntensity : defaults.integer(forKey: "preferences.motionIntensity")
         if let data = defaults.data(forKey: "preferences.aiConfiguration"), let configuration = try? JSONDecoder().decode(AIConfiguration.self, from: data) { settings.aiConfiguration = configuration }
         if let key = try keychain.read(service: KeychainAIKeyStore.service, account: "apiKey") { settings.aiConfiguration.apiKey = key }
         try store.save(settings)

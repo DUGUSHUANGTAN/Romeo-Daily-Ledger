@@ -11,4 +11,10 @@ final class AppLaunchTests: XCTestCase {
     func testApplicationTerminatesOnlyAfterTheLastWindowCloses() {
         XCTAssertTrue(AppLifecycleDelegate().applicationShouldTerminateAfterLastWindowClosed(.shared))
     }
+
+    func testStorageFailureProducesRecoveryStateInsteadOfOpeningLedger() {
+        let state = AppLaunchState(storageError: CocoaError(.fileReadCorruptFile))
+        XCTAssertNotNil(state.recoveryMessage)
+        XCTAssertFalse(state.canOpenLedger)
+    }
 }

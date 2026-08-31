@@ -23,11 +23,11 @@ struct CalendarView: View {
                         .foregroundStyle(theme.secondaryText.color)
                 }
                 Spacer()
-                Picker("Year", selection: yearBinding) {
+                Picker(AppLocalization.text("calendar.year", language: language), selection: yearBinding) {
                     ForEach(CalendarViewModel.supportedYears, id: \.self) { Text(String($0)).tag($0) }
                 }
                 .labelsHidden().frame(width: 92).accessibilityIdentifier("calendar-year")
-                Picker("Month", selection: monthBinding) {
+                Picker(AppLocalization.text("calendar.month", language: language), selection: monthBinding) {
                     ForEach(1...12, id: \.self) { Text(model.calendar.monthSymbols[$0 - 1]).tag($0) }
                 }
                 .labelsHidden().frame(width: 110).accessibilityIdentifier("calendar-month")
