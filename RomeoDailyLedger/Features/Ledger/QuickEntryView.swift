@@ -25,6 +25,13 @@ struct QuickEntryView: View {
                 }
                 .frame(width: 190)
                 .accessibilityIdentifier("quick-entry-category")
+                DatePicker(
+                    AppLocalization.text("field.date", language: language),
+                    selection: $model.draft.occurredAt,
+                    displayedComponents: .date
+                )
+                .labelsHidden()
+                .accessibilityIdentifier("quick-entry-date")
                 TextField(AppLocalization.text("field.note", language: language), text: $model.draft.note)
                     .textFieldStyle(.roundedBorder)
                     .accessibilityLabel(AppLocalization.text("field.note", language: language))

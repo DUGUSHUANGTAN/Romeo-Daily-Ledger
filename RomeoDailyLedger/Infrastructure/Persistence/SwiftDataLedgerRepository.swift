@@ -9,13 +9,28 @@ final class SwiftDataLedgerRepository: LedgerRepository {
     }
 
     private let context: ModelContext
+    private let dateNormalizer: AppDateNormalizer
 
-    init(context: ModelContext) {
+    init(
+        context: ModelContext,
+        clock: any AppClock = SystemAppClock(),
+        timeZoneProvider: any AppTimeZoneProviding = SystemAppTimeZoneProvider()
+    ) {
         self.context = context
+        self.dateNormalizer = AppDateNormalizer(clock: clock, timeZoneProvider: timeZoneProvider)
     }
 
     func seedDefaultsIfNeeded() async throws {
         try DefaultCategorySeeder(context: context).seedIfNeeded()
+        var changed = false
+        for entry in try context.fetch(FetchDescriptor<LedgerEntry>()) {
+            let normalized = dateNormalizer.normalize(entry.occurredAt)
+            if entry.occurredAt != normalized {
+                entry.occurredAt = normalized
+                changed = true
+            }
+        }
+        if changed { try context.save() }
     }
 
     func insert(_ draft: LedgerDraft) async throws -> LedgerEntry {
@@ -30,7 +45,7 @@ final class SwiftDataLedgerRepository: LedgerRepository {
                 amount: try draft.validatedAmount(),
                 categoryID: try resolvedCategoryID(for: draft),
                 note: draft.note,
-                occurredAt: draft.occurredAt
+                occurredAt: dateNormalizer.normalize(draft.occurredAt)
             )
         }
         for entry in entries { context.insert(entry) }
@@ -52,7 +67,7 @@ final class SwiftDataLedgerRepository: LedgerRepository {
         entry.amount = try draft.validatedAmount()
         entry.categoryID = try resolvedCategoryID(for: draft)
         entry.note = draft.note
-        entry.occurredAt = draft.occurredAt
+        entry.occurredAt = dateNormalizer.normalize(draft.occurredAt)
         entry.updatedAt = .now
         try context.save()
     }

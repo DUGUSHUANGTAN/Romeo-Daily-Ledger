@@ -47,7 +47,7 @@ struct AppPreferencesTests {
         #expect(AppTypography.Style.allCases.allSatisfy { !$0.usesBundledFont })
     }
 
-    @Test func aiConfigurationNeverPersistsAnAPIKeyInUserDefaults() throws {
+    @Test func aiConfigurationPersistsAPIKeyForVisibleRestartField() throws {
         let defaults = isolatedDefaults()
         let preferences = AppPreferences(defaults: defaults)
         preferences.aiConfiguration = AIConfiguration(
@@ -58,11 +58,8 @@ struct AppPreferencesTests {
             apiKey: "secret-value"
         )
 
-        let persisted = try #require(defaults.data(forKey: "preferences.aiConfiguration"))
-        let text = try #require(String(data: persisted, encoding: .utf8))
-        #expect(!text.lowercased().contains("apikey"))
-        #expect(!text.lowercased().contains("authorization"))
-        #expect(!text.contains("secret-value"))
+        let restored = AppPreferences(defaults: defaults)
+        #expect(restored.aiConfiguration.apiKey == "secret-value")
     }
 
     @Test func legacyAIConfigurationDecodesWithEmptyAPIKey() throws {

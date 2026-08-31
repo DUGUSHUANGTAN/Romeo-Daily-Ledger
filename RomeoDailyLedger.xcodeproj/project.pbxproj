@@ -24,11 +24,11 @@
 		2243EDC717704617B2CF6883 /* InsightsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5D546B0BE55B957477E627 /* InsightsViewModelTests.swift */; };
 		2568C94510F9B7C59EF3FDE8 /* SettingsRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8253AE6BB7FB3EF28BC155DE /* SettingsRootView.swift */; };
 		26F1496B690C20128478F058 /* EntryEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B2DD37BFB3EC461A995BB0 /* EntryEditorView.swift */; };
-		28C23CF7A444251CCFFAAC37 /* AIKeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FB1897B80ADBFA37A1B3FF2 /* AIKeychainStore.swift */; };
 		2E2870569D23E41B733FDFFB /* AppSmokeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B42970BD82248CFCC9F339B /* AppSmokeUITests.swift */; };
 		300E6D5A6F56F937E39227E2 /* LedgerRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFE762FFCA72A30EBA4B055 /* LedgerRepository.swift */; };
 		34A745A6FB05CE8564E53E60 /* LedgerFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04ED95803D67504259A80C68 /* LedgerFlowUITests.swift */; };
 		39493364396C24DA2824403C /* TestRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FF4ADEFE90029DF29C28C4 /* TestRepository.swift */; };
+		3B092D28FE67A88431E23F33 /* AIRequestState.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADBB99E3985DC73C800785B0 /* AIRequestState.swift */; };
 		3B2177D1EFCD13CFC5844089 /* LedgerDraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1914DEDBDDF1625BED2D5D3F /* LedgerDraft.swift */; };
 		438549E7BD2351E2F6AB1C38 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30460A7035A3ECB53367E397 /* CalendarView.swift */; };
 		448D089EA6AD0124E8AD64FC /* EntryKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D7E67A84CB67EA6810931F9 /* EntryKind.swift */; };
@@ -56,6 +56,7 @@
 		820456D01923514170E9C6A6 /* InsightsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E932F4841675C7BF4B5E32 /* InsightsViewModel.swift */; };
 		84E2A880A3DD9E8A6A509403 /* AILedgerAssistantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D83032BA66F7F414CB6881E /* AILedgerAssistantView.swift */; };
 		86E5AD343BB89B0A4B2CA0BD /* LedgerRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 736B3807812C26473D7F882E /* LedgerRepositoryTests.swift */; };
+		89ED2A610AD7315F6A56A8E9 /* AppDateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A31E60ED9FBC3D3D4BDE5DA /* AppDateTests.swift */; };
 		8AA02FF08AD5CF2763CD39C8 /* EntryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A566C3F32505B91A53691ED /* EntryListView.swift */; };
 		8ABE1E7736B33A660885DFB4 /* DataTransferUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F119834611E89B30FC8C4E /* DataTransferUITests.swift */; };
 		8B894F197D73ED9D79B5B56F /* SelectionSummaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33B4113230441C97FE52D658 /* SelectionSummaryTests.swift */; };
@@ -72,6 +73,7 @@
 		A97393F233911E70D2F42D58 /* CalendarViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92988B2E0EBB876FBD9EF53D /* CalendarViewModelTests.swift */; };
 		A9AD8366C903BDF3BD7656B5 /* LedgerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE05E7DA8BC3A1B08A8655D /* LedgerView.swift */; };
 		B1832F2C4790A72682A556D0 /* chart-no-axes-column-increasing.svg in Resources */ = {isa = PBXBuildFile; fileRef = 2EF6AF603A9AB92209141350 /* chart-no-axes-column-increasing.svg */; };
+		B1A3007C984A97649239C959 /* AIRequestStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD807D8625BB241D2C3361FA /* AIRequestStateTests.swift */; };
 		B82086FCDAF6537711CC5BC2 /* DefaultCategorySeeder.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5C3232742B10B85D4ABE3D7 /* DefaultCategorySeeder.swift */; };
 		BB488B5EA80FE6CE396B151D /* LedgerFormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CA531A262148C6E925475EA /* LedgerFormattingTests.swift */; };
 		BE156DBB13E9D40150542611 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CCBDC91A541B5225CB3F876 /* Category.swift */; };
@@ -131,11 +133,11 @@
 		2B42970BD82248CFCC9F339B /* AppSmokeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSmokeUITests.swift; sourceTree = "<group>"; };
 		2D4C059999A1C91C66518790 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		2EF6AF603A9AB92209141350 /* chart-no-axes-column-increasing.svg */ = {isa = PBXFileReference; path = "chart-no-axes-column-increasing.svg"; sourceTree = "<group>"; };
-		2FB1897B80ADBFA37A1B3FF2 /* AIKeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIKeychainStore.swift; sourceTree = "<group>"; };
 		30460A7035A3ECB53367E397 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		30F00DA6AD2A46896549DE3D /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		33B4113230441C97FE52D658 /* SelectionSummaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionSummaryTests.swift; sourceTree = "<group>"; };
 		3A1DC2FF5DAA2878C7A36C94 /* AISettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AISettingsView.swift; sourceTree = "<group>"; };
+		3A31E60ED9FBC3D3D4BDE5DA /* AppDateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDateTests.swift; sourceTree = "<group>"; };
 		3D080AF2B7E4CBB1FACBD127 /* SwiftDataLedgerRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataLedgerRepository.swift; sourceTree = "<group>"; };
 		4159122C65420F1933DE1498 /* UpdateCheckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateCheckView.swift; sourceTree = "<group>"; };
 		468915B2438A93AA40583459 /* AppLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLocalization.swift; sourceTree = "<group>"; };
@@ -170,10 +172,12 @@
 		A25021F3EB9DA4C59A8A6827 /* ReleaseConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReleaseConfigurationTests.swift; sourceTree = "<group>"; };
 		A7F119834611E89B30FC8C4E /* DataTransferUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTransferUITests.swift; sourceTree = "<group>"; };
 		A86AB2C645BD94FEA4864A32 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		ADBB99E3985DC73C800785B0 /* AIRequestState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIRequestState.swift; sourceTree = "<group>"; };
 		B17EB2627356AD4DBBE8C2BD /* EntryEditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryEditorViewModel.swift; sourceTree = "<group>"; };
 		B209F88DD63A0C5AAA46E982 /* DataTransferTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTransferTests.swift; sourceTree = "<group>"; };
 		B639E5C13E8D64C2B0716811 /* ReleaseUpdateServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReleaseUpdateServiceTests.swift; sourceTree = "<group>"; };
 		B8A6E3117FFDD8D02D2DED82 /* AppearanceSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceSettingsView.swift; sourceTree = "<group>"; };
+		BD807D8625BB241D2C3361FA /* AIRequestStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIRequestStateTests.swift; sourceTree = "<group>"; };
 		C008EB58AC3F2E012B233730 /* LedgerTransferService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LedgerTransferService.swift; sourceTree = "<group>"; };
 		C57A6F03ACA3641BD1AA472D /* AIFlowUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIFlowUITests.swift; sourceTree = "<group>"; };
 		C6FF4ADEFE90029DF29C28C4 /* TestRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestRepository.swift; sourceTree = "<group>"; };
@@ -230,6 +234,7 @@
 			children = (
 				126B05A881F597276FBD1AE4 /* AIAnalysisTests.swift */,
 				E14FDD4DDBD573A8C88887C5 /* AIClientTests.swift */,
+				BD807D8625BB241D2C3361FA /* AIRequestStateTests.swift */,
 			);
 			path = AI;
 			sourceTree = "<group>";
@@ -429,8 +434,8 @@
 			children = (
 				0516E0B05AA1246B66B672CD /* AIAnalysisScope.swift */,
 				9810A04F5F87E31DCD07F55C /* AIClient.swift */,
-				2FB1897B80ADBFA37A1B3FF2 /* AIKeychainStore.swift */,
 				7172A46A07B273EB8B22FB46 /* AIProtocol.swift */,
+				ADBB99E3985DC73C800785B0 /* AIRequestState.swift */,
 			);
 			path = AI;
 			sourceTree = "<group>";
@@ -451,6 +456,7 @@
 		A6E4EBE8A541A23E60E4BB55 /* Ledger */ = {
 			isa = PBXGroup;
 			children = (
+				3A31E60ED9FBC3D3D4BDE5DA /* AppDateTests.swift */,
 				9CA531A262148C6E925475EA /* LedgerFormattingTests.swift */,
 				0778F870C489EBF3638530C0 /* LedgerViewModelTests.swift */,
 				33B4113230441C97FE52D658 /* SelectionSummaryTests.swift */,
@@ -696,6 +702,8 @@
 			files = (
 				D7069E6DA32F025B8CB4F959 /* AIAnalysisTests.swift in Sources */,
 				1201556DEEDB74749EC402BC /* AIClientTests.swift in Sources */,
+				B1A3007C984A97649239C959 /* AIRequestStateTests.swift in Sources */,
+				89ED2A610AD7315F6A56A8E9 /* AppDateTests.swift in Sources */,
 				74D5256A3F38B169045BAD6F /* AppLaunchTests.swift in Sources */,
 				011392DCA1EB206ACDDEA78A /* AppPreferencesTests.swift in Sources */,
 				A97393F233911E70D2F42D58 /* CalendarViewModelTests.swift in Sources */,
@@ -723,9 +731,9 @@
 			files = (
 				0163903817FF883CB8B2029D /* AIAnalysisScope.swift in Sources */,
 				47ADEE0A15267A045E6F802B /* AIClient.swift in Sources */,
-				28C23CF7A444251CCFFAAC37 /* AIKeychainStore.swift in Sources */,
 				84E2A880A3DD9E8A6A509403 /* AILedgerAssistantView.swift in Sources */,
 				DE17AEE489268E3913A54FF7 /* AIProtocol.swift in Sources */,
+				3B092D28FE67A88431E23F33 /* AIRequestState.swift in Sources */,
 				14FA5B915E7264380B2D3CFC /* AISettingsView.swift in Sources */,
 				E801873011ED7BEE2C202F3F /* AppCommands.swift in Sources */,
 				9722F0C0722FDC4F6645FD24 /* AppDependencies.swift in Sources */,

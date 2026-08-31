@@ -14,44 +14,45 @@ final class LedgerViewModel {
     private let repository: LedgerRepository
     private let deletionUndoCoordinator: DeletionUndoCoordinator?
     private let calendar: Calendar
-    private let now: @MainActor () -> Date
+    private let dateNormalizer: AppDateNormalizer
 
     init(
         repository: LedgerRepository,
         deletionUndoCoordinator: DeletionUndoCoordinator? = nil,
         calendar: Calendar = .autoupdatingCurrent,
-        now: @escaping @MainActor () -> Date = { .now }
+        clock: any AppClock = SystemAppClock(),
+        timeZoneProvider: any AppTimeZoneProviding = SystemAppTimeZoneProvider()
     ) {
         self.repository = repository
         self.deletionUndoCoordinator = deletionUndoCoordinator
         self.calendar = calendar
-        self.now = now
+        self.dateNormalizer = AppDateNormalizer(clock: clock, timeZoneProvider: timeZoneProvider)
         self.draft = LedgerDraft(
             kind: .expense,
             amountText: "",
             categoryID: nil,
             note: "",
-            occurredAt: now()
+            occurredAt: dateNormalizer.today
         )
     }
 
     func saveQuickEntry() async throws {
-        let previousDate = draft.occurredAt
-        draft.occurredAt = now()
         do {
             try await save()
         } catch {
-            draft.occurredAt = previousDate
             throw error
         }
     }
 
     func save() async throws {
         do {
-            _ = try await repository.insert(draft)
+            var normalizedDraft = draft
+            normalizedDraft.occurredAt = dateNormalizer.normalize(draft.occurredAt)
+            _ = try await repository.insert(normalizedDraft)
             draft.amountText = ""
             draft.note = ""
             draft.categoryID = nil
+            draft.occurredAt = dateNormalizer.today
             errorMessage = nil
             try await reload()
         } catch {
@@ -84,7 +85,7 @@ final class LedgerViewModel {
     }
 
     func reload() async throws {
-        let interval = calendar.dateInterval(of: .day, for: now())!
+        let interval = calendar.dateInterval(of: .day, for: dateNormalizer.today)!
         entries = try await repository.entries(in: interval)
         selectedEntryIDs.formIntersection(Set(entries.map(\.id)))
     }

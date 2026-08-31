@@ -70,11 +70,6 @@ struct LocalizationTests {
         }
     }
 
-    @Test func keychainFailureUsesKeychainCopyInsteadOfNetworkCopy() {
-        let message = localizedAIError(AIKeychainError.status(-1), language: .english)
-        #expect(message == AppLocalization.text("settings.ai.keychainError", language: .english))
-    }
-
     @Test func aiAssistantCopyIsCompleteInBothLanguages() {
         let keys = [
             "ai.mode.entry", "ai.mode.analysis", "ai.analysis.question",

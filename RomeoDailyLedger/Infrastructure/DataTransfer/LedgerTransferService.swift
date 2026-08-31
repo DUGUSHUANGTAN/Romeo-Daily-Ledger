@@ -7,8 +7,16 @@ final class LedgerTransferService {
     enum Format { case json, csv }
 
     private let repository: any LedgerRepository
+    private let dateNormalizer: AppDateNormalizer
 
-    init(repository: any LedgerRepository) { self.repository = repository }
+    init(
+        repository: any LedgerRepository,
+        clock: any AppClock = SystemAppClock(),
+        timeZoneProvider: any AppTimeZoneProviding = SystemAppTimeZoneProvider()
+    ) {
+        self.repository = repository
+        self.dateNormalizer = AppDateNormalizer(clock: clock, timeZoneProvider: timeZoneProvider)
+    }
 
     func exportData(format: Format, currencyCode: String) async throws -> Data {
         let interval = DateInterval(start: .distantPast, end: .distantFuture)
@@ -62,7 +70,7 @@ final class LedgerTransferService {
         }
         category = category ?? categories.first { $0.systemKey == "other" }
         return LedgerDraft(id: record.id, kind: record.kind, amountText: NSDecimalNumber(decimal: record.amount).stringValue,
-                           categoryID: category?.id, note: record.note, occurredAt: record.occurredAt)
+                           categoryID: category?.id, note: record.note, occurredAt: dateNormalizer.normalize(record.occurredAt))
     }
 
     func resolveDuplicates(data: Data, format: Format, existingIDs: Set<UUID>, strategy: LedgerDuplicateStrategy) throws -> LedgerDuplicateResolution {
