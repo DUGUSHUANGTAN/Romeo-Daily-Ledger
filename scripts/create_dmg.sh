@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_DIR="${BUILD_DIR:-$ROOT_DIR/build/release}"
-VERSION="${VERSION:-1.0.0}"
+VERSION="${VERSION:-1.0.1}"
 APP_NAME="Romeo Daily Ledger.app"
 DMG_NAME="Romeo-Daily-Ledger-$VERSION.dmg"
 STAGING_DIR="$BUILD_DIR/dmg-root"
