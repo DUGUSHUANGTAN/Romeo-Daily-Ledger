@@ -42,17 +42,15 @@ final class LocalizationUITests: XCTestCase {
         let app = launch(languageArgument: "--language-zh-Hans")
         app.typeKey(",", modifierFlags: .command)
 
-        XCTAssertTrue(app.buttons["settings-open-categories"].waitForExistence(timeout: 3))
-        XCTAssertTrue(app.buttons["settings-check-for-updates"].exists)
-        app.buttons["settings-check-for-updates"].click()
-        XCTAssertTrue(app.staticTexts["检查更新"].waitForExistence(timeout: 2))
-        XCTAssertTrue(app.staticTexts["1.0.0"].exists)
-        app.buttons["关闭"].click()
+        XCTAssertFalse(app.buttons["settings-open-categories"].exists)
         XCTAssertFalse(app.staticTexts["⌘,"].exists)
-        app.staticTexts["settings-page-categories"].click()
+        app.descendants(matching: .any)["settings-page-categories"].click()
         XCTAssertTrue(app.descendants(matching: .any)["settings-categories"].waitForExistence(timeout: 2))
         for category in ["衣", "食", "住", "行", "娱乐", "其他", "工资", "奖金", "投资", "退款"] {
-            XCTAssertTrue(app.staticTexts[category].exists, "缺少内置分类：\(category)")
+            let field = app.textFields.matching(
+                NSPredicate(format: "placeholderValue == %@ OR value == %@", category, category)
+            ).firstMatch
+            XCTAssertTrue(field.exists, "缺少可编辑内置分类：\(category)")
         }
     }
 

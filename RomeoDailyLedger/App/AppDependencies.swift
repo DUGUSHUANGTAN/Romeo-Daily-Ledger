@@ -49,7 +49,12 @@ final class AppDependencies {
             resolvedPreferences = preferences
         } else if usesInMemoryStore {
             let suiteName = "RomeoDailyLedger.UITesting.\(UUID().uuidString)"
-            resolvedPreferences = AppPreferences(defaults: UserDefaults(suiteName: suiteName)!)
+            let settingsDirectory = FileManager.default.temporaryDirectory
+                .appending(path: "RomeoDailyLedger-UITesting-\(UUID().uuidString)", directoryHint: .isDirectory)
+            resolvedPreferences = AppPreferences(
+                defaults: UserDefaults(suiteName: suiteName)!,
+                settingsStore: SettingsStore(directory: settingsDirectory)
+            )
         } else {
             resolvedPreferences = AppPreferences()
         }

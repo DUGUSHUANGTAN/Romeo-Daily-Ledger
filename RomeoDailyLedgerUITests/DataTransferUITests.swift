@@ -7,8 +7,9 @@ final class DataTransferUITests: XCTestCase {
         app.launchArguments = ["--ui-testing"]
         app.launch()
         app.buttons["sidebar-settings"].click()
-        XCTAssertTrue(app.staticTexts["数据"].waitForExistence(timeout: 3) || app.staticTexts["Data"].waitForExistence(timeout: 1))
-        app.staticTexts["数据"].click()
+        let dataPage = app.descendants(matching: .any)["settings-page-data"]
+        XCTAssertTrue(dataPage.waitForExistence(timeout: 3))
+        dataPage.click()
         XCTAssertTrue(app.descendants(matching: .any)["settings-data"].waitForExistence(timeout: 3))
         app.buttons["data-import-button"].click()
         app.typeKey(.escape, modifierFlags: [])
@@ -20,7 +21,7 @@ final class DataTransferUITests: XCTestCase {
         app.launchArguments = ["--ui-testing", "--language-en", "--ui-testing-data-preview"]
         app.launch()
         app.descendants(matching: .any)["sidebar-settings"].click()
-        app.staticTexts["settings-page-data"].click()
+        app.descendants(matching: .any)["settings-page-data"].click()
 
         XCTAssertTrue(app.descendants(matching: .any)["data-import-preview"].waitForExistence(timeout: 3))
         app.buttons["data-import-cancel"].click()

@@ -43,7 +43,7 @@ final class AIFlowUITests: XCTestCase {
     func testAISettingsRunsConnectionTest() {
         let app = launchApp()
         app.descendants(matching: .any)["sidebar-settings"].click()
-        app.staticTexts["settings-page-ai"].click()
+        app.descendants(matching: .any)["settings-page-ai"].click()
 
         XCTAssertTrue(app.descendants(matching: .any)["settings-ai"].waitForExistence(timeout: 2))
         app.textFields["settings-ai-model"].click()

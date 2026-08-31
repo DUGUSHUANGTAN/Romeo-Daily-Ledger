@@ -40,6 +40,7 @@ struct GeneralSettingsView: View {
             }
             Section(AppLocalization.text("settings.update.section", language: preferences.language)) {
                 Button(AppLocalization.text("settings.update.check", language: preferences.language)) { showingUpdateCheck = true }
+                    .accessibilityIdentifier("settings-check-for-updates")
             }
         }
         .formStyle(.grouped).navigationTitle(AppLocalization.text("settings.general.title", language: preferences.language)).padding(24)
