@@ -1,5 +1,9 @@
 import Foundation
 
+extension CodingUserInfoKey {
+    static let aiLocalTimeZone = CodingUserInfoKey(rawValue: "aiLocalTimeZone")!
+}
+
 enum AIProtocol: String, Codable, CaseIterable, Identifiable, Sendable {
     case chatCompletions
     case responses
@@ -71,7 +75,7 @@ struct AILedgerDraft: Codable, Equatable, Sendable {
         let formatter = DateFormatter()
         formatter.calendar = Calendar(identifier: .gregorian)
         formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = .autoupdatingCurrent
+        formatter.timeZone = decoder.userInfo[.aiLocalTimeZone] as? TimeZone ?? .autoupdatingCurrent
         formatter.dateFormat = "yyyy-MM-dd"
         guard let parsed = formatter.date(from: value) else {
             throw AIClientError.invalidStructuredResult("Invalid date")

@@ -8,6 +8,7 @@ struct AILedgerAssistantView: View {
 
     @Environment(\.appLanguage) private var language
     @Environment(\.appCurrencyCode) private var currencyCode
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var mode: Mode = .entry
     @State private var prompt = ""
     @State private var question = ""
@@ -16,7 +17,8 @@ struct AILedgerAssistantView: View {
     @State private var analysisResult: String?
     @State private var drafts: [AILedgerDraft] = []
     @State private var error: String?
-    @State private var isLoading = false
+    @State private var requestState = AIRequestState()
+    @State private var requestTask: Task<Void, Never>?
     @State private var showPreview = false
 
     let dependencies: AppDependencies
@@ -37,11 +39,12 @@ struct AILedgerAssistantView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            Text(AppLocalization.text("ai.title", language: language))
-                .font(AppTypography.display(typography))
-            Text(AppLocalization.text("ai.subtitle", language: language))
-                .foregroundStyle(theme.secondaryText.color)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                Text(AppLocalization.text("ai.title", language: language))
+                    .font(AppTypography.display(typography))
+                Text(AppLocalization.text("ai.subtitle", language: language))
+                    .foregroundStyle(theme.secondaryText.color)
 
             HStack {
                 Button(AppLocalization.text("ai.mode.entry", language: language)) { mode = .entry }
@@ -66,11 +69,22 @@ struct AILedgerAssistantView: View {
                     .foregroundStyle(.red)
                     .accessibilityIdentifier("ai-error")
             }
-            Spacer()
+            if requestState.isLoading {
+                HStack {
+                    ProgressView()
+                    Text(AppLocalization.text("ai.loading", language: language))
+                }
+                .accessibilityElement(children: .combine)
+                .transaction { if reduceMotion { $0.animation = nil } }
+                .accessibilityIdentifier("ai-loading")
+            }
+                Spacer()
+            }
         }
         .padding(28)
         .foregroundStyle(theme.primaryText.color)
         .background(theme.canvas.color)
+        .onDisappear { requestTask?.cancel() }
         .sheet(isPresented: $showPreview) {
             AILedgerPreviewView(
                 drafts: drafts,
@@ -93,7 +107,7 @@ struct AILedgerAssistantView: View {
                     .accessibilityIdentifier("ai-prompt")
                 Button(AppLocalization.text("ai.generate", language: language)) { generate() }
                     .buttonStyle(.borderedProminent)
-                    .disabled(prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading)
+                    .disabled(prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || requestTask != nil)
                     .accessibilityIdentifier("ai-generate")
             }
             Text(AppLocalization.text("ai.preview.range", language: language))
@@ -137,15 +151,18 @@ struct AILedgerAssistantView: View {
                 .disabled(
                     question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                         || !dependencies.preferences.aiConfiguration.allowsLedgerData
-                        || isLoading
+                        || requestTask != nil
                 )
                 .accessibilityIdentifier("ai-analyze")
 
             if let analysisResult {
                 GroupBox(AppLocalization.text("ai.analysis.result", language: language)) {
-                    Text(analysisResult)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .textSelection(.enabled)
+                    ScrollView {
+                        Text(analysisResult)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .textSelection(.enabled)
+                    }
+                    .frame(maxHeight: 320)
                 }
                 .accessibilityIdentifier("ai-analysis-result")
             }
@@ -153,18 +170,20 @@ struct AILedgerAssistantView: View {
     }
 
     private func generate() {
-        isLoading = true
         error = nil
-        Task { @MainActor in
-            defer { isLoading = false }
+        requestTask = Task { @MainActor in
+            defer { requestTask = nil }
             do {
-                let result = try await client.parseLedger(
-                    text: prompt,
-                    currencyCode: currencyCode,
-                    configuration: dependencies.preferences.aiConfiguration
-                )
+                let result = try await requestState.perform {
+                    try await client.parseLedger(
+                        text: prompt,
+                        currencyCode: currencyCode,
+                        configuration: dependencies.preferences.aiConfiguration
+                    )
+                }
                 drafts = result.entries
                 showPreview = true
+            } catch is CancellationError {
             } catch {
                 self.error = localizedAIError(error, language: language)
             }
@@ -172,38 +191,39 @@ struct AILedgerAssistantView: View {
     }
 
     private func analyze() {
-        isLoading = true
         error = nil
-        analysisResult = nil
-        Task { @MainActor in
-            defer { isLoading = false }
+        requestTask = Task { @MainActor in
+            defer { requestTask = nil }
             do {
-                let calendar = Calendar.autoupdatingCurrent
-                let lower = min(analysisStart, analysisEnd)
-                let upper = max(analysisStart, analysisEnd)
-                let start = calendar.startOfDay(for: lower)
-                guard let end = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: upper)) else {
-                    throw AIClientError.invalidStructuredResult("Invalid date interval")
-                }
-                let interval = DateInterval(start: start, end: end)
-                let entries = try await dependencies.repository.entries(in: interval)
-                var categoryNames: [UUID: String] = [:]
-                for id in Set(entries.map(\.categoryID)) {
-                    if let category = try await dependencies.repository.category(id: id) {
-                        categoryNames[id] = category.systemKey ?? category.customName ?? "other"
+                analysisResult = try await requestState.perform {
+                    let calendar = Calendar.autoupdatingCurrent
+                    let lower = min(analysisStart, analysisEnd)
+                    let upper = max(analysisStart, analysisEnd)
+                    let start = calendar.startOfDay(for: lower)
+                    guard let end = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: upper)) else {
+                        throw AIClientError.invalidStructuredResult("Invalid date interval")
                     }
+                    let interval = DateInterval(start: start, end: end)
+                    let entries = try await dependencies.repository.entries(in: interval)
+                    var categoryNames: [UUID: String] = [:]
+                    for id in Set(entries.map(\.categoryID)) {
+                        if let category = try await dependencies.repository.category(id: id) {
+                            categoryNames[id] = category.systemKey ?? category.customName ?? "other"
+                        }
+                    }
+                    let scope = AIAnalysisScope(
+                        interval: interval,
+                        currencyCode: currencyCode,
+                        entries: entries,
+                        categoryNames: categoryNames
+                    )
+                    return try await client.analyze(
+                        question: question,
+                        scope: scope,
+                        configuration: dependencies.preferences.aiConfiguration
+                    )
                 }
-                let scope = AIAnalysisScope(
-                    interval: interval,
-                    currencyCode: currencyCode,
-                    entries: entries,
-                    categoryNames: categoryNames
-                )
-                analysisResult = try await client.analyze(
-                    question: question,
-                    scope: scope,
-                    configuration: dependencies.preferences.aiConfiguration
-                )
+            } catch is CancellationError {
             } catch {
                 self.error = localizedAIError(error, language: language)
             }
@@ -216,6 +236,7 @@ private struct AILedgerPreviewView: View {
     @State private var drafts: [AILedgerDraft]
     @State private var error: String?
     @State private var isSaving = false
+    private let dateNormalizer = AppDateNormalizer()
 
     let currencyCode: String
     let repository: LedgerRepository
@@ -332,7 +353,7 @@ private struct AILedgerPreviewView: View {
                             amountText: draft.amount.description,
                             categoryID: categoryID,
                             note: draft.note,
-                            occurredAt: draft.date
+                            occurredAt: dateNormalizer.normalize(draft.date)
                         )
                     )
                 }

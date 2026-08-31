@@ -2,23 +2,23 @@ import SwiftUI
 
 struct AISettingsView: View {
     @Environment(\.appLanguage) private var language
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Bindable var preferences: AppPreferences
     @State private var baseURLText: String
-    @State private var apiKey = ""
+    @State private var apiKey: String
     @State private var status: String?
-    @State private var isTesting = false
-    private let keyStore: AIKeychainStoring
+    @State private var requestState = AIRequestState()
+    @State private var requestTask: Task<Void, Never>?
     private let client: any AIRequesting
 
     init(
         preferences: AppPreferences,
-        keyStore: AIKeychainStoring = KeychainAIKeyStore(),
         client: any AIRequesting = AIClient()
     ) {
         self.preferences = preferences
-        self.keyStore = keyStore
         self.client = client
         _baseURLText = State(initialValue: preferences.aiConfiguration.baseURL.absoluteString)
+        _apiKey = State(initialValue: preferences.aiConfiguration.apiKey)
     }
 
     var body: some View {
@@ -36,7 +36,7 @@ struct AISettingsView: View {
 
                 TextField(AppLocalization.text("settings.ai.baseURL", language: language), text: $baseURLText)
                     .accessibilityIdentifier("settings-ai-base-url")
-                SecureField(AppLocalization.text("settings.ai.apiKey", language: language), text: $apiKey)
+                TextField(AppLocalization.text("settings.ai.apiKey", language: language), text: $apiKey)
                     .accessibilityIdentifier("settings-ai-api-key")
                 TextField(
                     AppLocalization.text("settings.ai.model", language: language),
@@ -51,13 +51,15 @@ struct AISettingsView: View {
                 HStack {
                     Button(AppLocalization.text("settings.ai.saveKey", language: language)) { save() }
                         .accessibilityIdentifier("settings-ai-save")
-                    Button(
-                        isTesting
-                            ? AppLocalization.text("settings.ai.testing", language: language)
-                            : AppLocalization.text("settings.ai.test", language: language)
-                    ) { testConnection() }
-                    .disabled(isTesting)
+                    Button(AppLocalization.text("settings.ai.test", language: language)) { testConnection() }
+                    .disabled(requestTask != nil)
                     .accessibilityIdentifier("settings-ai-test")
+                    if requestState.isLoading {
+                        ProgressView()
+                            .accessibilityLabel(AppLocalization.text("settings.ai.testing", language: language))
+                            .transaction { if reduceMotion { $0.animation = nil } }
+                        Text(AppLocalization.text("settings.ai.testing", language: language))
+                    }
                     if let status {
                         Text(status)
                             .foregroundStyle(.secondary)
@@ -70,6 +72,7 @@ struct AISettingsView: View {
         .navigationTitle(AppLocalization.text("settings.ai.title", language: language))
         .padding(24)
         .accessibilityIdentifier("settings-ai")
+        .onDisappear { requestTask?.cancel() }
     }
 
     private func configurationBinding<Value>(_ keyPath: WritableKeyPath<AIConfiguration, Value>) -> Binding<Value> {
@@ -89,16 +92,13 @@ struct AISettingsView: View {
         }
         var configuration = preferences.aiConfiguration
         configuration.baseURL = url
+        configuration.apiKey = apiKey
         return configuration
     }
 
     private func save() {
         do {
             let configuration = try validatedConfiguration()
-            if !apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                try keyStore.save(apiKey, service: KeychainAIKeyStore.service, account: "apiKey")
-                apiKey = ""
-            }
             preferences.aiConfiguration = configuration
             status = AppLocalization.text("settings.ai.saved", language: language)
         } catch {
@@ -107,19 +107,17 @@ struct AISettingsView: View {
     }
 
     private func testConnection() {
-        isTesting = true
         status = nil
-        Task { @MainActor in
-            defer { isTesting = false }
+        requestTask = Task { @MainActor in
+            defer { requestTask = nil }
             do {
                 let configuration = try validatedConfiguration()
-                if !apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    try keyStore.save(apiKey, service: KeychainAIKeyStore.service, account: "apiKey")
-                    apiKey = ""
-                }
                 preferences.aiConfiguration = configuration
-                try await client.testConnection(configuration: configuration)
+                try await requestState.perform {
+                    try await client.testConnection(configuration: configuration)
+                }
                 status = AppLocalization.text("settings.ai.ready", language: language)
+            } catch is CancellationError {
             } catch {
                 status = localizedAIError(error, language: language)
             }
@@ -128,9 +126,6 @@ struct AISettingsView: View {
 }
 
 func localizedAIError(_ error: Error, language: AppLanguage) -> String {
-    if error is AIKeychainError {
-        return AppLocalization.text("settings.ai.keychainError", language: language)
-    }
     guard let error = error as? AIClientError else {
         return AppLocalization.text("ai.error.network", language: language)
     }

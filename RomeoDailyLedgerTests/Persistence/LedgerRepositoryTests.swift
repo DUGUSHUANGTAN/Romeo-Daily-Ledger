@@ -1,10 +1,34 @@
 import Foundation
+import SwiftData
 import Testing
 @testable import RomeoDailyLedger
 
 @MainActor
 @Suite("LedgerRepositoryTests")
 struct LedgerRepositoryTests {
+
+@Test func startupMigratesExistingEntryDatesIdempotently() async throws {
+    let container = try ModelContainerFactory.inMemory()
+    let context = ModelContext(container)
+    let zone = TimeZone(identifier: "Asia/Shanghai")!
+    let repository = SwiftDataLedgerRepository(
+        context: context,
+        timeZoneProvider: FixedAppTimeZoneProvider(timeZone: zone)
+    )
+    try await repository.seedDefaultsIfNeeded()
+    let category = try #require(try await repository.categories(kind: .expense).first)
+    let original = ISO8601DateFormatter().date(from: "2024-02-29T18:45:00Z")!
+    let entry = LedgerEntry(kind: .expense, amount: 1, categoryID: category.id, note: "legacy", occurredAt: original)
+    context.insert(entry)
+    try context.save()
+
+    try await repository.seedDefaultsIfNeeded()
+    let once = entry.occurredAt
+    try await repository.seedDefaultsIfNeeded()
+
+    #expect(once == ISO8601DateFormatter().date(from: "2024-02-29T16:00:00Z"))
+    #expect(entry.occurredAt == once)
+}
 
 @MainActor
 @Test func seederCreatesRequiredExpenseCategories() async throws {
@@ -70,7 +94,8 @@ private func expectFallbackToOther(kind: EntryKind) async throws {
 @Test func entriesQueryUsesHalfOpenDateRange() async throws {
     let repository = try TestRepository.make()
     try await repository.seedDefaultsIfNeeded()
-    let start = Date(timeIntervalSince1970: 1_700_000_000)
+    let normalizer = AppDateNormalizer()
+    let start = normalizer.normalize(Date(timeIntervalSince1970: 1_700_000_000))
     let end = start.addingTimeInterval(86_400)
 
     _ = try await repository.insert(draft(at: start, note: "start"))
@@ -78,7 +103,7 @@ private func expectFallbackToOther(kind: EntryKind) async throws {
     _ = try await repository.insert(draft(at: end, note: "end"))
 
     let entries = try await repository.entries(in: DateInterval(start: start, end: end))
-    #expect(entries.map(\.note) == ["start", "inside"])
+    #expect(Set(entries.map(\.note)) == ["start", "inside"])
 }
 
 @MainActor
@@ -103,15 +128,16 @@ private func expectFallbackToOther(kind: EntryKind) async throws {
         )
     )
 
+    let normalizedDate = AppDateNormalizer().normalize(changedDate)
     let entries = try await repository.entries(
-        in: DateInterval(start: changedDate.addingTimeInterval(-1), end: changedDate.addingTimeInterval(1))
+        in: DateInterval(start: normalizedDate, end: normalizedDate.addingTimeInterval(86_400))
     )
     let updated = try #require(entries.first)
     #expect(updated.kind == .income)
     #expect(updated.amount == Decimal(string: "99.25"))
     #expect(updated.categoryID == incomeCategory.id)
     #expect(updated.note == "after")
-    #expect(updated.occurredAt == changedDate)
+    #expect(updated.occurredAt == normalizedDate)
     #expect(updated.updatedAt >= originalUpdatedAt)
 }
 

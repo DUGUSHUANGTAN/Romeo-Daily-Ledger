@@ -32,7 +32,7 @@ struct EntryListView: View {
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note)
                                     .font(AppTypography.body(typography))
-                                Text(entry.occurredAt, format: .dateTime.hour().minute())
+                                Text(entry.occurredAt, format: .dateTime.year().month().day())
                                     .font(AppTypography.caption(typography))
                                     .foregroundStyle(theme.secondaryText.color)
                             }

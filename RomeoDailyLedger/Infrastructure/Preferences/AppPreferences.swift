@@ -1,6 +1,5 @@
 import Foundation
 import Observation
-import Foundation
 
 enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
     case simplifiedChinese = "zh-Hans"
@@ -59,8 +58,7 @@ final class AppPreferences {
 
     var aiConfiguration: AIConfiguration {
         didSet {
-            let legacy = LegacyAIConfiguration(configuration: aiConfiguration)
-            if let data = try? JSONEncoder().encode(legacy) {
+            if let data = try? JSONEncoder().encode(aiConfiguration) {
                 defaults.set(data, forKey: Key.aiConfiguration)
             }
         }
@@ -89,20 +87,6 @@ final class AppPreferences {
     }
 }
 
-private struct LegacyAIConfiguration: Codable {
-    let protocolType: AIProtocol
-    let baseURL: URL
-    let model: String
-    let allowsLedgerData: Bool
-
-    init(configuration: AIConfiguration) {
-        protocolType = configuration.protocolType
-        baseURL = configuration.baseURL
-        model = configuration.model
-        allowsLedgerData = configuration.allowsLedgerData
-    }
-}
-
 protocol AppClock: Sendable {
     var now: Date { get }
 }
@@ -125,4 +109,39 @@ struct FixedAppClock: AppClock {
 
 struct FixedAppTimeZoneProvider: AppTimeZoneProviding {
     let timeZone: TimeZone
+}
+
+struct AppDateNormalizer: Sendable {
+    private let clock: any AppClock
+    private let timeZoneProvider: any AppTimeZoneProviding
+
+    init(
+        clock: any AppClock = SystemAppClock(),
+        timeZoneProvider: any AppTimeZoneProviding = SystemAppTimeZoneProvider()
+    ) {
+        self.clock = clock
+        self.timeZoneProvider = timeZoneProvider
+    }
+
+    private var calendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = timeZoneProvider.timeZone
+        return calendar
+    }
+
+    var today: Date { normalize(clock.now) }
+    var yesterday: Date { calendar.date(byAdding: .day, value: -1, to: today)! }
+    var startOfCurrentMonth: Date { calendar.dateInterval(of: .month, for: today)!.start }
+    var timeZoneIdentifier: String { timeZoneProvider.timeZone.identifier }
+
+    func normalize(_ date: Date) -> Date { calendar.startOfDay(for: date) }
+
+    func localDateString(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.calendar = calendar
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = timeZoneProvider.timeZone
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
+    }
 }

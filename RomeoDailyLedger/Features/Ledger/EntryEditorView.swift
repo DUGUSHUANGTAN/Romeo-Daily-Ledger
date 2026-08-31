@@ -40,7 +40,7 @@ struct EntryEditorView: View {
                 .accessibilityIdentifier("editor-category")
             }
             labeled(AppLocalization.text("field.date", language: language)) {
-                DatePicker(AppLocalization.text("field.date", language: language), selection: $model.draft.occurredAt)
+                DatePicker(AppLocalization.text("field.date", language: language), selection: $model.draft.occurredAt, displayedComponents: .date)
                     .labelsHidden()
                     .accessibilityIdentifier("editor-date")
             }
