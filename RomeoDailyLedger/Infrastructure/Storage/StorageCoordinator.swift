@@ -57,15 +57,20 @@ enum StorageLocationError: LocalizedError, Equatable {
 }
 
 struct StorageLocationValidator {
-    func validate(parent: URL, volumeValues: [URLResourceKey: Bool]? = nil) throws {
-        let path = parent.standardizedFileURL.path.lowercased()
-        if path.contains(".app/contents") { throw StorageLocationError.applicationBundle }
+    func validate(parent: URL, volumeValues: [URLResourceKey: Bool]? = nil, isWritable: Bool? = nil) throws {
+        let standardized = parent.standardizedFileURL
+        let path = standardized.path.lowercased()
+        if standardized.path == Bundle.main.bundleURL.standardizedFileURL.path || standardized.path.hasPrefix(Bundle.main.bundleURL.standardizedFileURL.path + "/") || path.contains(".app/") {
+            throw StorageLocationError.applicationBundle
+        }
         if ["icloud", "mobile documents", "dropbox", "onedrive", "google drive"].contains(where: path.contains) {
             throw StorageLocationError.cloudSynchronized
         }
         let local = volumeValues?[.volumeIsLocalKey] ?? ((try? parent.resourceValues(forKeys: [.volumeIsLocalKey]).volumeIsLocal) ?? true)
         if !local { throw StorageLocationError.networkVolume }
-        if FileManager.default.fileExists(atPath: parent.path), !FileManager.default.isWritableFile(atPath: parent.path) {
+        let ubiquitous = volumeValues?[.isUbiquitousItemKey] ?? ((try? parent.resourceValues(forKeys: [.isUbiquitousItemKey]).isUbiquitousItem) ?? false)
+        if ubiquitous { throw StorageLocationError.cloudSynchronized }
+        if isWritable == false || (isWritable == nil && FileManager.default.fileExists(atPath: parent.path) && !FileManager.default.isWritableFile(atPath: parent.path)) {
             throw StorageLocationError.notWritable
         }
     }
@@ -87,7 +92,7 @@ struct StorageMigrator: Sendable {
         for name in ["default.store", "default.store-wal", "default.store-shm"] {
             let from = source.appending(path: name), to = target.appending(path: name)
             guard fm.fileExists(atPath: from.path) else { continue }
-            let temporary = target.appending(path: ".(name).migration")
+            let temporary = target.appending(path: ".\(name).migration")
             try? fm.removeItem(at: temporary)
             try fm.copyItem(at: from, to: temporary)
             try? fm.removeItem(at: to)
@@ -99,7 +104,29 @@ struct StorageMigrator: Sendable {
             try fm.copyItem(at: source.appending(path: name), to: destination)
         }
         guard fm.fileExists(atPath: target.appending(path: "default.store").path) else { throw CocoaError(.fileNoSuchFile) }
-        try writeState(.init(status: .complete, source: source.path, target: target.path), to: target)
+    }
+
+    func migrate(from source: URL, to target: URL, removeSourceDirectory: Bool = false, verify: () throws -> Void) throws {
+        do {
+            try copyDatabaseFamily(from: source, to: target)
+            try verify()
+            try writeState(.init(status: .verified, source: source.path, target: target.path), to: target)
+            if removeSourceDirectory {
+                try FileManager.default.removeItem(at: source)
+            } else {
+                try deleteDatabaseFamily(in: source)
+            }
+            try writeState(.init(status: .complete, source: source.path, target: target.path), to: target)
+        } catch {
+            try? writeState(.init(status: .recoveryRequired, source: source.path, target: target.path, message: error.localizedDescription), to: target)
+            throw error
+        }
+    }
+
+    func deleteDatabaseFamily(in directory: URL) throws {
+        for url in StorageLayout(directory: directory).databaseFiles where FileManager.default.fileExists(atPath: url.path) {
+            try FileManager.default.removeItem(at: url)
+        }
     }
 
     func writeState(_ state: MigrationState, to directory: URL) throws {
@@ -121,23 +148,26 @@ struct StorageMigrator: Sendable {
         let support = applicationSupport ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         defaultDirectory = StorageLayout(applicationSupport: support).activeDirectory
     }
-    var activeDirectory: URL { defaults.string(forKey: Self.activeDirectoryKey).map(URL.init(fileURLWithPath:)) ?? defaultDirectory }
-    var pendingDirectory: URL? { defaults.string(forKey: Self.pendingDirectoryKey).map(URL.init(fileURLWithPath:)) }
+    var activeDirectory: URL { resolvedURL(forKey: Self.activeDirectoryKey) ?? defaultDirectory }
+    var pendingDirectory: URL? { resolvedURL(forKey: Self.pendingDirectoryKey) }
     func schedule(parent: URL) throws {
         try StorageLocationValidator().validate(parent: parent)
-        defaults.set(parent.appending(path: "Romeo Daily Ledger Data", directoryHint: .isDirectory).path, forKey: Self.pendingDirectoryKey)
+        let target = parent.appending(path: "Romeo Daily Ledger Data", directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(at: target, withIntermediateDirectories: false)
+        try storeBookmark(target, forKey: Self.pendingDirectoryKey)
     }
-    func restoreDefaultOnNextLaunch() { defaults.set(defaultDirectory.path, forKey: Self.pendingDirectoryKey) }
+    func restoreDefaultOnNextLaunch() { try? storeBookmark(defaultDirectory, forKey: Self.pendingDirectoryKey) }
     func prepareBeforeOpeningContainer() throws {
         let target = pendingDirectory ?? activeDirectory
         try migrateLegacyStoreIfNeeded(to: target)
         if let pendingDirectory, pendingDirectory != activeDirectory, FileManager.default.fileExists(atPath: activeDirectory.appending(path: "default.store").path) {
             do {
                 let expected = try databaseCounts(at: activeDirectory)
-                try migrator.copyDatabaseFamily(from: activeDirectory, to: pendingDirectory)
-                guard try databaseCounts(at: pendingDirectory) == expected else { throw CocoaError(.fileReadCorruptFile) }
-                _ = try SettingsStore(directory: pendingDirectory).load()
-                defaults.set(pendingDirectory.path, forKey: Self.activeDirectoryKey); defaults.removeObject(forKey: Self.pendingDirectoryKey)
+                try migrator.migrate(from: activeDirectory, to: pendingDirectory, removeSourceDirectory: true) {
+                    guard try databaseCounts(at: pendingDirectory) == expected else { throw CocoaError(.fileReadCorruptFile) }
+                    if FileManager.default.fileExists(atPath: SettingsStore(directory: pendingDirectory).url.path) { _ = try SettingsStore(directory: pendingDirectory).load() }
+                }
+                try storeBookmark(pendingDirectory, forKey: Self.activeDirectoryKey); defaults.removeObject(forKey: Self.pendingDirectoryKey)
             }
             catch { try? migrator.writeState(.init(status: .recoveryRequired, source: activeDirectory.path, target: pendingDirectory.path, message: error.localizedDescription), to: pendingDirectory); throw error }
         }
@@ -153,8 +183,10 @@ struct StorageMigrator: Sendable {
         guard !FileManager.default.fileExists(atPath: destination.path) else { return }
         let legacy = defaultDirectory.deletingLastPathComponent()
         guard FileManager.default.fileExists(atPath: legacy.appending(path: "default.store").path) else { return }
-        try migrator.copyDatabaseFamily(from: legacy, to: target)
-        guard try databaseCounts(at: legacy) == databaseCounts(at: target) else { throw CocoaError(.fileReadCorruptFile) }
+        let expected = try databaseCounts(at: legacy)
+        try migrator.migrate(from: legacy, to: target) {
+            guard try databaseCounts(at: target) == expected else { throw CocoaError(.fileReadCorruptFile) }
+        }
     }
 
     private func migrateLegacyPreferencesAndKeyIfNeeded(in directory: URL) throws {
@@ -175,5 +207,26 @@ struct StorageMigrator: Sendable {
     private func databaseCounts(at directory: URL) throws -> (Int, Int) {
         let container = try ModelContainerFactory.persistent(storeURL: directory.appending(path: "default.store"))
         return (try container.mainContext.fetchCount(FetchDescriptor<LedgerEntry>()), try container.mainContext.fetchCount(FetchDescriptor<Category>()))
+    }
+
+    func removeManagedMigrationStaging() throws {
+        for directory in [activeDirectory, pendingDirectory].compactMap({ $0 }) {
+            for name in ["default.store", "default.store-wal", "default.store-shm"] {
+                let url = directory.appending(path: ".\(name).migration")
+                if FileManager.default.fileExists(atPath: url.path) { try FileManager.default.removeItem(at: url) }
+            }
+        }
+    }
+
+    private func storeBookmark(_ url: URL, forKey key: String) throws {
+        defaults.set(try url.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil), forKey: key)
+    }
+
+    private func resolvedURL(forKey key: String) -> URL? {
+        if let data = defaults.data(forKey: key) {
+            var stale = false
+            return try? URL(resolvingBookmarkData: data, options: [.withSecurityScope, .withoutUI], relativeTo: nil, bookmarkDataIsStale: &stale)
+        }
+        return defaults.string(forKey: key).map(URL.init(fileURLWithPath:))
     }
 }

@@ -8,6 +8,7 @@ struct GeneralSettingsView: View {
     @State private var showingUpdateCheck = false
     @State private var showingEraseConfirmation = false
     @State private var storageMessage: String?
+    @State private var eraseMessage: String?
     private let commonCurrencies = ["CNY", "USD", "EUR", "GBP", "JPY", "HKD"]
 
     var body: some View {
@@ -33,7 +34,10 @@ struct GeneralSettingsView: View {
                 }
                 if let storageMessage { Text(storageMessage).foregroundStyle(.red) }
             }
-            Section { Button("Erase All Entries", role: .destructive) { showingEraseConfirmation = true } }
+            Section {
+                Button("Erase All Entries", role: .destructive) { showingEraseConfirmation = true }
+                if let eraseMessage { Text(eraseMessage).foregroundStyle(.red) }
+            }
             Section(AppLocalization.text("settings.update.section", language: preferences.language)) {
                 Button(AppLocalization.text("settings.update.check", language: preferences.language)) { showingUpdateCheck = true }
             }
@@ -42,7 +46,15 @@ struct GeneralSettingsView: View {
         .accessibilityIdentifier("settings-general")
         .sheet(isPresented: $showingUpdateCheck) { UpdateCheckView(language: preferences.language) }
         .confirmationDialog("Permanently erase every ledger entry? Categories, settings and exports will be kept.", isPresented: $showingEraseConfirmation, titleVisibility: .visible) {
-            Button("Erase All Entries", role: .destructive) { Task { try? await repository.deleteAllEntries() } }
+            Button("Erase All Entries", role: .destructive) {
+                Task {
+                    do {
+                        try await repository.deleteAllEntries()
+                        try storage.removeManagedMigrationStaging()
+                        eraseMessage = nil
+                    } catch { eraseMessage = error.localizedDescription }
+                }
+            }
             Button("Cancel", role: .cancel) {}
         }
     }
