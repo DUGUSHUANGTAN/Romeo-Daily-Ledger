@@ -41,7 +41,9 @@
 		5B649BDCD397D5B05053BEB5 /* LedgerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0778F870C489EBF3638530C0 /* LedgerViewModelTests.swift */; };
 		60579EC3E5D1C8AFB691B67A /* LocalizationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 101D7743834FD0F7A30D5BED /* LocalizationUITests.swift */; };
 		61949B45CE4F70D607F58F48 /* LedgerFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DB3E588E1B5DCA0C8556551 /* LedgerFormatting.swift */; };
+		62560987088865DD02325219 /* StorageCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C6A270AA47B09562D7B30CC /* StorageCoordinator.swift */; };
 		6440B21D0E2A99787A783EFB /* LedgerModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE9B638973FC4A6905811674 /* LedgerModelTests.swift */; };
+		64453C4032A943D952817371 /* StorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B807529562F3FC2DB899375 /* StorageTests.swift */; };
 		654BB5C72CA324A7D78D9640 /* AppLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 468915B2438A93AA40583459 /* AppLocalization.swift */; };
 		684A19A53E9BFE22CFCD3C2D /* ModelContainerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC254E45CF35D0869B1AACC /* ModelContainerFactory.swift */; };
 		6B4C5AC427C96CA24022C314 /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF99A064E4EE51565E242869 /* AppPreferences.swift */; };
@@ -120,6 +122,8 @@
 		1847841CB115A1A27FC9E978 /* DeletionUndoCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeletionUndoCoordinator.swift; sourceTree = "<group>"; };
 		18E932F4841675C7BF4B5E32 /* InsightsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsViewModel.swift; sourceTree = "<group>"; };
 		1914DEDBDDF1625BED2D5D3F /* LedgerDraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LedgerDraft.swift; sourceTree = "<group>"; };
+		1B807529562F3FC2DB899375 /* StorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageTests.swift; sourceTree = "<group>"; };
+		1C6A270AA47B09562D7B30CC /* StorageCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageCoordinator.swift; sourceTree = "<group>"; };
 		1CCBDC91A541B5225CB3F876 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
 		273EB45675C9A3D918E62914 /* AppTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTypography.swift; sourceTree = "<group>"; };
 		285509CC4EA990C1FC002118 /* CalendarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewModel.swift; sourceTree = "<group>"; };
@@ -311,6 +315,7 @@
 			isa = PBXGroup;
 			children = (
 				736B3807812C26473D7F882E /* LedgerRepositoryTests.swift */,
+				1B807529562F3FC2DB899375 /* StorageTests.swift */,
 			);
 			path = Persistence;
 			sourceTree = "<group>";
@@ -370,6 +375,14 @@
 			path = Features;
 			sourceTree = "<group>";
 		};
+		75F86F419F0485997188837B /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				1C6A270AA47B09562D7B30CC /* StorageCoordinator.swift */,
+			);
+			path = Storage;
+			sourceTree = "<group>";
+		};
 		78DB43E4C15680242561C2E1 /* Release */ = {
 			isa = PBXGroup;
 			children = (
@@ -386,6 +399,7 @@
 				3D9CB5F6608E31B0F0B24D91 /* Persistence */,
 				0743AB2A37E4CB6EF760D3C2 /* Preferences */,
 				78DB43E4C15680242561C2E1 /* Release */,
+				75F86F419F0485997188837B /* Storage */,
 			);
 			path = Infrastructure;
 			sourceTree = "<group>";
@@ -698,6 +712,7 @@
 				4639F57364FF4A7D13F94303 /* ReleaseUpdateServiceTests.swift in Sources */,
 				9F05EAC093C637D0C6DDAF60 /* RepositoryDoubles.swift in Sources */,
 				8B894F197D73ED9D79B5B56F /* SelectionSummaryTests.swift in Sources */,
+				64453C4032A943D952817371 /* StorageTests.swift in Sources */,
 				39493364396C24DA2824403C /* TestRepository.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -752,6 +767,7 @@
 				A0774D4B0ED73C111059DFC3 /* SelectionSummary.swift in Sources */,
 				8EA896D1BA519C53D8C74E4B /* SelectionSummaryBar.swift in Sources */,
 				2568C94510F9B7C59EF3FDE8 /* SettingsRootView.swift in Sources */,
+				62560987088865DD02325219 /* StorageCoordinator.swift in Sources */,
 				7AA8FBEBBCC5B532058D644D /* SwiftDataLedgerRepository.swift in Sources */,
 				E17A406D90DB0EA740D84ECF /* UpdateCheckView.swift in Sources */,
 			);

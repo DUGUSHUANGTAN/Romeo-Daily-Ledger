@@ -1,6 +1,5 @@
 import Foundation
 import Observation
-import Foundation
 
 enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
     case simplifiedChinese = "zh-Hans"
@@ -22,6 +21,8 @@ final class AppPreferences {
     }
 
     private let defaults: UserDefaults
+    private let settingsStore: SettingsStore
+    private var isLoading = true
 
     var currencyCode: String {
         didSet {
@@ -30,20 +31,20 @@ final class AppPreferences {
                 currencyCode = normalized
                 return
             }
-            defaults.set(currencyCode, forKey: Key.currencyCode)
+            persist()
         }
     }
 
     var language: AppLanguage {
-        didSet { defaults.set(language.rawValue, forKey: Key.language) }
+        didSet { persist() }
     }
 
     var themeMode: ThemeMode {
-        didSet { defaults.set(themeMode.rawValue, forKey: Key.themeMode) }
+        didSet { persist() }
     }
 
     var typographyStyle: AppTypography.Style {
-        didSet { defaults.set(typographyStyle.rawValue, forKey: Key.typographyStyle) }
+        didSet { persist() }
     }
 
     var motionIntensity: Int {
@@ -53,34 +54,49 @@ final class AppPreferences {
                 motionIntensity = clamped
                 return
             }
-            defaults.set(motionIntensity, forKey: Key.motionIntensity)
+            persist()
         }
     }
 
     var aiConfiguration: AIConfiguration {
         didSet {
-            let legacy = LegacyAIConfiguration(configuration: aiConfiguration)
-            if let data = try? JSONEncoder().encode(legacy) {
-                defaults.set(data, forKey: Key.aiConfiguration)
-            }
+            persist()
         }
     }
 
-    init(defaults: UserDefaults = .standard) {
+    var apiKey: String {
+        get { aiConfiguration.apiKey }
+        set { aiConfiguration.apiKey = newValue }
+    }
+
+    init(defaults: UserDefaults = .standard, settingsStore: SettingsStore? = nil) {
         self.defaults = defaults
-        currencyCode = Self.normalizedCurrencyCode(defaults.string(forKey: Key.currencyCode) ?? "USD")
-        language = AppLanguage(rawValue: defaults.string(forKey: Key.language) ?? "") ?? .simplifiedChinese
-        themeMode = ThemeMode(rawValue: defaults.string(forKey: Key.themeMode) ?? "") ?? .system
-        typographyStyle = AppTypography.Style(rawValue: defaults.string(forKey: Key.typographyStyle) ?? "") ?? .system
-        motionIntensity = defaults.object(forKey: Key.motionIntensity) == nil
+        let directory = StorageCoordinator(defaults: defaults).activeDirectory
+        self.settingsStore = settingsStore ?? SettingsStore(directory: directory)
+        let stored = try? self.settingsStore.load()
+        currencyCode = Self.normalizedCurrencyCode(stored?.currencyCode ?? defaults.string(forKey: Key.currencyCode) ?? "USD")
+        language = AppLanguage(rawValue: stored?.language ?? defaults.string(forKey: Key.language) ?? "") ?? .simplifiedChinese
+        themeMode = ThemeMode(rawValue: stored?.themeMode ?? defaults.string(forKey: Key.themeMode) ?? "") ?? .system
+        typographyStyle = AppTypography.Style(rawValue: stored?.typographyStyle ?? defaults.string(forKey: Key.typographyStyle) ?? "") ?? .system
+        motionIntensity = stored?.motionIntensity ?? (defaults.object(forKey: Key.motionIntensity) == nil
             ? 50
-            : min(max(defaults.integer(forKey: Key.motionIntensity), 0), 100)
-        if let data = defaults.data(forKey: Key.aiConfiguration),
+            : min(max(defaults.integer(forKey: Key.motionIntensity), 0), 100))
+        if let configuration = stored?.aiConfiguration {
+            aiConfiguration = configuration
+        } else if let data = defaults.data(forKey: Key.aiConfiguration),
            let saved = try? JSONDecoder().decode(AIConfiguration.self, from: data) {
             aiConfiguration = saved
         } else {
             aiConfiguration = AIConfiguration()
         }
+        isLoading = false
+        persist()
+        [Key.currencyCode, Key.language, Key.themeMode, Key.typographyStyle, Key.motionIntensity, Key.aiConfiguration].forEach(defaults.removeObject)
+    }
+
+    private func persist() {
+        guard !isLoading else { return }
+        try? settingsStore.save(StoredSettings(currencyCode: currencyCode, language: language.rawValue, themeMode: themeMode.rawValue, typographyStyle: typographyStyle.rawValue, motionIntensity: motionIntensity, aiConfiguration: aiConfiguration))
     }
 
     private static func normalizedCurrencyCode(_ value: String) -> String {

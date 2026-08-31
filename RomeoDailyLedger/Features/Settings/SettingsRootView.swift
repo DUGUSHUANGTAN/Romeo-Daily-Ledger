@@ -31,7 +31,7 @@ struct SettingsRootView: View {
             Group {
                 switch selectedPage {
                 case .general:
-                    GeneralSettingsView(preferences: preferences) { selectedPage = .categories }
+                    GeneralSettingsView(preferences: preferences, storage: dependencies.storage, repository: dependencies.repository)
                 case .appearance:
                     AppearanceSettingsView(preferences: preferences, systemReduceMotion: systemReduceMotion)
                 case .categories:
