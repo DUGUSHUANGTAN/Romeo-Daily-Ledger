@@ -97,6 +97,6 @@ struct EntryEditorView: View {
     }
 
     private func loadCategories() async {
-        categories = (try? await repository.categories(kind: model.draft.kind).filter { !$0.isHidden }) ?? []
+        categories = CategorySelection.available(from: (try? await repository.categories(kind: model.draft.kind)) ?? [], selectedID: model.draft.categoryID)
     }
 }

@@ -55,9 +55,23 @@ final class InsightsViewModel {
 
     func moveMonth(by offset: Int) async {
         guard let target = calendar.date(byAdding: .month, value: offset, to: displayedMonth),
+              CalendarViewModel.supportedYears.contains(calendar.component(.year, from: target)),
               let start = calendar.dateInterval(of: .month, for: target)?.start else { return }
         displayedMonth = start
         await load()
+    }
+
+    func select(year: Int, month: Int) async {
+        let year = min(max(year, CalendarViewModel.supportedYears.lowerBound), CalendarViewModel.supportedYears.upperBound)
+        let month = min(max(month, 1), 12)
+        guard let date = calendar.date(from: DateComponents(year: year, month: month, day: 1)),
+              let start = calendar.dateInterval(of: .month, for: date)?.start else { return }
+        displayedMonth = start
+        await load()
+    }
+
+    func selectCurrentMonth(_ today: Date = .now) async {
+        await select(year: calendar.component(.year, from: today), month: calendar.component(.month, from: today))
     }
 
     func displayName(for summary: InsightsCategorySummary, language: AppLanguage = .simplifiedChinese) -> String {

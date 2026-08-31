@@ -121,6 +121,27 @@ final class LedgerFlowUITests: XCTestCase {
         XCTAssertTrue(app.buttons["insights-next-month"].exists)
     }
 
+    func testAllEntriesReplacesOnlyDetailAndReturnsToLedger() {
+        let app = launchApp()
+        XCTAssertTrue(app.descendants(matching: .any)["sidebar-ledger"].exists)
+        app.buttons["ledger-show-all"].click()
+        XCTAssertTrue(app.scrollViews["ledger-all-list"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.descendants(matching: .any)["sidebar-ledger"].exists)
+        app.buttons["ledger-all-back"].click()
+        XCTAssertTrue(app.buttons["ledger-show-all"].waitForExistence(timeout: 2))
+    }
+
+    func testCalendarAndInsightsExposeBoundedMonthControls() {
+        let app = launchApp()
+        app.typeKey("2", modifierFlags: .command)
+        XCTAssertTrue(app.popUpButtons["calendar-year"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.popUpButtons["calendar-month"].exists)
+        app.typeKey("3", modifierFlags: .command)
+        XCTAssertTrue(app.popUpButtons["insights-year"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.popUpButtons["insights-month"].exists)
+        XCTAssertTrue(app.buttons["insights-current-month"].exists)
+    }
+
     private func launchApp() -> XCUIApplication {
         continueAfterFailure = false
         let app = XCUIApplication()

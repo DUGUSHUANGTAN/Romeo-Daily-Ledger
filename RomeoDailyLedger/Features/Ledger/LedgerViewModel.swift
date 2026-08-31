@@ -78,7 +78,7 @@ final class LedgerViewModel {
     }
 
     func loadCategories() async throws {
-        categories = try await repository.categories(kind: draft.kind).filter { !$0.isHidden }
+        categories = CategorySelection.available(from: try await repository.categories(kind: draft.kind), selectedID: draft.categoryID)
         if let selected = draft.categoryID, !categories.contains(where: { $0.id == selected }) {
             draft.categoryID = nil
         }

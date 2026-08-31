@@ -4,6 +4,7 @@ import Observation
 @Observable
 @MainActor
 final class CalendarViewModel {
+    static let supportedYears = 1900...2100
     struct Day: Identifiable, Equatable {
         let date: Date
         let isInDisplayedMonth: Bool
@@ -34,7 +35,24 @@ final class CalendarViewModel {
 
     func moveMonth(by offset: Int) {
         let target = calendar.date(byAdding: .month, value: offset, to: displayedMonth)!
+        let year = calendar.component(.year, from: target)
+        guard Self.supportedYears.contains(year) else { return }
         displayedMonth = monthStart(containing: target)
+    }
+
+    func select(year: Int, month: Int) {
+        let year = min(max(year, Self.supportedYears.lowerBound), Self.supportedYears.upperBound)
+        let month = min(max(month, 1), 12)
+        var components = DateComponents(year: year, month: month, day: 1)
+        components.timeZone = calendar.timeZone
+        if let date = calendar.date(from: components) { displayedMonth = monthStart(containing: date) }
+    }
+
+    func selectToday(_ today: Date = .now) {
+        let year = calendar.component(.year, from: today)
+        guard Self.supportedYears.contains(year) else { return }
+        selectedDate = today
+        displayedMonth = monthStart(containing: today)
     }
 
     func monthGrid() -> [Day] {

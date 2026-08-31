@@ -186,4 +186,12 @@ struct LedgerViewModelTests {
         #expect(model.draft.occurredAt == input.occurredAt)
         #expect(model.errorMessage != nil)
     }
+
+    @Test func hiddenCategoryIsExcludedForNewEntriesButPreservedForHistoricalEditing() {
+        let visible = Category(kind: .expense, customName: "Visible", iconName: "", colorToken: "", sortOrder: 0)
+        let hidden = Category(kind: .expense, customName: "Hidden", iconName: "", colorToken: "", sortOrder: 1, isHidden: true)
+
+        #expect(CategorySelection.available(from: [visible, hidden], selectedID: nil).map(\.id) == [visible.id])
+        #expect(CategorySelection.available(from: [visible, hidden], selectedID: hidden.id).map(\.id) == [visible.id, hidden.id])
+    }
 }

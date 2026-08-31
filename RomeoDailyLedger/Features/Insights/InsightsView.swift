@@ -54,14 +54,27 @@ struct InsightsView: View {
                     .foregroundStyle(theme.secondaryText.color)
             }
             Spacer()
+            Picker("Year", selection: yearBinding) {
+                ForEach(CalendarViewModel.supportedYears, id: \.self) { Text(String($0)).tag($0) }
+            }
+            .labelsHidden().frame(width: 92).accessibilityIdentifier("insights-year")
+            Picker("Month", selection: monthBinding) {
+                ForEach(1...12, id: \.self) { Text(model.calendar.monthSymbols[$0 - 1]).tag($0) }
+            }
+            .labelsHidden().frame(width: 110).accessibilityIdentifier("insights-month")
             Button(AppLocalization.text("button.previousMonth", language: language)) { Task { await model.moveMonth(by: -1) } }
                 .accessibilityLabel(AppLocalization.text("accessibility.previousInsights", language: language))
                 .accessibilityIdentifier("insights-previous-month")
             Button(AppLocalization.text("button.nextMonth", language: language)) { Task { await model.moveMonth(by: 1) } }
                 .accessibilityLabel(AppLocalization.text("accessibility.nextInsights", language: language))
                 .accessibilityIdentifier("insights-next-month")
+            Button(language == .simplifiedChinese ? "这个月" : "This Month") { Task { await model.selectCurrentMonth() } }
+                .accessibilityIdentifier("insights-current-month")
         }
     }
+
+    private var yearBinding: Binding<Int> { Binding(get: { model.calendar.component(.year, from: model.displayedMonth) }, set: { year in Task { await model.select(year: year, month: model.calendar.component(.month, from: model.displayedMonth)) } }) }
+    private var monthBinding: Binding<Int> { Binding(get: { model.calendar.component(.month, from: model.displayedMonth) }, set: { month in Task { await model.select(year: model.calendar.component(.year, from: model.displayedMonth), month: month) } }) }
 
     private var monthSummary: some View {
         VStack(alignment: .leading, spacing: 12) {
