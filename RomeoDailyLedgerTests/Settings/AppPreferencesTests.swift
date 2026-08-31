@@ -54,13 +54,30 @@ struct AppPreferencesTests {
             protocolType: .chatCompletions,
             baseURL: URL(string: "https://example.com/v1")!,
             model: "compatible-model",
-            allowsLedgerData: true
+            allowsLedgerData: true,
+            apiKey: "secret-value"
         )
 
         let persisted = try #require(defaults.data(forKey: "preferences.aiConfiguration"))
         let text = try #require(String(data: persisted, encoding: .utf8))
         #expect(!text.lowercased().contains("apikey"))
         #expect(!text.lowercased().contains("authorization"))
+        #expect(!text.contains("secret-value"))
+    }
+
+    @Test func legacyAIConfigurationDecodesWithEmptyAPIKey() throws {
+        let data = Data(#"{"protocolType":"chatCompletions","baseURL":"https:\/\/example.com\/v1","model":"legacy","allowsLedgerData":true}"#.utf8)
+        let configuration = try JSONDecoder().decode(AIConfiguration.self, from: data)
+        #expect(configuration.apiKey.isEmpty)
+    }
+
+    @Test func systemClockAndTimeZoneProvidersExposeInjectedContracts() {
+        let instant = Date(timeIntervalSince1970: 1_800_000_000)
+        let zone = TimeZone(secondsFromGMT: 8 * 3_600)!
+        let clock: any AppClock = FixedAppClock(now: instant)
+        let provider: any AppTimeZoneProviding = FixedAppTimeZoneProvider(timeZone: zone)
+        #expect(clock.now == instant)
+        #expect(provider.timeZone == zone)
     }
 
     private func isolatedDefaults() -> UserDefaults {

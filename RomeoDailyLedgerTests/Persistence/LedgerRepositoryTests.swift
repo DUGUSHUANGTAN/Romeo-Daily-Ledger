@@ -147,6 +147,63 @@ private func expectFallbackToOther(kind: EntryKind) async throws {
     #expect(Set(saved.map(\.id)) == [firstID, secondID])
 }
 
+@MainActor
+@Test func allEntriesReturnsEveryEntryInStableDateOrder() async throws {
+    let repository = try TestRepository.make()
+    try await repository.seedDefaultsIfNeeded()
+    let later = Date(timeIntervalSince1970: 1_800_000_000)
+    let earlier = Date(timeIntervalSince1970: 1_700_000_000)
+    _ = try await repository.insert(draft(at: later, note: "later"))
+    _ = try await repository.insert(draft(at: earlier, note: "earlier"))
+
+    #expect(try await repository.allEntries().map(\.note) == ["earlier", "later"])
+}
+
+@MainActor
+@Test func categoryUpdateEditsOnlyNameAndHiddenState() async throws {
+    let repository = try TestRepository.make()
+    try await repository.seedDefaultsIfNeeded()
+    let category = try #require(try await repository.categories(kind: .expense).first)
+    let originalKind = category.kind
+    let originalSystemKey = category.systemKey
+
+    try await repository.updateCategory(id: category.id, displayName: "Meals", isHidden: true)
+
+    let updated = try #require(try await repository.category(id: category.id))
+    #expect(updated.customName == "Meals")
+    #expect(updated.isHidden)
+    #expect(updated.kind == originalKind)
+    #expect(updated.systemKey == originalSystemKey)
+}
+
+@MainActor
+@Test func emptySystemCategoryNameRestoresDefaultAndCustomNameIsRejected() async throws {
+    let repository = try TestRepository.make()
+    try await repository.seedDefaultsIfNeeded()
+    let system = try #require(try await repository.categories(kind: .expense).first)
+    try await repository.updateCategory(id: system.id, displayName: "Temporary", isHidden: false)
+    try await repository.updateCategory(id: system.id, displayName: "  ", isHidden: false)
+    #expect(try await repository.category(id: system.id)?.customName == nil)
+
+    let custom = try await repository.ensureCustomCategory(named: "Custom", kind: .expense)
+    await #expect(throws: LedgerRepositoryValidationError.emptyCustomCategoryName) {
+        try await repository.updateCategory(id: custom.id, displayName: "", isHidden: false)
+    }
+}
+
+@MainActor
+@Test func deleteAllEntriesPreservesCategories() async throws {
+    let repository = try TestRepository.make()
+    try await repository.seedDefaultsIfNeeded()
+    _ = try await repository.insert(draft(at: .now, note: "delete me"))
+    let categoryCount = try await repository.categories(kind: .expense).count
+
+    try await repository.deleteAllEntries()
+
+    #expect(try await repository.allEntries().isEmpty)
+    #expect(try await repository.categories(kind: .expense).count == categoryCount)
+}
+
 private func draft(at date: Date, note: String) -> LedgerDraft {
     LedgerDraft(
         kind: .expense,

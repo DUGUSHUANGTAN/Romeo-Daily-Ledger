@@ -59,7 +59,8 @@ final class AppPreferences {
 
     var aiConfiguration: AIConfiguration {
         didSet {
-            if let data = try? JSONEncoder().encode(aiConfiguration) {
+            let legacy = LegacyAIConfiguration(configuration: aiConfiguration)
+            if let data = try? JSONEncoder().encode(legacy) {
                 defaults.set(data, forKey: Key.aiConfiguration)
             }
         }
@@ -86,4 +87,42 @@ final class AppPreferences {
         let normalized = value.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         return normalized.isEmpty ? "USD" : String(normalized.prefix(3))
     }
+}
+
+private struct LegacyAIConfiguration: Codable {
+    let protocolType: AIProtocol
+    let baseURL: URL
+    let model: String
+    let allowsLedgerData: Bool
+
+    init(configuration: AIConfiguration) {
+        protocolType = configuration.protocolType
+        baseURL = configuration.baseURL
+        model = configuration.model
+        allowsLedgerData = configuration.allowsLedgerData
+    }
+}
+
+protocol AppClock: Sendable {
+    var now: Date { get }
+}
+
+protocol AppTimeZoneProviding: Sendable {
+    var timeZone: TimeZone { get }
+}
+
+struct SystemAppClock: AppClock {
+    var now: Date { .now }
+}
+
+struct SystemAppTimeZoneProvider: AppTimeZoneProviding {
+    var timeZone: TimeZone { .autoupdatingCurrent }
+}
+
+struct FixedAppClock: AppClock {
+    let now: Date
+}
+
+struct FixedAppTimeZoneProvider: AppTimeZoneProviding {
+    let timeZone: TimeZone
 }

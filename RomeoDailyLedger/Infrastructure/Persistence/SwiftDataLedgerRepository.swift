@@ -77,6 +77,12 @@ final class SwiftDataLedgerRepository: LedgerRepository {
         return try context.fetch(descriptor)
     }
 
+    func allEntries() async throws -> [LedgerEntry] {
+        var descriptor = FetchDescriptor<LedgerEntry>()
+        descriptor.sortBy = [SortDescriptor(\.occurredAt), SortDescriptor(\.createdAt)]
+        return try context.fetch(descriptor)
+    }
+
     func categories(kind: EntryKind) async throws -> [Category] {
         let kindRaw = kind.rawValue
         var descriptor = FetchDescriptor<Category>(
@@ -92,6 +98,26 @@ final class SwiftDataLedgerRepository: LedgerRepository {
         )
         descriptor.fetchLimit = 1
         return try context.fetch(descriptor).first
+    }
+
+    func updateCategory(id: UUID, displayName: String?, isHidden: Bool) async throws {
+        guard let category = try await category(id: id) else {
+            throw LedgerRepositoryValidationError.categoryNotFound
+        }
+        let normalized = displayName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if category.systemKey == nil && normalized.isEmpty {
+            throw LedgerRepositoryValidationError.emptyCustomCategoryName
+        }
+        category.customName = normalized.isEmpty ? nil : normalized
+        category.isHidden = isHidden
+        try context.save()
+    }
+
+    func deleteAllEntries() async throws {
+        for entry in try context.fetch(FetchDescriptor<LedgerEntry>()) {
+            context.delete(entry)
+        }
+        try context.save()
     }
 
     func ensureCustomCategory(named name: String, kind: EntryKind) async throws -> Category {
