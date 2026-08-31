@@ -6,4 +6,9 @@ final class AppLaunchTests: XCTestCase {
         XCTAssertEqual(AppIdentity.chineseName, "罗密欧每日记账")
         XCTAssertEqual(AppIdentity.englishName, "Romeo Daily Ledger")
     }
+
+    @MainActor
+    func testApplicationTerminatesOnlyAfterTheLastWindowCloses() {
+        XCTAssertTrue(AppLifecycleDelegate().applicationShouldTerminateAfterLastWindowClosed(.shared))
+    }
 }

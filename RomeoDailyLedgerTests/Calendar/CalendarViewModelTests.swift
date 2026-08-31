@@ -41,4 +41,19 @@ struct CalendarViewModelTests {
         #expect(days.count >= 35)
         #expect(days.filter(\.isInDisplayedMonth).count == 31)
     }
+
+    @Test func yearAndMonthSelectionIsClampedToSupportedRange() {
+        let model = CalendarViewModel(calendar: Calendar(identifier: .gregorian), timeZone: shanghai)
+        model.select(year: 1899, month: 13)
+        #expect(model.calendar.component(.year, from: model.displayedMonth) == 1900)
+        #expect(model.calendar.component(.month, from: model.displayedMonth) == 12)
+    }
+
+    @Test func monthNavigationStopsAtSupportedBoundary() {
+        let model = CalendarViewModel(calendar: Calendar(identifier: .gregorian), timeZone: shanghai)
+        model.select(year: 2100, month: 12)
+        model.moveMonth(by: 1)
+        #expect(model.calendar.component(.year, from: model.displayedMonth) == 2100)
+        #expect(model.calendar.component(.month, from: model.displayedMonth) == 12)
+    }
 }

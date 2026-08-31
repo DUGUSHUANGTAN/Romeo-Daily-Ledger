@@ -283,7 +283,8 @@ private struct AILedgerPreviewView: View {
                 .frame(width: 130)
                 TextField("0", value: $drafts[index].amount, format: .number)
                     .frame(width: 110)
-                Text(currencyCode)
+                Text(LedgerFormatting.amount(drafts[index].amount, currencyCode: currencyCode))
+                    .accessibilityIdentifier("ai-draft-formatted-amount-\(index)")
                 DatePicker("", selection: $drafts[index].date, displayedComponents: .date)
                 Spacer()
                 Button(AppLocalization.text("ai.preview.remove", language: language)) {

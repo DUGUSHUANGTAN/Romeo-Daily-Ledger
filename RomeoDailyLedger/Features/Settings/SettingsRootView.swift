@@ -7,6 +7,21 @@ struct SettingsRootView: View {
     }
 
     let dependencies: AppDependencies
+
+    var body: some View {
+        @Bindable var preferences = dependencies.preferences
+        SettingsContentView(dependencies: dependencies)
+            .preferredColorScheme(preferredScheme(for: preferences.themeMode))
+    }
+
+    private func preferredScheme(for mode: ThemeMode) -> ColorScheme? {
+        switch mode { case .system: nil; case .light: .light; case .dark: .dark }
+    }
+}
+
+private struct SettingsContentView: View {
+    typealias Page = SettingsRootView.Page
+    let dependencies: AppDependencies
     @State private var selectedPage: Page = .general
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
@@ -21,6 +36,13 @@ struct SettingsRootView: View {
                 Text(title(for: page, language: preferences.language))
                     .tag(page)
                     .accessibilityIdentifier("settings-page-\(page.rawValue)")
+                    .foregroundStyle(selectedPage == page ? theme.selectionForeground.color : theme.primaryText.color)
+                    .frame(minHeight: 34)
+                    .listRowBackground(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(selectedPage == page ? theme.primaryAccent.color : Color.clear)
+                            .padding(.vertical, 2)
+                    )
             }
             .navigationTitle(AppLocalization.text("nav.settings.title", language: preferences.language))
             .listStyle(.sidebar)
@@ -46,7 +68,6 @@ struct SettingsRootView: View {
             .background(theme.canvas.color)
         }
         .tint(theme.primaryAccent.color)
-        .preferredColorScheme(preferredScheme(for: preferences.themeMode))
         .environment(\.locale, preferences.language.locale)
         .environment(\.appLanguage, preferences.language)
         .environment(\.appCurrencyCode, preferences.currencyCode)
@@ -58,11 +79,4 @@ struct SettingsRootView: View {
         AppLocalization.text("settings.\(page.rawValue).title", language: language)
     }
 
-    private func preferredScheme(for mode: ThemeMode) -> ColorScheme? {
-        switch mode {
-        case .system: nil
-        case .light: .light
-        case .dark: .dark
-        }
-    }
 }

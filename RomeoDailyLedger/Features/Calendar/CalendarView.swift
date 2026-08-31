@@ -23,11 +23,18 @@ struct CalendarView: View {
                         .foregroundStyle(theme.secondaryText.color)
                 }
                 Spacer()
+                Picker("Year", selection: yearBinding) {
+                    ForEach(CalendarViewModel.supportedYears, id: \.self) { Text(String($0)).tag($0) }
+                }
+                .labelsHidden().frame(width: 92).accessibilityIdentifier("calendar-year")
+                Picker("Month", selection: monthBinding) {
+                    ForEach(1...12, id: \.self) { Text(model.calendar.monthSymbols[$0 - 1]).tag($0) }
+                }
+                .labelsHidden().frame(width: 110).accessibilityIdentifier("calendar-month")
                 Button(AppLocalization.text("button.previousMonth", language: language)) { model.moveMonth(by: -1) }
                     .accessibilityIdentifier("calendar-previous-month")
                 Button(AppLocalization.text("button.today", language: language)) {
-                    model.selectedDate = .now
-                    model.displayedMonth = model.calendar.dateInterval(of: .month, for: .now)!.start
+                    model.selectToday()
                     Task { await loadEntries() }
                 }
                 .accessibilityIdentifier("calendar-today")
@@ -129,6 +136,9 @@ struct CalendarView: View {
         let split = model.calendar.firstWeekday - 1
         return Array(symbols[split...] + symbols[..<split])
     }
+
+    private var yearBinding: Binding<Int> { Binding(get: { model.calendar.component(.year, from: model.displayedMonth) }, set: { model.select(year: $0, month: model.calendar.component(.month, from: model.displayedMonth)); Task { await loadEntries() } }) }
+    private var monthBinding: Binding<Int> { Binding(get: { model.calendar.component(.month, from: model.displayedMonth) }, set: { model.select(year: model.calendar.component(.year, from: model.displayedMonth), month: $0); Task { await loadEntries() } }) }
 
     private func loadEntries() async {
         do {

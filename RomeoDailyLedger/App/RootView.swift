@@ -27,6 +27,20 @@ enum SidebarDestination: String, CaseIterable, Identifiable, Sendable {
 }
 
 struct RootView: View {
+    let dependencies: AppDependencies
+
+    var body: some View {
+        @Bindable var preferences = dependencies.preferences
+        RootContentView(dependencies: dependencies)
+            .preferredColorScheme(preferredScheme(for: preferences.themeMode))
+    }
+
+    private func preferredScheme(for mode: ThemeMode) -> ColorScheme? {
+        switch mode { case .system: nil; case .light: .light; case .dark: .dark }
+    }
+}
+
+private struct RootContentView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
     let dependencies: AppDependencies
@@ -36,7 +50,7 @@ struct RootView: View {
         @Bindable var preferences = dependencies.preferences
         let resolved = preferences.themeMode.resolve(systemIsDark: colorScheme == .dark)
         let theme = resolved == .dark ? AppTheme.dark : AppTheme.light
-        let motion = MotionPolicy(slider: preferences.motionIntensity, systemReduceMotion: systemReduceMotion)
+        let motion = MotionPolicy(slider: 0, systemReduceMotion: systemReduceMotion)
 
         NavigationSplitView {
             List(SidebarDestination.allCases, selection: $dependencies.selectedDestination) { destination in
@@ -50,6 +64,12 @@ struct RootView: View {
                     .foregroundStyle(dependencies.selectedDestination == destination ? theme.selectionForeground.color : theme.primaryText.color)
                     .accessibilityLabel(destination.localizedTitle(language: preferences.language))
                 }
+                .listRowBackground(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(dependencies.selectedDestination == destination ? theme.primaryAccent.color : Color.clear)
+                        .padding(.vertical, 2)
+                )
+                .frame(minHeight: 34)
                 .accessibilityIdentifier("sidebar-\(destination.rawValue)")
             }
             .navigationTitle(AppLocalization.text("app.name", language: preferences.language))
@@ -60,33 +80,23 @@ struct RootView: View {
         } detail: {
             switch dependencies.selectedDestination {
             case .ledger:
-                LedgerView(repository: dependencies.repository, deletionUndoCoordinator: dependencies.deletionUndoCoordinator, theme: theme, typography: preferences.typographyStyle)
+                LedgerView(repository: dependencies.repository, deletionUndoCoordinator: dependencies.deletionUndoCoordinator, theme: theme, typography: .system)
             case .calendar:
-                CalendarView(repository: dependencies.repository, theme: theme, typography: preferences.typographyStyle)
+                CalendarView(repository: dependencies.repository, theme: theme, typography: .system)
             case .insights:
-                InsightsView(repository: dependencies.repository, theme: theme, typography: preferences.typographyStyle, motion: motion)
+                InsightsView(repository: dependencies.repository, theme: theme, typography: .system, motion: motion)
             case .settings:
                 SettingsRootView(dependencies: dependencies)
             case .aiAssistant:
-                AILedgerAssistantView(dependencies: dependencies, theme: theme, typography: preferences.typographyStyle)
+                AILedgerAssistantView(dependencies: dependencies, theme: theme, typography: .system)
             }
         }
         .tint(theme.primaryAccent.color)
-        .preferredColorScheme(preferredScheme(for: preferences.themeMode))
         .environment(\.locale, preferences.language.locale)
         .environment(\.appLanguage, preferences.language)
         .environment(\.appCurrencyCode, preferences.currencyCode)
         .background { AppCommands(dependencies: dependencies) }
-        .animation(animation(for: motion), value: dependencies.selectedDestination)
         .frame(minWidth: 980, minHeight: 560)
-    }
-
-    private func preferredScheme(for mode: ThemeMode) -> ColorScheme? {
-        switch mode {
-        case .system: nil
-        case .light: .light
-        case .dark: .dark
-        }
     }
 
     private func animation(for policy: MotionPolicy) -> Animation? {
