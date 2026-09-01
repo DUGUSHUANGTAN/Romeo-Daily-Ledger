@@ -29,24 +29,27 @@ struct EntryEditorView: View {
             labeled(AppLocalization.text("field.amount", language: language)) {
                 TextField(AppLocalization.text("field.amount", language: language), text: $model.draft.amountText)
                     .accessibilityIdentifier("editor-amount")
+                    .onSubmit(saveAndDismiss)
             }
             labeled(AppLocalization.text("field.category", language: language)) {
                 Picker(AppLocalization.text("field.category", language: language), selection: $model.draft.categoryID) {
-                    Text(AppLocalization.text("category.unselectedFallback", language: language)).tag(UUID?.none)
                     ForEach(categories) { category in
                         Text(LedgerFormatting.categoryName(category, language: language)).tag(Optional(category.id))
                     }
                 }
+                .labelsHidden()
                 .accessibilityIdentifier("editor-category")
             }
             labeled(AppLocalization.text("field.date", language: language)) {
-                DatePicker(AppLocalization.text("field.date", language: language), selection: $model.draft.occurredAt)
+                DatePicker(AppLocalization.text("field.date", language: language), selection: $model.draft.occurredAt, displayedComponents: .date)
+                    .environment(\.locale, language.datePickerLocale)
                     .labelsHidden()
                     .accessibilityIdentifier("editor-date")
             }
             labeled(AppLocalization.text("field.note", language: language)) {
                 TextField(AppLocalization.text("field.note", language: language), text: $model.draft.note)
                     .accessibilityIdentifier("editor-note")
+                    .onSubmit(saveAndDismiss)
             }
             if model.errorMessage != nil {
                 Text(AppLocalization.text("error.updateEntry", language: language))
@@ -57,13 +60,7 @@ struct EntryEditorView: View {
                 Spacer()
                 Button(AppLocalization.text("button.cancel", language: language)) { dismiss() }.accessibilityIdentifier("editor-cancel")
                 Button(AppLocalization.text("button.saveEntry", language: language)) {
-                    Task {
-                        do {
-                            try await model.save()
-                            await onSaved()
-                            dismiss()
-                        } catch { }
-                    }
+                    saveAndDismiss()
                 }
                 .buttonStyle(.borderedProminent)
                 .accessibilityIdentifier("editor-save")
@@ -97,6 +94,19 @@ struct EntryEditorView: View {
     }
 
     private func loadCategories() async {
-        categories = (try? await repository.categories(kind: model.draft.kind).filter { !$0.isHidden }) ?? []
+        categories = CategorySelection.available(from: (try? await repository.categories(kind: model.draft.kind)) ?? [], selectedID: model.draft.categoryID)
+        if model.draft.categoryID == nil {
+            model.draft.categoryID = categories.first(where: { $0.systemKey == "other" })?.id
+        }
+    }
+
+    private func saveAndDismiss() {
+        Task {
+            do {
+                try await model.save()
+                await onSaved()
+                dismiss()
+            } catch { }
+        }
     }
 }

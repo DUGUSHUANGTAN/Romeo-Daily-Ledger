@@ -17,6 +17,7 @@ archive_args=(
   archive -project RomeoDailyLedger.xcodeproj -scheme RomeoDailyLedger
   -configuration Release -destination 'generic/platform=macOS'
   -archivePath "$ARCHIVE_PATH"
+  ARCHS=arm64 EXCLUDED_ARCHS=x86_64
 )
 if [[ -n "$SIGNING_IDENTITY" ]]; then
   archive_args+=(CODE_SIGNING_ALLOWED=YES CODE_SIGN_STYLE=Manual "CODE_SIGN_IDENTITY=$SIGNING_IDENTITY")

@@ -5,6 +5,7 @@ struct InsightsView: View {
     @Environment(\.appLanguage) private var language
     @Environment(\.appCurrencyCode) private var currencyCode
     @State private var model: InsightsViewModel
+    @State private var yearText = ""
     let theme: AppTheme
     let typography: AppTypography.Style
     let motion: MotionPolicy
@@ -40,12 +41,16 @@ struct InsightsView: View {
         }
         .foregroundStyle(theme.primaryText.color)
         .background(theme.canvas.color)
-        .task { await model.load() }
+        .task {
+            synchronizeYearText()
+            await model.load()
+        }
+        .onChange(of: model.displayedMonth) { _, _ in synchronizeYearText() }
         .animation(monthAnimation, value: model.displayedMonth)
     }
 
     private var header: some View {
-        HStack(alignment: .center, spacing: 16) {
+        VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(AppLocalization.text("nav.insights.title", language: language))
                     .font(AppTypography.display(typography))
@@ -53,14 +58,35 @@ struct InsightsView: View {
                     .font(AppTypography.body(typography))
                     .foregroundStyle(theme.secondaryText.color)
             }
-            Spacer()
-            Button(AppLocalization.text("button.previousMonth", language: language)) { Task { await model.moveMonth(by: -1) } }
-                .accessibilityLabel(AppLocalization.text("accessibility.previousInsights", language: language))
-                .accessibilityIdentifier("insights-previous-month")
-            Button(AppLocalization.text("button.nextMonth", language: language)) { Task { await model.moveMonth(by: 1) } }
-                .accessibilityLabel(AppLocalization.text("accessibility.nextInsights", language: language))
-                .accessibilityIdentifier("insights-next-month")
+            HStack(spacing: 10) {
+                TextField(AppLocalization.text("calendar.year", language: language), text: $yearText)
+                    .labelsHidden()
+                    .frame(width: 72)
+                    .accessibilityIdentifier("insights-year")
+                    .onSubmit { commitYear() }
+                Picker(AppLocalization.text("calendar.month", language: language), selection: monthBinding) {
+                    ForEach(1...12, id: \.self) { Text(model.calendar.monthSymbols[$0 - 1]).tag($0) }
+                }
+                .labelsHidden().frame(width: 110).accessibilityIdentifier("insights-month")
+                Button(AppLocalization.text("insights.thisMonth", language: language)) { Task { await model.selectCurrentMonth() } }
+                    .accessibilityIdentifier("insights-current-month")
+                Spacer(minLength: 0)
+            }
         }
+    }
+
+    private var monthBinding: Binding<Int> { Binding(get: { model.calendar.component(.month, from: model.displayedMonth) }, set: { month in Task { await model.select(year: model.calendar.component(.year, from: model.displayedMonth), month: month) } }) }
+
+    private func synchronizeYearText() {
+        yearText = String(model.calendar.component(.year, from: model.displayedMonth))
+    }
+
+    private func commitYear() {
+        guard let year = CalendarViewModel.validatedYear(from: yearText) else {
+            synchronizeYearText()
+            return
+        }
+        Task { await model.select(year: year, month: model.calendar.component(.month, from: model.displayedMonth)) }
     }
 
     private var monthSummary: some View {

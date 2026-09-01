@@ -7,8 +7,8 @@
 ## 功能
 
 - 收支录入、编辑、删除，日历回看、多选汇总和月度统计。
-- 分类管理、中英文界面、深浅主题及字体与动效设置。
-- 兼容 OpenAI Chat Completions / Responses 协议的 AI 记账与分析；API Key 仅存于 macOS 钥匙串，AI 草稿确认后才写入，分析前会显示并授权日期范围。
+- 分类管理、中英文界面和跟随系统的深浅主题。
+- 兼容 OpenAI Chat Completions / Responses 协议的 AI 记账与分析；API Key 保存在本地 `settings.json` 中，不会包含在账本导出文件里。
 - JSON / CSV 导入导出，支持预览、重复项处理、币种校验和原子批量写入。
 - 手动检查 GitHub Release 更新，不会自动安装。
 
@@ -16,11 +16,15 @@
 
 从 [GitHub Releases](https://github.com/DUGUSHUANGTAN/Romeo-Daily-Ledger/releases) 下载 DMG，打开后将 “Romeo Daily Ledger” 拖入 Applications。
 
-V1.0.0 当前提供未签名的自用构建，首次打开时可能需要在 Finder 中右键应用并选择“打开”。可在下载目录校验安装包：
+V1.0.1 当前提供未签名的自用构建，首次打开时可能需要在 Finder 中右键应用并选择“打开”。可在下载目录校验安装包：
 
 ```bash
-shasum -a 256 -c Romeo-Daily-Ledger-1.0.0.dmg.sha256
+shasum -a 256 -c Romeo-Daily-Ledger-1.0.1.dmg.sha256
 ```
+
+## 数据保存
+
+默认数据目录为 `~/Library/Application Support/com.romeoke.RomeoDailyLedger/`，包含 SwiftData 数据库和 `settings.json`。可在“设置 → 通用 → 数据与存储”中选择新的本地父目录；应用会在其中创建 `Romeo Daily Ledger Data`，并在下次启动前完成验证和迁移。
 
 ## 开发
 

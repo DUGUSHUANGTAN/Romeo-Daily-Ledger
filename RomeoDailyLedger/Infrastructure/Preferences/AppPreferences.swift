@@ -1,13 +1,20 @@
 import Foundation
 import Observation
-import Foundation
 
 enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
     case simplifiedChinese = "zh-Hans"
+    case traditionalChinese = "zh-Hant"
     case english = "en"
 
     var id: Self { self }
     var locale: Locale { Locale(identifier: rawValue) }
+    var datePickerLocale: Locale {
+        switch self {
+        case .simplifiedChinese: Locale(identifier: "zh_CN")
+        case .traditionalChinese: Locale(identifier: "zh_TW")
+        case .english: Locale(identifier: "en_SE")
+        }
+    }
 }
 
 @MainActor @Observable
@@ -16,12 +23,13 @@ final class AppPreferences {
         static let currencyCode = "preferences.currencyCode"
         static let language = "preferences.language"
         static let themeMode = "preferences.themeMode"
-        static let typographyStyle = "preferences.typographyStyle"
-        static let motionIntensity = "preferences.motionIntensity"
+        static let fontScalePercent = "preferences.fontScalePercent"
         static let aiConfiguration = "preferences.aiConfiguration"
     }
 
     private let defaults: UserDefaults
+    private let settingsStore: SettingsStore
+    private var isLoading = true
 
     var currencyCode: String {
         didSet {
@@ -30,60 +38,170 @@ final class AppPreferences {
                 currencyCode = normalized
                 return
             }
-            defaults.set(currencyCode, forKey: Key.currencyCode)
+            persist()
         }
     }
 
     var language: AppLanguage {
-        didSet { defaults.set(language.rawValue, forKey: Key.language) }
+        didSet { persist() }
     }
 
     var themeMode: ThemeMode {
-        didSet { defaults.set(themeMode.rawValue, forKey: Key.themeMode) }
+        didSet { persist() }
     }
 
-    var typographyStyle: AppTypography.Style {
-        didSet { defaults.set(typographyStyle.rawValue, forKey: Key.typographyStyle) }
-    }
-
-    var motionIntensity: Int {
+    var fontScalePercent: Int {
         didSet {
-            let clamped = min(max(motionIntensity, 0), 100)
-            if clamped != motionIntensity {
-                motionIntensity = clamped
+            let normalized = Self.normalizedFontScalePercent(fontScalePercent)
+            if normalized != fontScalePercent {
+                fontScalePercent = normalized
                 return
             }
-            defaults.set(motionIntensity, forKey: Key.motionIntensity)
+            AppTypography.currentScalePercent = normalized
+            persist()
         }
     }
 
     var aiConfiguration: AIConfiguration {
         didSet {
-            if let data = try? JSONEncoder().encode(aiConfiguration) {
-                defaults.set(data, forKey: Key.aiConfiguration)
-            }
+            persist()
         }
     }
 
-    init(defaults: UserDefaults = .standard) {
+    var aiModelPresets: [AIModelPreset] {
+        didSet {
+            if let selectedAIModelID,
+               let selected = aiModelPresets.first(where: { $0.id == selectedAIModelID }) {
+                aiConfiguration = selected.configuration
+            }
+            persist()
+        }
+    }
+
+    var selectedAIModelID: UUID? {
+        didSet {
+            if let selectedAIModelID,
+               let selected = aiModelPresets.first(where: { $0.id == selectedAIModelID }) {
+                aiConfiguration = selected.configuration
+            }
+            persist()
+        }
+    }
+
+    var aiAnalysisHistory: [AIAnalysisHistoryItem] { didSet { persist() } }
+
+    var apiKey: String {
+        get { aiConfiguration.apiKey }
+        set { aiConfiguration.apiKey = newValue }
+    }
+
+    init(defaults: UserDefaults = .standard, settingsStore: SettingsStore? = nil) {
         self.defaults = defaults
-        currencyCode = Self.normalizedCurrencyCode(defaults.string(forKey: Key.currencyCode) ?? "USD")
-        language = AppLanguage(rawValue: defaults.string(forKey: Key.language) ?? "") ?? .simplifiedChinese
-        themeMode = ThemeMode(rawValue: defaults.string(forKey: Key.themeMode) ?? "") ?? .system
-        typographyStyle = AppTypography.Style(rawValue: defaults.string(forKey: Key.typographyStyle) ?? "") ?? .system
-        motionIntensity = defaults.object(forKey: Key.motionIntensity) == nil
-            ? 50
-            : min(max(defaults.integer(forKey: Key.motionIntensity), 0), 100)
-        if let data = defaults.data(forKey: Key.aiConfiguration),
+        let directory = StorageCoordinator(defaults: defaults).activeDirectory
+        self.settingsStore = settingsStore ?? SettingsStore(directory: directory)
+        let stored = try? self.settingsStore.load()
+        currencyCode = Self.normalizedCurrencyCode(stored?.currencyCode ?? defaults.string(forKey: Key.currencyCode) ?? "USD")
+        language = AppLanguage(rawValue: stored?.language ?? defaults.string(forKey: Key.language) ?? "") ?? .simplifiedChinese
+        themeMode = ThemeMode(rawValue: stored?.themeMode ?? defaults.string(forKey: Key.themeMode) ?? "") ?? .system
+        fontScalePercent = Self.normalizedFontScalePercent(stored?.fontScalePercent ?? defaults.integer(forKey: Key.fontScalePercent))
+        if let configuration = stored?.aiConfiguration {
+            aiConfiguration = configuration
+        } else if let data = defaults.data(forKey: Key.aiConfiguration),
            let saved = try? JSONDecoder().decode(AIConfiguration.self, from: data) {
             aiConfiguration = saved
         } else {
             aiConfiguration = AIConfiguration()
         }
+        aiModelPresets = stored?.aiModelPresets ?? []
+        selectedAIModelID = stored?.selectedAIModelID
+        aiAnalysisHistory = stored?.aiAnalysisHistory ?? []
+        isLoading = false
+        AppTypography.currentScalePercent = fontScalePercent
+        persist()
+        [Key.currencyCode, Key.language, Key.themeMode, Key.fontScalePercent, "preferences.typographyStyle", "preferences.motionIntensity", Key.aiConfiguration].forEach(defaults.removeObject)
+    }
+
+    private func persist() {
+        guard !isLoading else { return }
+        try? settingsStore.save(StoredSettings(
+            currencyCode: currencyCode,
+            language: language.rawValue,
+            themeMode: themeMode.rawValue,
+            fontScalePercent: fontScalePercent,
+            aiConfiguration: aiConfiguration,
+            aiModelPresets: aiModelPresets,
+            selectedAIModelID: selectedAIModelID,
+            aiAnalysisHistory: aiAnalysisHistory
+        ))
     }
 
     private static func normalizedCurrencyCode(_ value: String) -> String {
         let normalized = value.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         return normalized.isEmpty ? "USD" : String(normalized.prefix(3))
+    }
+
+    private static func normalizedFontScalePercent(_ value: Int) -> Int {
+        guard value != 0 else { return 100 }
+        let clamped = min(max(value, 80), 140)
+        return Int((Double(clamped) / 5).rounded()) * 5
+    }
+}
+
+protocol AppClock: Sendable {
+    var now: Date { get }
+}
+
+protocol AppTimeZoneProviding: Sendable {
+    var timeZone: TimeZone { get }
+}
+
+struct SystemAppClock: AppClock {
+    var now: Date { .now }
+}
+
+struct SystemAppTimeZoneProvider: AppTimeZoneProviding {
+    var timeZone: TimeZone { .autoupdatingCurrent }
+}
+
+struct FixedAppClock: AppClock {
+    let now: Date
+}
+
+struct FixedAppTimeZoneProvider: AppTimeZoneProviding {
+    let timeZone: TimeZone
+}
+
+struct AppDateNormalizer: Sendable {
+    private let clock: any AppClock
+    private let timeZoneProvider: any AppTimeZoneProviding
+
+    init(
+        clock: any AppClock = SystemAppClock(),
+        timeZoneProvider: any AppTimeZoneProviding = SystemAppTimeZoneProvider()
+    ) {
+        self.clock = clock
+        self.timeZoneProvider = timeZoneProvider
+    }
+
+    private var calendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = timeZoneProvider.timeZone
+        return calendar
+    }
+
+    var today: Date { normalize(clock.now) }
+    var yesterday: Date { calendar.date(byAdding: .day, value: -1, to: today)! }
+    var startOfCurrentMonth: Date { calendar.dateInterval(of: .month, for: today)!.start }
+    var timeZoneIdentifier: String { timeZoneProvider.timeZone.identifier }
+
+    func normalize(_ date: Date) -> Date { calendar.startOfDay(for: date) }
+
+    func localDateString(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.calendar = calendar
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = timeZoneProvider.timeZone
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
     }
 }

@@ -40,20 +40,30 @@ final class LocalizationUITests: XCTestCase {
 
     func testSettingsEntryCommandAndRequiredCategories() {
         let app = launch(languageArgument: "--language-zh-Hans")
-        app.typeKey(",", modifierFlags: .command)
+        app.descendants(matching: .any)["sidebar-categories"].click()
+        let expenseRows = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", "category-expense-")
+        )
+        let incomeRows = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", "category-income-")
+        )
+        XCTAssertEqual(expenseRows.count, 1)
+        XCTAssertEqual(incomeRows.count, 1)
+        XCTAssertTrue(app.buttons["category-add-expense"].exists)
+        XCTAssertTrue(app.buttons["category-add-income"].exists)
+        XCTAssertFalse(app.switches.matching(NSPredicate(format: "identifier BEGINSWITH %@", "category-hidden-")).firstMatch.exists)
 
-        XCTAssertTrue(app.buttons["settings-open-categories"].waitForExistence(timeout: 3))
-        XCTAssertTrue(app.buttons["settings-check-for-updates"].exists)
-        app.buttons["settings-check-for-updates"].click()
-        XCTAssertTrue(app.staticTexts["检查更新"].waitForExistence(timeout: 2))
-        XCTAssertTrue(app.staticTexts["1.0.0"].exists)
-        app.buttons["关闭"].click()
+        expenseRows.firstMatch.click()
+        XCTAssertTrue(app.buttons["category-entries-back"].waitForExistence(timeout: 2))
+        let header = app.descendants(matching: .any)["category-entries-header"]
+        XCTAssertTrue(header.waitForExistence(timeout: 2))
+        XCTAssertLessThan(header.frame.minY - app.windows.firstMatch.frame.minY, 120)
+        XCTAssertTrue(app.staticTexts["空"].exists)
+        app.buttons["category-entries-back"].click()
+
+        app.buttons["sidebar-settings"].click()
+        XCTAssertFalse(app.buttons["settings-open-categories"].exists)
         XCTAssertFalse(app.staticTexts["⌘,"].exists)
-        app.staticTexts["settings-page-categories"].click()
-        XCTAssertTrue(app.descendants(matching: .any)["settings-categories"].waitForExistence(timeout: 2))
-        for category in ["衣", "食", "住", "行", "娱乐", "其他", "工资", "奖金", "投资", "退款"] {
-            XCTAssertTrue(app.staticTexts[category].exists, "缺少内置分类：\(category)")
-        }
     }
 
     private func launch(languageArgument: String) -> XCUIApplication {

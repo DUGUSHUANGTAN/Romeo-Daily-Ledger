@@ -1,5 +1,9 @@
 import Foundation
 
+extension CodingUserInfoKey {
+    static let aiLocalTimeZone = CodingUserInfoKey(rawValue: "aiLocalTimeZone")!
+}
+
 enum AIProtocol: String, Codable, CaseIterable, Identifiable, Sendable {
     case chatCompletions
     case responses
@@ -12,19 +16,65 @@ struct AIConfiguration: Codable, Equatable, Sendable {
     var protocolType: AIProtocol
     var baseURL: URL
     var model: String
-    var allowsLedgerData: Bool
+    var apiKey: String
 
     init(
         protocolType: AIProtocol = .chatCompletions,
         baseURL: URL = URL(string: "https://api.openai.com/v1")!,
         model: String = "",
-        allowsLedgerData: Bool = false
+        apiKey: String = ""
     ) {
         self.protocolType = protocolType
         self.baseURL = baseURL
         self.model = model
-        self.allowsLedgerData = allowsLedgerData
+        self.apiKey = apiKey
     }
+
+    private enum CodingKeys: String, CodingKey {
+        case protocolType, baseURL, model, apiKey
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        protocolType = try container.decode(AIProtocol.self, forKey: .protocolType)
+        baseURL = try container.decode(URL.self, forKey: .baseURL)
+        model = try container.decode(String.self, forKey: .model)
+        apiKey = try container.decodeIfPresent(String.self, forKey: .apiKey) ?? ""
+    }
+}
+
+enum AIModelConnectionStatus: String, Codable, Equatable, Sendable {
+    case notConnected
+    case connected
+    case failed
+
+    var isConnected: Bool { self == .connected }
+}
+
+struct AIModelPreset: Codable, Equatable, Identifiable, Sendable {
+    var id: UUID
+    var name: String
+    var configuration: AIConfiguration
+    var connectionStatus: AIModelConnectionStatus
+
+    init(
+        id: UUID = UUID(),
+        name: String,
+        configuration: AIConfiguration,
+        connectionStatus: AIModelConnectionStatus = .notConnected
+    ) {
+        self.id = id
+        self.name = name
+        self.configuration = configuration
+        self.connectionStatus = connectionStatus
+    }
+}
+
+struct AIAnalysisHistoryItem: Codable, Equatable, Hashable, Identifiable, Sendable {
+    var id: UUID = UUID()
+    var question: String
+    var answer: String
+    var createdAt: Date = .now
 }
 
 struct AILedgerDraft: Codable, Equatable, Sendable {
@@ -48,14 +98,14 @@ struct AILedgerDraft: Codable, Equatable, Sendable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         kind = try container.decode(EntryKind.self, forKey: .kind)
         amount = try container.decode(Decimal.self, forKey: .amount)
-        currency = try container.decode(String.self, forKey: .currency)
-        note = try container.decode(String.self, forKey: .note)
-        category = try container.decode(String.self, forKey: .category)
+        currency = try container.decodeIfPresent(String.self, forKey: .currency) ?? ""
+        note = try container.decodeIfPresent(String.self, forKey: .note) ?? ""
+        category = try container.decodeIfPresent(String.self, forKey: .category) ?? "other"
         let value = try container.decode(String.self, forKey: .date)
         let formatter = DateFormatter()
         formatter.calendar = Calendar(identifier: .gregorian)
         formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = .autoupdatingCurrent
+        formatter.timeZone = decoder.userInfo[.aiLocalTimeZone] as? TimeZone ?? .autoupdatingCurrent
         formatter.dateFormat = "yyyy-MM-dd"
         guard let parsed = formatter.date(from: value) else {
             throw AIClientError.invalidStructuredResult("Invalid date")

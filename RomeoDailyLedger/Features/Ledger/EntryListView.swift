@@ -21,35 +21,44 @@ struct EntryListView: View {
                         .accessibilityIdentifier("entry-list-empty")
                 }
                 ForEach(model.entries) { entry in
-                    Button {
-                        model.toggleSelection(entry)
-                    } label: {
-                        HStack(spacing: 14) {
-                            Text(AppLocalization.text(entry.kind == .income ? "entry.income.short" : "entry.expense.short", language: language))
+                    HStack(spacing: 14) {
+                        Text(AppLocalization.text(entry.kind == .income ? "entry.income.short" : "entry.expense.short", language: language))
                                 .font(AppTypography.caption(typography))
                                 .frame(width: 28, height: 28)
                                 .background(theme.secondaryAccent.color.opacity(0.22), in: Circle())
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note)
                                     .font(AppTypography.body(typography))
-                                Text(entry.occurredAt, format: .dateTime.hour().minute())
+                                Text(entry.occurredAt, format: .dateTime.year().month().day())
+                                    .font(AppTypography.caption(typography))
+                                    .foregroundStyle(theme.secondaryText.color)
+                                Text("\(AppLocalization.text(entry.kind == .income ? "entry.income" : "entry.expense", language: language)) · \(localizedCategory(entry))")
                                     .font(AppTypography.caption(typography))
                                     .foregroundStyle(theme.secondaryText.color)
                             }
                             Spacer()
                             Text(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode))
                                 .font(AppTypography.title(typography))
-                        }
-                        .padding(12)
-                        .foregroundStyle(theme.primaryText.color)
-                        .background(model.selectedEntryIDs.contains(entry.id) ? theme.primaryAccent.color.opacity(0.16) : theme.surface.color, in: RoundedRectangle(cornerRadius: 10))
                     }
-                    .buttonStyle(.plain)
+                    .padding(12)
+                    .foregroundStyle(theme.primaryText.color)
+                    .background(model.selectedEntryIDs.contains(entry.id) ? theme.primaryAccent.color.opacity(0.16) : theme.surface.color, in: RoundedRectangle(cornerRadius: 10))
+                    .contentShape(Rectangle())
+                    .gesture(
+                        LongPressGesture(minimumDuration: 0.5)
+                            .exclusively(before: TapGesture())
+                            .onEnded { value in
+                                switch value {
+                                case .first: model.beginSelection(with: entry)
+                                case .second: model.activate(entry)
+                                }
+                            }
+                    )
                     .accessibilityLabel("\(AppLocalization.text(entry.kind == .income ? "entry.income" : "entry.expense", language: language)) \(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode)) \(entry.note)")
+                    .accessibilityAddTraits(.isButton)
                     .accessibilityAddTraits(model.selectedEntryIDs.contains(entry.id) ? .isSelected : [])
                     .accessibilityValue(AppLocalization.text(model.selectedEntryIDs.contains(entry.id) ? "accessibility.selected" : "accessibility.notSelected", language: language))
                     .accessibilityIdentifier("entry-row-\(entry.id.uuidString.lowercased())")
-                    .simultaneousGesture(TapGesture(count: 2).onEnded { model.editingEntry = entry })
                     .contextMenu {
                         Button(AppLocalization.text("button.editEntry", language: language)) { model.editingEntry = entry }
                     }
@@ -58,5 +67,10 @@ struct EntryListView: View {
         }
         .accessibilityLabel(AppLocalization.text("accessibility.entryList", language: language))
         .accessibilityIdentifier("entry-list")
+    }
+
+    private func localizedCategory(_ entry: LedgerEntry) -> String {
+        let value = model.categoryNames[entry.categoryID] ?? "other"
+        return AppLocalization.categoryName(systemKey: value, customName: value == "other" ? nil : value, language: language)
     }
 }

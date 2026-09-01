@@ -3,6 +3,7 @@ import UniformTypeIdentifiers
 
 struct DataSettingsView: View {
     let repository: LedgerRepository
+    let storage: StorageCoordinator
     let language: AppLanguage
     let currencyCode: String
     @State private var service: LedgerTransferService?
@@ -14,6 +15,8 @@ struct DataSettingsView: View {
     @State private var importedRecords: [LedgerTransferRecord] = []
     @State private var importError: String?
     @State private var strategy: LedgerDuplicateStrategy = .skipDuplicates
+    @State private var showingEraseConfirmation = false
+    @State private var eraseMessage: String?
 
     var body: some View {
         Form {
@@ -34,9 +37,20 @@ struct DataSettingsView: View {
                 if let preview { previewView(preview) }
                 if let importError { Text(importError).foregroundStyle(.red).accessibilityIdentifier("data-import-error") }
             }
+            Section {
+                Button(AppLocalization.text("settings.storage.erase", language: language), role: .destructive) {
+                    showingEraseConfirmation = true
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.red)
+                .accessibilityValue("destructive")
+                .accessibilityIdentifier("settings-erase-all")
+                if let eraseMessage { Text(eraseMessage).foregroundStyle(.red) }
+            }
         }
         .formStyle(.grouped)
         .navigationTitle(AppLocalization.text("settings.data.title", language: language))
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("settings-data")
         .fileExporter(isPresented: $showExporter, document: TransferDocument(data: exportData ?? Data()), contentType: exportType, defaultFilename: exportType == .json ? "ledger.json" : "ledger.csv") { result in
             if case .failure(let error) = result,
@@ -72,6 +86,18 @@ struct DataSettingsView: View {
         .task {
             service = LedgerTransferService(repository: repository)
             prepareUITestPreviewIfNeeded()
+        }
+        .confirmationDialog(AppLocalization.text("settings.storage.eraseConfirm", language: language), isPresented: $showingEraseConfirmation, titleVisibility: .visible) {
+            Button(AppLocalization.text("settings.storage.erase", language: language), role: .destructive) {
+                Task {
+                    do {
+                        try await repository.deleteAllEntries()
+                        try storage.removeManagedMigrationStaging()
+                        eraseMessage = nil
+                    } catch { eraseMessage = error.localizedDescription }
+                }
+            }
+            Button(AppLocalization.text("button.cancel", language: language), role: .cancel) {}
         }
     }
 

@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 enum AppIdentity {
@@ -7,6 +8,7 @@ enum AppIdentity {
 
 @main
 struct RomeoDailyLedgerApp: App {
+    @NSApplicationDelegateAdaptor(AppLifecycleDelegate.self) private var lifecycleDelegate
     @State private var dependencies = AppDependencies()
 
     var body: some Scene {
@@ -24,7 +26,11 @@ struct RomeoDailyLedgerApp: App {
         }
 
         Settings {
-            SettingsRootView(dependencies: dependencies)
+            SettingsRootView(dependencies: dependencies, standalone: true)
         }
     }
+}
+
+final class AppLifecycleDelegate: NSObject, NSApplicationDelegate {
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
 }

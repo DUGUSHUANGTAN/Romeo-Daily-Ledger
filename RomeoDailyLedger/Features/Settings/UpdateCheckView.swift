@@ -9,8 +9,11 @@ struct UpdateCheckView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(text("settings.update.title")).font(.title2.bold())
+            Text(text("settings.update.title"))
+                .font(.title2.bold())
+                .accessibilityIdentifier("update-check-title")
             LabeledContent(text("settings.update.current"), value: ReleaseUpdateService.currentVersion)
+                .accessibilityIdentifier("update-current-version")
             resultView
             if let error { Text(text(errorKey(error))).foregroundStyle(.red) }
             HStack {
@@ -19,6 +22,7 @@ struct UpdateCheckView: View {
                 Link(text("settings.update.releasePage"), destination: ReleaseUpdateService.releasesPage)
                 Spacer()
                 Button(text("button.close")) { dismiss() }
+                    .accessibilityIdentifier("update-close")
             }
         }
         .padding(24)

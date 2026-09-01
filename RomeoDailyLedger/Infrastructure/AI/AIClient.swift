@@ -14,11 +14,17 @@ extension AIRequesting {
 
 struct AIClient: AIRequesting, Sendable {
     private let session: URLSession
-    private let keyStore: AIKeychainStoring
+    private let dateNormalizer: AppDateNormalizer
+    private let timeZone: TimeZone
 
-    init(session: URLSession = .shared, keyStore: AIKeychainStoring = KeychainAIKeyStore()) {
+    init(
+        session: URLSession = .shared,
+        clock: any AppClock = SystemAppClock(),
+        timeZoneProvider: any AppTimeZoneProviding = SystemAppTimeZoneProvider()
+    ) {
         self.session = session
-        self.keyStore = keyStore
+        self.dateNormalizer = AppDateNormalizer(clock: clock, timeZoneProvider: timeZoneProvider)
+        self.timeZone = timeZoneProvider.timeZone
     }
 
     func parseLedger(
@@ -33,12 +39,21 @@ struct AIClient: AIRequesting, Sendable {
             .replacingOccurrences(of: "```", with: "")
             .trimmingCharacters(in: .whitespacesAndNewlines)
         do {
-            let envelope = try JSONDecoder().decode(AILedgerDraftEnvelope.self, from: Data(clean.utf8))
+            let decoder = JSONDecoder()
+            decoder.userInfo[.aiLocalTimeZone] = timeZone
+            let envelope = try decoder.decode(AILedgerDraftEnvelope.self, from: Data(clean.utf8))
             guard !envelope.entries.isEmpty,
-                  envelope.entries.allSatisfy({ $0.amount > 0 && !$0.currency.isEmpty && !$0.note.isEmpty }) else {
+                  envelope.entries.allSatisfy({ $0.amount > 0 }) else {
                 throw AIClientError.invalidStructuredResult("Invalid entries")
             }
-            return envelope
+            return AILedgerDraftEnvelope(entries: envelope.entries.map {
+                var draft = $0
+                draft.date = dateNormalizer.normalize(draft.date)
+                draft.currency = currencyCode.uppercased()
+                draft.category = draft.category.trimmingCharacters(in: .whitespacesAndNewlines)
+                if draft.category.isEmpty { draft.category = "other" }
+                return draft
+            })
         } catch let error as AIClientError {
             throw error
         } catch {
@@ -57,7 +72,7 @@ struct AIClient: AIRequesting, Sendable {
     ) throws -> URLRequest {
         try authorizedRequest(
             prompt: text,
-            instructions: Self.ledgerInstructions(currencyCode: currencyCode),
+            instructions: ledgerInstructions(currencyCode: currencyCode),
             configuration: configuration,
             expectsJSON: true
         )
@@ -66,7 +81,7 @@ struct AIClient: AIRequesting, Sendable {
     func testConnection(configuration: AIConfiguration) async throws {
         let request = try authorizedRequest(
             prompt: "Connection test",
-            instructions: "Reply with OK.",
+            instructions: "Reply with OK. \(localTimeContext)",
             configuration: configuration,
             expectsJSON: false
         )
@@ -78,22 +93,35 @@ struct AIClient: AIRequesting, Sendable {
         scope: AIAnalysisScope,
         configuration: AIConfiguration
     ) async throws -> String {
-        guard configuration.allowsLedgerData else {
-            throw AIClientError.ledgerDataPermissionRequired
-        }
+        let request = try makeAnalysisRequest(question: question, scope: scope, configuration: configuration)
+        return try await send(request, protocolType: configuration.protocolType)
+    }
+
+    func makeAnalysisRequest(
+        question: String,
+        scope: AIAnalysisScope,
+        configuration: AIConfiguration
+    ) throws -> URLRequest {
         let prompt = """
         \(question)
 
         Authorized ledger scope JSON:
         \(try scope.jsonString())
         """
-        let request = try authorizedRequest(
+        let styleInstructions = "Respond as a natural conversation, not as a statistics-only list. Be concise, practical, and friendly."
+        let instructions = [
+            "Analyze only the supplied ledger scope. State totals, categories, income versus expenses, and trends when relevant. Do not invent missing data.",
+            styleInstructions,
+            localTimeContext
+        ]
+        .compactMap { $0 }
+        .joined(separator: " ")
+        return try authorizedRequest(
             prompt: prompt,
-            instructions: "Analyze only the supplied ledger scope. State totals, categories, income versus expenses, and trends when relevant. Do not invent missing data.",
+            instructions: instructions,
             configuration: configuration,
             expectsJSON: false
         )
-        return try await send(request, protocolType: configuration.protocolType)
     }
 
     private func authorizedRequest(
@@ -108,8 +136,8 @@ struct AIClient: AIRequesting, Sendable {
         guard !configuration.model.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw AIClientError.invalidModel
         }
-        guard let key = try keyStore.read(service: KeychainAIKeyStore.service, account: "apiKey"),
-              !key.isEmpty else {
+        let key = configuration.apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !key.isEmpty else {
             throw AIClientError.apiKeyMissing
         }
 
@@ -181,10 +209,15 @@ struct AIClient: AIRequesting, Sendable {
         return scheme == "http" && ["localhost", "127.0.0.1", "::1"].contains(host.lowercased())
     }
 
-    private static func ledgerInstructions(currencyCode: String) -> String {
+    private func ledgerInstructions(currencyCode: String) -> String {
         """
-        Return only one JSON object with an entries array. Every entry must contain kind, amount, currency, date, note, and category. kind must be income or expense. currency must be \(currencyCode.uppercased()). date must be YYYY-MM-DD in the user's local calendar. category must be one of clothing, food, housing, transport, entertainment, salary, bonus, investment, refund, or other. Use other when uncertain. Never include markdown.
+        Return only one JSON object with an entries array. Every entry must contain kind, amount, and date. kind must be income or expense. amount must be positive. date must be YYYY-MM-DD in the user's local calendar. currency should be \(currencyCode.uppercased()); omit it when uncertain. note and category are optional. Use an exact local category name supplied with the prompt; use 其他/Other when uncertain. Never include markdown.
+        Current local date: \(dateNormalizer.localDateString(for: dateNormalizer.today)). Current time zone: \(dateNormalizer.timeZoneIdentifier). If no date is provided, use today. Resolve relative expressions such as today/今天, yesterday/昨天, and this month/本月 from this local date and time zone.
         """
+    }
+
+    private var localTimeContext: String {
+        "Current local date: \(dateNormalizer.localDateString(for: dateNormalizer.today)). Current time zone: \(dateNormalizer.timeZoneIdentifier). Treat today, yesterday, and this month relative to this date; if no date is provided, use today."
     }
 }
 

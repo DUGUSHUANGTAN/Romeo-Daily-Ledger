@@ -1,15 +1,71 @@
+import AppKit
 import XCTest
 
 @MainActor
 final class DataTransferUITests: XCTestCase {
+    func testThemeSelectionUpdatesImmediatelyAndSystemRestoresCurrentAppearance() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing"]
+        app.launch()
+        app.buttons["sidebar-settings"].click()
+        let appearancePage = app.descendants(matching: .any)["settings-page-appearance"]
+        XCTAssertTrue(appearancePage.waitForExistence(timeout: 3))
+        appearancePage.click()
+
+        let dark = app.radioButtons["深色"]
+        XCTAssertTrue(dark.waitForExistence(timeout: 3))
+        dark.click()
+
+        let followSystem = app.radioButtons["跟随系统"]
+        XCTAssertTrue(followSystem.waitForExistence(timeout: 3))
+        followSystem.click()
+        XCTAssertTrue(app.radioButtons["深色"].waitForExistence(timeout: 3))
+    }
+
+    func testEraseAllAppearsOnlyOnDataPageAndUsesDestructiveStyling() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing"]
+        app.launch()
+        app.buttons["sidebar-settings"].click()
+
+        XCTAssertFalse(app.buttons["settings-erase-all"].exists)
+        let dataPage = app.descendants(matching: .any)["settings-page-data"]
+        XCTAssertTrue(dataPage.waitForExistence(timeout: 3))
+        dataPage.click()
+        let erase = app.buttons["settings-erase-all"]
+        XCTAssertTrue(erase.waitForExistence(timeout: 3))
+        XCTAssertEqual(erase.value as? String, "destructive")
+    }
+
+    func testCurrencyIsOneEditableControlAndReturnCommitsIt() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing"]
+        app.launch()
+        app.buttons["sidebar-settings"].click()
+
+        let currency = app.descendants(matching: .any)["settings-currency"]
+        XCTAssertTrue(currency.waitForExistence(timeout: 3))
+        XCTAssertEqual(currency.elementType, .textField)
+        XCTAssertFalse(app.popUpButtons["settings-currency"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["settings-currency-options"].exists)
+        currency.click()
+        currency.typeKey("a", modifierFlags: .command)
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString("hkd", forType: .string)
+        currency.typeKey("v", modifierFlags: .command)
+        currency.typeKey(.return, modifierFlags: [])
+        XCTAssertEqual(currency.value as? String, "HKD")
+    }
+
     func testSettingsOpensDataPageAndImportCanBeCancelled() {
         let app = XCUIApplication()
         app.launchArguments = ["--ui-testing"]
         app.launch()
         app.buttons["sidebar-settings"].click()
-        XCTAssertTrue(app.staticTexts["数据"].waitForExistence(timeout: 3) || app.staticTexts["Data"].waitForExistence(timeout: 1))
-        app.staticTexts["数据"].click()
-        XCTAssertTrue(app.descendants(matching: .any)["settings-data"].waitForExistence(timeout: 3))
+        let dataPage = app.descendants(matching: .any)["settings-page-data"]
+        XCTAssertTrue(dataPage.waitForExistence(timeout: 3))
+        dataPage.click()
+        XCTAssertTrue(app.buttons["data-import-button"].waitForExistence(timeout: 3))
         app.buttons["data-import-button"].click()
         app.typeKey(.escape, modifierFlags: [])
         XCTAssertTrue(app.buttons["data-import-button"].waitForExistence(timeout: 2))
@@ -20,7 +76,7 @@ final class DataTransferUITests: XCTestCase {
         app.launchArguments = ["--ui-testing", "--language-en", "--ui-testing-data-preview"]
         app.launch()
         app.descendants(matching: .any)["sidebar-settings"].click()
-        app.staticTexts["settings-page-data"].click()
+        app.descendants(matching: .any)["settings-page-data"].click()
 
         XCTAssertTrue(app.descendants(matching: .any)["data-import-preview"].waitForExistence(timeout: 3))
         app.buttons["data-import-cancel"].click()
@@ -29,6 +85,6 @@ final class DataTransferUITests: XCTestCase {
         app.buttons["data-export-json"].click()
         sleep(1)
         app.typeKey(.escape, modifierFlags: [])
-        XCTAssertTrue(app.descendants(matching: .any)["settings-data"].exists)
+        XCTAssertTrue(app.buttons["data-export-json"].exists)
     }
 }

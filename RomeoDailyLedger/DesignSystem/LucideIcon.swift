@@ -6,6 +6,8 @@ enum LucideIcon: String, CaseIterable, Hashable, Sendable {
     case aiAssistant = "bot"
     case calendar = "calendar-days"
     case insights = "chart-no-axes-column-increasing"
+    case history
+    case categories = "tags"
     case settings
 
     static let version = "0.468.0"

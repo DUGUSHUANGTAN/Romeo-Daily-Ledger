@@ -7,15 +7,21 @@ struct SelectionSummaryBar: View {
     let theme: AppTheme
     let typography: AppTypography.Style
     let onDelete: () -> Void
+    let onCancel: () -> Void
 
     var body: some View {
         HStack(spacing: 20) {
+            Button(AppLocalization.text("button.deleteSelected", language: language), action: onDelete)
+                .buttonStyle(.borderedProminent)
+                .tint(.red)
+                .accessibilityIdentifier("delete-selected-entries")
+            Button(AppLocalization.text("button.cancelSelection", language: language), action: onCancel)
+                .buttonStyle(.bordered)
+                .accessibilityIdentifier("cancel-entry-selection")
             Text(AppLocalization.format("summary.income", language: language, LedgerFormatting.amount(summary.income, currencyCode: currencyCode)))
             Text(AppLocalization.format("summary.expense", language: language, LedgerFormatting.amount(summary.expense, currencyCode: currencyCode)))
             Text(AppLocalization.format("summary.net", language: language, LedgerFormatting.amount(summary.net, currencyCode: currencyCode)))
             Spacer()
-            Button(AppLocalization.text("button.deleteSelected", language: language), action: onDelete)
-                .accessibilityIdentifier("delete-selected-entries")
         }
         .font(AppTypography.caption(typography))
         .padding(.horizontal, 16)
