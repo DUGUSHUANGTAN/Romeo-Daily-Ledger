@@ -4,6 +4,22 @@ import Testing
 
 @MainActor @Suite("App preferences")
 struct AppPreferencesTests {
+    @Test func modelPresetStatusDefaultsToNotConnectedAndPersists() throws {
+        let preset = AIModelPreset(
+            name: "OpenAI",
+            configuration: AIConfiguration(model: "gpt-test", apiKey: "key")
+        )
+        #expect(preset.connectionStatus == .notConnected)
+
+        let decoded = try JSONDecoder().decode(AIModelPreset.self, from: JSONEncoder().encode(preset))
+        #expect(decoded == preset)
+    }
+
+    @Test func failedAndUntestedModelsUseDisconnectedIndicator() {
+        #expect(AIModelConnectionStatus.notConnected.isConnected == false)
+        #expect(AIModelConnectionStatus.failed.isConnected == false)
+        #expect(AIModelConnectionStatus.connected.isConnected == true)
+    }
     @Test func defaultsMatchSpecification() {
         let defaults = isolatedDefaults()
         let preferences = AppPreferences(defaults: defaults, settingsStore: temporaryStore())
@@ -56,6 +72,13 @@ struct AppPreferencesTests {
         let data = Data(#"{"protocolType":"chatCompletions","baseURL":"https:\/\/example.com\/v1","model":"legacy","allowsLedgerData":true}"#.utf8)
         let configuration = try JSONDecoder().decode(AIConfiguration.self, from: data)
         #expect(configuration.apiKey.isEmpty)
+    }
+
+    @Test func legacyStoredSettingsDecodesWithoutModelPresetFields() throws {
+        let data = Data(#"{"currencyCode":"CNY","language":"zh-Hans","themeMode":"system","aiConfiguration":{"protocolType":"chatCompletions","baseURL":"https:\/\/example.com\/v1","model":"legacy","apiKey":"key"}}"#.utf8)
+        let settings = try JSONDecoder().decode(StoredSettings.self, from: data)
+        #expect(settings.aiModelPresets.isEmpty)
+        #expect(settings.selectedAIModelID == nil)
     }
 
     @Test func systemClockAndTimeZoneProvidersExposeInjectedContracts() {

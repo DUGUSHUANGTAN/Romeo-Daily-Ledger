@@ -6,39 +6,40 @@ struct AIAnalysisScope: Codable, Equatable, Sendable {
         let amount: Decimal
         let category: String
         let note: String
-        let occurredAt: Date
+        let occurredAt: String
     }
 
-    let startDate: Date
-    let endDate: Date
     let currencyCode: String
     let entries: [Entry]
 
     init(
-        interval: DateInterval,
         currencyCode: String,
         entries: [LedgerEntry],
-        categoryNames: [UUID: String]
+        categoryNames: [UUID: String],
+        timeZone: TimeZone = .autoupdatingCurrent
     ) {
-        startDate = interval.start
-        endDate = interval.end
         self.currencyCode = currencyCode
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = timeZone
+        let formatter = DateFormatter()
+        formatter.calendar = calendar
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = timeZone
+        formatter.dateFormat = "yyyy-MM-dd"
         self.entries = entries
-            .filter { interval.contains($0.occurredAt) && $0.occurredAt < interval.end }
             .map { entry in
                 Entry(
                     kind: entry.kind,
                     amount: entry.amount,
                     category: categoryNames[entry.categoryID] ?? "other",
                     note: entry.note,
-                    occurredAt: entry.occurredAt
+                    occurredAt: formatter.string(from: entry.occurredAt)
                 )
             }
     }
 
     func jsonString() throws -> String {
         let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
         encoder.outputFormatting = [.sortedKeys]
         let data = try encoder.encode(self)
         guard let value = String(data: data, encoding: .utf8) else {

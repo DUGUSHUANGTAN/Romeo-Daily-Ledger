@@ -31,6 +31,34 @@ struct AIClientTests {
         let result = try await client.parseLedger(text: "午餐", currencyCode: "CNY", configuration: AIConfiguration(baseURL: URL(string: "https://example.test/v1")!, model: "ledger", apiKey: "key"))
         #expect(result.entries.first?.date == ISO8601DateFormatter().date(from: "2024-03-01T08:00:00Z"))
     }
+
+    @Test func minimallyValidDraftDefaultsOptionalFields() async throws {
+        let body = Data(#"{"choices":[{"message":{"role":"assistant","content":"{\"entries\":[{\"kind\":\"expense\",\"amount\":25,\"date\":\"2026-09-01\"}]}"}}]}"#.utf8)
+        let client = AIClient(session: Self.session(data: body, status: 200))
+
+        let result = try await client.parseLedger(
+            text: "25",
+            currencyCode: "CNY",
+            configuration: AIConfiguration(baseURL: URL(string: "https://example.test/v1")!, model: "ledger", apiKey: "key")
+        )
+
+        #expect(result.entries.first?.currency == "CNY")
+        #expect(result.entries.first?.note == "")
+        #expect(result.entries.first?.category == "other")
+    }
+
+    @Test func unknownCategoryFallsBackToOther() async throws {
+        let body = Data(#"{"choices":[{"message":{"role":"assistant","content":"{\"entries\":[{\"kind\":\"expense\",\"amount\":25,\"currency\":\"CNY\",\"date\":\"2026-09-01\",\"note\":\"\",\"category\":\"restaurant\"}]}"}}]}"#.utf8)
+        let client = AIClient(session: Self.session(data: body, status: 200))
+
+        let result = try await client.parseLedger(
+            text: "25",
+            currencyCode: "CNY",
+            configuration: AIConfiguration(baseURL: URL(string: "https://example.test/v1")!, model: "ledger", apiKey: "key")
+        )
+
+        #expect(result.entries.first?.category == "other")
+    }
     @Test func chatCompletionsResponseProducesDraft() async throws {
         let body = Data(#"{"choices":[{"message":{"role":"assistant","content":"{\"entries\":[{\"kind\":\"expense\",\"amount\":25,\"currency\":\"USD\",\"date\":\"2026-08-30\",\"note\":\"Lunch\",\"category\":\"food\"}]}"}}]}"#.utf8)
         let client = AIClient(session: Self.session(data: body, status: 200))
@@ -112,7 +140,6 @@ struct AIClientTests {
         let body = Data(#"{"choices":[{"message":{"role":"assistant","content":"Food was the largest category."}}]}"#.utf8)
         let client = AIClient(session: Self.session(data: body, status: 200))
         let scope = AIAnalysisScope(
-            interval: DateInterval(start: Date(timeIntervalSince1970: 0), duration: 100),
             currencyCode: "USD",
             entries: [
                 LedgerEntry(kind: .expense, amount: 12, categoryID: UUID(), note: "Lunch", occurredAt: Date(timeIntervalSince1970: 10))
@@ -132,7 +159,7 @@ struct AIClientTests {
     @Test func analysisAlwaysReadsTheSuppliedLedgerScopeAndRequestsAConversationalAnswer() async throws {
         let body = Data(#"{"choices":[{"message":{"role":"assistant","content":"You spent more on food this month."}}]}"#.utf8)
         let client = AIClient(session: Self.session(data: body, status: 200))
-        let scope = AIAnalysisScope(interval: DateInterval(start: .now, duration: 1), currencyCode: "USD", entries: [], categoryNames: [:])
+        let scope = AIAnalysisScope(currencyCode: "USD", entries: [], categoryNames: [:])
 
         let answer = try await client.analyze(
             question: "Summary",
@@ -154,7 +181,7 @@ struct AIClientTests {
     @Test func analysisUsesOnlyTheFixedInAppInstructions() async throws {
         let body = Data(#"{"choices":[{"message":{"role":"assistant","content":"Answer"}}]}"#.utf8)
         let client = AIClient(session: Self.session(data: body, status: 200))
-        let scope = AIAnalysisScope(interval: DateInterval(start: .now, duration: 1), currencyCode: "USD", entries: [], categoryNames: [:])
+        let scope = AIAnalysisScope(currencyCode: "USD", entries: [], categoryNames: [:])
 
         let request = try client.makeAnalysisRequest(
             question: "Summary",

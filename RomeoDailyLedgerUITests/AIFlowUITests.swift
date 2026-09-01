@@ -12,6 +12,7 @@ final class AIFlowUITests: XCTestCase {
         let aiPage = app.descendants(matching: .any)["settings-page-ai"]
         XCTAssertTrue(aiPage.waitForExistence(timeout: 3))
         aiPage.click()
+        app.buttons["settings-ai-add-model"].click()
 
         let apiKey = app.secureTextFields["settings-ai-api-key"]
         XCTAssertTrue(apiKey.waitForExistence(timeout: 3))
@@ -57,7 +58,7 @@ final class AIFlowUITests: XCTestCase {
         app.descendants(matching: .any)["sidebar-aiAssistant"].click()
         app.buttons["ai-mode-analysis"].click()
 
-        XCTAssertTrue(app.descendants(matching: .any)["ai-analysis-scope"].waitForExistence(timeout: 2))
+        XCTAssertFalse(app.descendants(matching: .any)["ai-analysis-scope"].exists)
         XCTAssertFalse(app.descendants(matching: .any)["ai-permission-scope"].exists)
         let question = app.textViews["ai-analysis-question"]
         XCTAssertTrue(question.waitForExistence(timeout: 2))
@@ -72,6 +73,7 @@ final class AIFlowUITests: XCTestCase {
         let app = launchApp()
         app.descendants(matching: .any)["sidebar-settings"].click()
         app.descendants(matching: .any)["settings-page-ai"].click()
+        app.buttons["settings-ai-add-model"].click()
 
         XCTAssertTrue(app.secureTextFields["settings-ai-api-key"].waitForExistence(timeout: 2))
         XCTAssertFalse(app.switches["settings-ai-allow-ledger"].exists)
@@ -80,13 +82,14 @@ final class AIFlowUITests: XCTestCase {
         let apiKey = app.secureTextFields["settings-ai-api-key"]
         apiKey.click()
         apiKey.typeText("auto-saved-key")
-        app.descendants(matching: .any)["settings-page-general"].click()
-        app.descendants(matching: .any)["settings-page-ai"].click()
-        XCTAssertNotEqual(app.secureTextFields["settings-ai-api-key"].value as? String, "")
+        app.textFields["settings-ai-preset-name"].click()
+        app.textFields["settings-ai-preset-name"].typeText("UI Test Provider")
         app.textFields["settings-ai-model"].click()
         app.textFields["settings-ai-model"].typeText("ui-test-model")
         app.buttons["settings-ai-test"].click()
         XCTAssertTrue(app.staticTexts["settings-ai-status"].waitForExistence(timeout: 2))
+        app.buttons["Save"].click()
+        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "UI Test Provider")).firstMatch.waitForExistence(timeout: 2))
     }
 
     private func launchApp() -> XCUIApplication {

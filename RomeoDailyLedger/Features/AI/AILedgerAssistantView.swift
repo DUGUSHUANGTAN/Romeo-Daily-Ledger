@@ -13,8 +13,6 @@ struct AILedgerAssistantView: View {
     @State private var mode: Mode = .entry
     @State private var prompt = ""
     @State private var question = ""
-    @State private var analysisStart = Calendar.current.dateInterval(of: .month, for: .now)?.start ?? .now
-    @State private var analysisEnd = Date.now
     @State private var analysisResult: String?
     @State private var drafts: [AILedgerDraft] = []
     @State private var error: String?
@@ -103,9 +101,9 @@ struct AILedgerAssistantView: View {
                 text: $prompt,
                 prompt: AppLocalization.text("ai.prompt", language: language),
                 minHeight: 112,
+                accessibilityIdentifier: "ai-prompt",
                 onSubmit: generate
             )
-            .accessibilityIdentifier("ai-prompt")
             HStack {
                 Spacer()
                 Button(AppLocalization.text("ai.generate", language: language)) { generate() }
@@ -125,29 +123,9 @@ struct AILedgerAssistantView: View {
                 text: $question,
                 prompt: AppLocalization.text("ai.analysis.question", language: language),
                 minHeight: 96,
+                accessibilityIdentifier: "ai-analysis-question",
                 onSubmit: analyze
             )
-            .accessibilityIdentifier("ai-analysis-question")
-
-            HStack {
-                DatePicker(
-                    AppLocalization.text("ai.analysis.start", language: language),
-                    selection: $analysisStart,
-                    displayedComponents: .date
-                )
-                .environment(\.locale, language.datePickerLocale)
-                DatePicker(
-                    AppLocalization.text("ai.analysis.end", language: language),
-                    selection: $analysisEnd,
-                    displayedComponents: .date
-                )
-                .environment(\.locale, language.datePickerLocale)
-            }
-            .padding(12)
-            .background(theme.surface.color, in: RoundedRectangle(cornerRadius: 10))
-            .accessibilityElement(children: .contain)
-            .accessibilityLabel(AppLocalization.text("ai.analysis.scope", language: language))
-            .accessibilityIdentifier("ai-analysis-scope")
 
             Button(AppLocalization.text("ai.analysis.run", language: language)) { analyze() }
                 .buttonStyle(.borderedProminent)
@@ -201,15 +179,7 @@ struct AILedgerAssistantView: View {
             defer { requestTask = nil }
             do {
                 analysisResult = try await requestState.perform {
-                    let calendar = Calendar.autoupdatingCurrent
-                    let lower = min(analysisStart, analysisEnd)
-                    let upper = max(analysisStart, analysisEnd)
-                    let start = calendar.startOfDay(for: lower)
-                    guard let end = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: upper)) else {
-                        throw AIClientError.invalidStructuredResult("Invalid date interval")
-                    }
-                    let interval = DateInterval(start: start, end: end)
-                    let entries = try await dependencies.repository.entries(in: interval)
+                    let entries = try await dependencies.repository.allEntries()
                     var categoryNames: [UUID: String] = [:]
                     for id in Set(entries.map(\.categoryID)) {
                         if let category = try await dependencies.repository.category(id: id) {
@@ -217,7 +187,6 @@ struct AILedgerAssistantView: View {
                         }
                     }
                     let scope = AIAnalysisScope(
-                        interval: interval,
                         currencyCode: currencyCode,
                         entries: entries,
                         categoryNames: categoryNames
@@ -299,6 +268,7 @@ struct MultilineSubmitTextEditor: View {
     @Binding var text: String
     let prompt: String
     let minHeight: CGFloat
+    var accessibilityIdentifier = ""
     let onSubmit: () -> Void
 
     var body: some View {
@@ -306,23 +276,11 @@ struct MultilineSubmitTextEditor: View {
             if text.isEmpty {
                 Text(prompt)
                     .foregroundStyle(.tertiary)
-                    .padding(.horizontal, 9)
+                    .padding(.horizontal, 8)
                     .padding(.vertical, 8)
                     .allowsHitTesting(false)
             }
-            TextEditor(text: $text)
-                .font(.body)
-                .scrollContentBackground(.hidden)
-                .padding(4)
-                .onKeyPress(.return, phases: .down) { keyPress in
-                    if !MultilineSubmitBehavior.shouldSubmit(
-                        shiftPressed: keyPress.modifiers.contains(.shift)
-                    ) {
-                        return .ignored
-                    }
-                    onSubmit()
-                    return .handled
-                }
+            ComposingTextView(text: $text, accessibilityIdentifier: accessibilityIdentifier, onSubmit: onSubmit)
         }
         .frame(height: minHeight)
         .background(.background.opacity(0.72), in: RoundedRectangle(cornerRadius: 9))
@@ -335,8 +293,76 @@ struct MultilineSubmitTextEditor: View {
 }
 
 enum MultilineSubmitBehavior {
-    static func shouldSubmit(shiftPressed: Bool) -> Bool {
-        !shiftPressed
+    static func shouldSubmit(shiftPressed: Bool, hasMarkedText: Bool) -> Bool {
+        !shiftPressed && !hasMarkedText
+    }
+}
+
+private struct ComposingTextView: NSViewRepresentable {
+    @Binding var text: String
+    let accessibilityIdentifier: String
+    let onSubmit: () -> Void
+
+    func makeCoordinator() -> Coordinator { Coordinator(parent: self) }
+
+    func makeNSView(context: Context) -> NSScrollView {
+        let scrollView = NSScrollView()
+        scrollView.drawsBackground = false
+        scrollView.hasVerticalScroller = true
+        scrollView.autohidesScrollers = true
+
+        let textView = SubmitAwareTextView()
+        textView.delegate = context.coordinator
+        textView.string = text
+        textView.font = .preferredFont(forTextStyle: .body)
+        textView.drawsBackground = false
+        textView.isRichText = false
+        textView.isAutomaticQuoteSubstitutionEnabled = false
+        textView.isVerticallyResizable = true
+        textView.isHorizontallyResizable = false
+        textView.autoresizingMask = [.width]
+        textView.textContainerInset = NSSize(width: 8, height: 8)
+        textView.textContainer?.lineFragmentPadding = 0
+        textView.textContainer?.widthTracksTextView = true
+        textView.setAccessibilityIdentifier(accessibilityIdentifier)
+        textView.onSubmit = onSubmit
+        scrollView.documentView = textView
+        return scrollView
+    }
+
+    func updateNSView(_ scrollView: NSScrollView, context: Context) {
+        guard let textView = scrollView.documentView as? SubmitAwareTextView else { return }
+        if textView.string != text { textView.string = text }
+        textView.onSubmit = onSubmit
+    }
+
+    final class Coordinator: NSObject, NSTextViewDelegate {
+        var parent: ComposingTextView
+        init(parent: ComposingTextView) { self.parent = parent }
+        func textDidChange(_ notification: Notification) {
+            guard let textView = notification.object as? NSTextView else { return }
+            parent.text = textView.string
+        }
+    }
+}
+
+private final class SubmitAwareTextView: NSTextView {
+    var onSubmit: (() -> Void)?
+
+    override func keyDown(with event: NSEvent) {
+        guard event.keyCode == 36 || event.keyCode == 76 else {
+            super.keyDown(with: event)
+            return
+        }
+        let shiftPressed = event.modifierFlags.contains(.shift)
+        guard MultilineSubmitBehavior.shouldSubmit(
+            shiftPressed: shiftPressed,
+            hasMarkedText: hasMarkedText()
+        ) else {
+            super.keyDown(with: event)
+            return
+        }
+        onSubmit?()
     }
 }
 
@@ -447,8 +473,6 @@ private struct AILedgerPreviewView: View {
                 TextField("0", value: $drafts[index].amount, format: .number)
                     .frame(width: 110)
                     .onSubmit { save() }
-                Text(LedgerFormatting.amount(drafts[index].amount, currencyCode: currencyCode))
-                    .accessibilityIdentifier("ai-draft-formatted-amount-\(index)")
                 DatePicker("", selection: $drafts[index].date, displayedComponents: .date)
                     .environment(\.locale, language.datePickerLocale)
                 Spacer()

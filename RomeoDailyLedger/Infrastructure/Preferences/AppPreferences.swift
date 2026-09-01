@@ -55,6 +55,26 @@ final class AppPreferences {
         }
     }
 
+    var aiModelPresets: [AIModelPreset] {
+        didSet {
+            if let selectedAIModelID,
+               let selected = aiModelPresets.first(where: { $0.id == selectedAIModelID }) {
+                aiConfiguration = selected.configuration
+            }
+            persist()
+        }
+    }
+
+    var selectedAIModelID: UUID? {
+        didSet {
+            if let selectedAIModelID,
+               let selected = aiModelPresets.first(where: { $0.id == selectedAIModelID }) {
+                aiConfiguration = selected.configuration
+            }
+            persist()
+        }
+    }
+
     var apiKey: String {
         get { aiConfiguration.apiKey }
         set { aiConfiguration.apiKey = newValue }
@@ -76,6 +96,8 @@ final class AppPreferences {
         } else {
             aiConfiguration = AIConfiguration()
         }
+        aiModelPresets = stored?.aiModelPresets ?? []
+        selectedAIModelID = stored?.selectedAIModelID
         isLoading = false
         persist()
         [Key.currencyCode, Key.language, Key.themeMode, "preferences.typographyStyle", "preferences.motionIntensity", Key.aiConfiguration].forEach(defaults.removeObject)
@@ -83,7 +105,14 @@ final class AppPreferences {
 
     private func persist() {
         guard !isLoading else { return }
-        try? settingsStore.save(StoredSettings(currencyCode: currencyCode, language: language.rawValue, themeMode: themeMode.rawValue, aiConfiguration: aiConfiguration))
+        try? settingsStore.save(StoredSettings(
+            currencyCode: currencyCode,
+            language: language.rawValue,
+            themeMode: themeMode.rawValue,
+            aiConfiguration: aiConfiguration,
+            aiModelPresets: aiModelPresets,
+            selectedAIModelID: selectedAIModelID
+        ))
     }
 
     private static func normalizedCurrencyCode(_ value: String) -> String {

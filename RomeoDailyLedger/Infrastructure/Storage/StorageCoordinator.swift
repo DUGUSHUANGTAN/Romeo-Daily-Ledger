@@ -22,6 +22,38 @@ struct StoredSettings: Codable, Equatable, Sendable {
     var language = AppLanguage.simplifiedChinese.rawValue
     var themeMode = ThemeMode.system.rawValue
     var aiConfiguration = AIConfiguration()
+    var aiModelPresets: [AIModelPreset] = []
+    var selectedAIModelID: UUID?
+
+    private enum CodingKeys: String, CodingKey {
+        case currencyCode, language, themeMode, aiConfiguration, aiModelPresets, selectedAIModelID
+    }
+
+    init(
+        currencyCode: String = "USD",
+        language: String = AppLanguage.simplifiedChinese.rawValue,
+        themeMode: String = ThemeMode.system.rawValue,
+        aiConfiguration: AIConfiguration = AIConfiguration(),
+        aiModelPresets: [AIModelPreset] = [],
+        selectedAIModelID: UUID? = nil
+    ) {
+        self.currencyCode = currencyCode
+        self.language = language
+        self.themeMode = themeMode
+        self.aiConfiguration = aiConfiguration
+        self.aiModelPresets = aiModelPresets
+        self.selectedAIModelID = selectedAIModelID
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        currencyCode = try container.decodeIfPresent(String.self, forKey: .currencyCode) ?? "USD"
+        language = try container.decodeIfPresent(String.self, forKey: .language) ?? AppLanguage.simplifiedChinese.rawValue
+        themeMode = try container.decodeIfPresent(String.self, forKey: .themeMode) ?? ThemeMode.system.rawValue
+        aiConfiguration = try container.decodeIfPresent(AIConfiguration.self, forKey: .aiConfiguration) ?? AIConfiguration()
+        aiModelPresets = try container.decodeIfPresent([AIModelPreset].self, forKey: .aiModelPresets) ?? []
+        selectedAIModelID = try container.decodeIfPresent(UUID.self, forKey: .selectedAIModelID)
+    }
 }
 
 struct SettingsStore: Sendable {

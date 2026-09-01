@@ -43,6 +43,33 @@ struct AIConfiguration: Codable, Equatable, Sendable {
     }
 }
 
+enum AIModelConnectionStatus: String, Codable, Equatable, Sendable {
+    case notConnected
+    case connected
+    case failed
+
+    var isConnected: Bool { self == .connected }
+}
+
+struct AIModelPreset: Codable, Equatable, Identifiable, Sendable {
+    var id: UUID
+    var name: String
+    var configuration: AIConfiguration
+    var connectionStatus: AIModelConnectionStatus
+
+    init(
+        id: UUID = UUID(),
+        name: String,
+        configuration: AIConfiguration,
+        connectionStatus: AIModelConnectionStatus = .notConnected
+    ) {
+        self.id = id
+        self.name = name
+        self.configuration = configuration
+        self.connectionStatus = connectionStatus
+    }
+}
+
 struct AILedgerDraft: Codable, Equatable, Sendable {
     var kind: EntryKind
     var amount: Decimal
@@ -64,9 +91,9 @@ struct AILedgerDraft: Codable, Equatable, Sendable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         kind = try container.decode(EntryKind.self, forKey: .kind)
         amount = try container.decode(Decimal.self, forKey: .amount)
-        currency = try container.decode(String.self, forKey: .currency)
-        note = try container.decode(String.self, forKey: .note)
-        category = try container.decode(String.self, forKey: .category)
+        currency = try container.decodeIfPresent(String.self, forKey: .currency) ?? ""
+        note = try container.decodeIfPresent(String.self, forKey: .note) ?? ""
+        category = try container.decodeIfPresent(String.self, forKey: .category) ?? "other"
         let value = try container.decode(String.self, forKey: .date)
         let formatter = DateFormatter()
         formatter.calendar = Calendar(identifier: .gregorian)
