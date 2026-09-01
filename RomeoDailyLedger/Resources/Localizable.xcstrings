@@ -1,6 +1,153 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "nav.categories.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Categories" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "分类" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "分類" } }
+      }
+    },
+    "nav.categories.subtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Organize income and expense groups" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "管理收入与支出分组" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "管理收入與支出分組" } }
+      }
+    },
+    "ai.analysis.history" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Analysis History" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "分析历史" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "分析歷史" } }
+      }
+    },
+    "ai.analysis.history.empty" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No analysis history" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "暂无分析历史" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "暫無分析歷史" } }
+      }
+    },
+    "settings.ai.clearAnalysisHistory" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clear all analysis history" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "清除全部分析历史" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "清除全部分析歷史" } }
+      }
+    },
+    "button.delete" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "删除" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "刪除" } }
+      }
+    },
+    "calendar.dayBalance" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Net %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "净额 %@" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "淨額 %@" } }
+      }
+    },
+    "history.search.placeholder" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search history" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "搜索历史账目" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "搜尋歷史賬目" } }
+      }
+    },
+    "history.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "History Entries" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "历史账目" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "歷史賬目" } }
+      }
+    },
+    "nav.history.subtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search and manage all entries" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "搜索和管理全部账目" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "搜尋和管理全部賬目" } }
+      }
+    },
+    "nav.history.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "History" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "历史" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "歷史" } }
+      }
+    },
+    "settings.ai.apiKey.hide" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hide API Key" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "隐藏 API 密钥" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "隱藏 API 密鑰" } }
+      }
+    },
+    "settings.ai.apiKey.show" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show API Key" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示 API 密钥" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "顯示 API 密鑰" } }
+      }
+    },
+    "settings.ai.deleteModel.message" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This model preset will be permanently deleted." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "此模型预设将被永久删除。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "此模型預設將被永久刪除。" } }
+      }
+    },
+    "settings.ai.deleteModel.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete model?" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "删除模型？" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "刪除模型？" } }
+      }
+    },
+    "settings.ai.modelProviderName" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preset name" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "预设名称" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "預設名稱" } }
+      }
+    },
+    "settings.ai.models" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Models" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "模型" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "模型" } }
+      }
+    },
+    "settings.ai.models.hint" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Fill in each provider's API key to use its models." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "填入各提供方的 API 密钥即可使用其模型。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "填入各提供方的 API 密鑰即可使用其模型。" } }
+      }
+    },
+    "settings.ai.status.connected" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Connected" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已连通" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "已連通" } }
+      }
+    },
+    "settings.ai.status.notConnected" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Not connected" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "未连通" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "未連通" } }
+      }
+    },
+    "settings.categories.add" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add category" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "新增分类" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "新增分類" } }
+      }
+    },
     "accessibility.categoryChart" : {
       "localizations" : {
         "en" : {

@@ -19,6 +19,7 @@ struct AILedgerAssistantView: View {
     @State private var requestState = AIRequestState()
     @State private var requestTask: Task<Void, Never>?
     @State private var showPreview = false
+    @State private var showAnalysisHistory = false
 
     let dependencies: AppDependencies
     let theme: AppTheme
@@ -93,6 +94,9 @@ struct AILedgerAssistantView: View {
                 prompt = ""
             }
         }
+        .sheet(isPresented: $showAnalysisHistory) {
+            AIAnalysisHistoryView(preferences: dependencies.preferences, theme: theme, typography: typography)
+        }
     }
 
     private var entryForm: some View {
@@ -105,7 +109,6 @@ struct AILedgerAssistantView: View {
                 onSubmit: generate
             )
             HStack {
-                Spacer()
                 Button(AppLocalization.text("ai.generate", language: language)) { generate() }
                     .buttonStyle(.borderedProminent)
                     .disabled(prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || requestTask != nil)
@@ -134,6 +137,8 @@ struct AILedgerAssistantView: View {
                         || requestTask != nil
                 )
                 .accessibilityIdentifier("ai-analyze")
+            Button(AppLocalization.text("ai.analysis.history", language: language)) { showAnalysisHistory = true }
+                .accessibilityIdentifier("ai-analysis-history")
 
             if let analysisResult {
                 VStack(alignment: .leading, spacing: 8) {
@@ -155,9 +160,12 @@ struct AILedgerAssistantView: View {
         requestTask = Task { @MainActor in
             defer { requestTask = nil }
             do {
+                let localCategories = ((try? await dependencies.repository.categories(kind: .expense)) ?? [])
+                    + ((try? await dependencies.repository.categories(kind: .income)) ?? [])
+                let categoryContext = localCategories.map { LedgerFormatting.categoryName($0, language: language) }.joined(separator: ", ")
                 let result = try await requestState.perform {
                     try await client.parseLedger(
-                        text: prompt,
+                        text: "\(prompt)\nLocal categories: \(categoryContext)",
                         currencyCode: currencyCode,
                         configuration: dependencies.preferences.aiConfiguration
                     )
@@ -178,7 +186,7 @@ struct AILedgerAssistantView: View {
         requestTask = Task { @MainActor in
             defer { requestTask = nil }
             do {
-                analysisResult = try await requestState.perform {
+                let answer = try await requestState.perform {
                     let entries = try await dependencies.repository.allEntries()
                     var categoryNames: [UUID: String] = [:]
                     for id in Set(entries.map(\.categoryID)) {
@@ -197,6 +205,11 @@ struct AILedgerAssistantView: View {
                         configuration: dependencies.preferences.aiConfiguration
                     )
                 }
+                analysisResult = answer
+                dependencies.preferences.aiAnalysisHistory.insert(
+                    AIAnalysisHistoryItem(question: question.trimmingCharacters(in: .whitespacesAndNewlines), answer: answer),
+                    at: 0
+                )
             } catch is CancellationError {
             } catch {
                 self.error = localizedAIError(error, language: language)
@@ -404,6 +417,7 @@ private struct AILedgerPreviewView: View {
     @State private var drafts: [AILedgerDraft]
     @State private var error: String?
     @State private var isSaving = false
+    @State private var categories: [Category] = []
     private let dateNormalizer = AppDateNormalizer()
 
     let currencyCode: String
@@ -460,6 +474,7 @@ private struct AILedgerPreviewView: View {
         .background(theme.canvas.color)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("ai-preview")
+        .task { await loadCategories() }
     }
 
     private func draftEditor(at index: Int) -> some View {
@@ -470,9 +485,13 @@ private struct AILedgerPreviewView: View {
                     Text(AppLocalization.text("entry.income", language: language)).tag(EntryKind.income)
                 }
                 .frame(width: 130)
-                TextField("0", value: $drafts[index].amount, format: .number)
-                    .frame(width: 110)
-                    .onSubmit { save() }
+                HStack(spacing: 4) {
+                    Text(LedgerFormatting.currencySymbol(for: currencyCode))
+                        .foregroundStyle(theme.secondaryText.color)
+                    TextField("0", value: $drafts[index].amount, format: .number)
+                        .onSubmit { save() }
+                }
+                .frame(width: 130)
                 DatePicker("", selection: $drafts[index].date, displayedComponents: .date)
                     .environment(\.locale, language.datePickerLocale)
                 Spacer()
@@ -482,8 +501,8 @@ private struct AILedgerPreviewView: View {
             }
             HStack {
                 Picker(AppLocalization.text("entry.category", language: language), selection: $drafts[index].category) {
-                    ForEach(categoryKeys(for: drafts[index].kind), id: \.self) { key in
-                        Text(AppLocalization.categoryName(systemKey: key, language: language)).tag(key)
+                    ForEach(categoryOptions(for: drafts[index].kind), id: \.self) { name in
+                        Text(name).tag(name)
                     }
                 }
                 TextField(AppLocalization.text("entry.note", language: language), text: $drafts[index].note)
@@ -494,10 +513,21 @@ private struct AILedgerPreviewView: View {
         .background(theme.surface.color, in: RoundedRectangle(cornerRadius: 10))
     }
 
-    private func categoryKeys(for kind: EntryKind) -> [String] {
-        switch kind {
-        case .expense: ["clothing", "food", "housing", "transport", "entertainment", "other"]
-        case .income: ["salary", "bonus", "investment", "refund", "other"]
+    private func categoryOptions(for kind: EntryKind) -> [String] {
+        categories.filter { $0.kind == kind }.map { LedgerFormatting.categoryName($0, language: language) }
+    }
+
+    private func loadCategories() async {
+        let expense = (try? await repository.categories(kind: .expense)) ?? []
+        let income = (try? await repository.categories(kind: .income)) ?? []
+        categories = expense + income
+        for index in drafts.indices {
+            let options = categoryOptions(for: drafts[index].kind)
+            if !options.contains(where: { $0.caseInsensitiveCompare(drafts[index].category) == .orderedSame }) {
+                drafts[index].category = categories.first(where: { $0.kind == drafts[index].kind && $0.systemKey == "other" }).map {
+                    LedgerFormatting.categoryName($0, language: language)
+                } ?? options.last ?? "other"
+            }
         }
     }
 
@@ -516,7 +546,7 @@ private struct AILedgerPreviewView: View {
                 for draft in drafts {
                     let categories = try await repository.categories(kind: draft.kind)
                     let categoryID = categories.first {
-                        ($0.systemKey ?? "").caseInsensitiveCompare(draft.category) == .orderedSame
+                        LedgerFormatting.categoryName($0, language: language).caseInsensitiveCompare(draft.category) == .orderedSame
                     }?.id
                     ledgerDrafts.append(
                         LedgerDraft(
@@ -539,6 +569,66 @@ private struct AILedgerPreviewView: View {
             } catch {
                 self.error = AppLocalization.text("ai.error.invalidResult", language: language)
             }
+        }
+    }
+}
+
+private struct AIAnalysisHistoryView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.appLanguage) private var language
+    @Bindable var preferences: AppPreferences
+    let theme: AppTheme
+    let typography: AppTypography.Style
+    @State private var selected: AIAnalysisHistoryItem?
+    @State private var pendingDeletion: AIAnalysisHistoryItem?
+
+    var body: some View {
+        NavigationSplitView {
+            List(preferences.aiAnalysisHistory, selection: $selected) { item in
+                HStack {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(item.question).lineLimit(2)
+                        Text(item.createdAt, format: .dateTime.year().month().day().hour().minute())
+                            .font(AppTypography.caption(typography)).foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Button(role: .destructive) {
+                        pendingDeletion = item
+                    } label: { Image(systemName: "trash") }
+                        .buttonStyle(.borderless)
+                        .foregroundStyle(.red)
+                        .accessibilityIdentifier("ai-analysis-history-delete-\(item.id.uuidString.lowercased())")
+                }
+                .tag(item)
+            }
+            .navigationTitle(AppLocalization.text("ai.analysis.history", language: language))
+        } detail: {
+            if let selected {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text(selected.question).font(AppTypography.title(typography))
+                        Text(selected.answer).font(AppTypography.body(typography)).textSelection(.enabled)
+                    }
+                    .padding(24).frame(maxWidth: .infinity, alignment: .leading)
+                }
+            } else {
+                Text(AppLocalization.text("ai.analysis.history.empty", language: language)).foregroundStyle(.secondary)
+            }
+        }
+        .frame(minWidth: 760, minHeight: 480)
+        .toolbar { ToolbarItem(placement: .cancellationAction) { Button(AppLocalization.text("button.done", language: language)) { dismiss() } } }
+        .confirmationDialog(
+            AppLocalization.text("ledger.delete.confirmTitle", language: language),
+            isPresented: Binding(get: { pendingDeletion != nil }, set: { if !$0 { pendingDeletion = nil } }),
+            titleVisibility: .visible
+        ) {
+            Button(AppLocalization.text("button.confirmDelete", language: language), role: .destructive) {
+                guard let item = pendingDeletion else { return }
+                preferences.aiAnalysisHistory.removeAll { $0.id == item.id }
+                if selected?.id == item.id { selected = nil }
+                pendingDeletion = nil
+            }
+            Button(AppLocalization.text("button.cancel", language: language), role: .cancel) {}
         }
     }
 }

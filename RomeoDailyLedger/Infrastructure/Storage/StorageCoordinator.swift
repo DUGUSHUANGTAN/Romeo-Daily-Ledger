@@ -25,9 +25,10 @@ struct StoredSettings: Codable, Equatable, Sendable {
     var aiConfiguration = AIConfiguration()
     var aiModelPresets: [AIModelPreset] = []
     var selectedAIModelID: UUID?
+    var aiAnalysisHistory: [AIAnalysisHistoryItem] = []
 
     private enum CodingKeys: String, CodingKey {
-        case currencyCode, language, themeMode, fontScalePercent, aiConfiguration, aiModelPresets, selectedAIModelID
+        case currencyCode, language, themeMode, fontScalePercent, aiConfiguration, aiModelPresets, selectedAIModelID, aiAnalysisHistory
     }
 
     init(
@@ -37,7 +38,8 @@ struct StoredSettings: Codable, Equatable, Sendable {
         fontScalePercent: Int? = 100,
         aiConfiguration: AIConfiguration = AIConfiguration(),
         aiModelPresets: [AIModelPreset] = [],
-        selectedAIModelID: UUID? = nil
+        selectedAIModelID: UUID? = nil,
+        aiAnalysisHistory: [AIAnalysisHistoryItem] = []
     ) {
         self.currencyCode = currencyCode
         self.language = language
@@ -46,6 +48,7 @@ struct StoredSettings: Codable, Equatable, Sendable {
         self.aiConfiguration = aiConfiguration
         self.aiModelPresets = aiModelPresets
         self.selectedAIModelID = selectedAIModelID
+        self.aiAnalysisHistory = aiAnalysisHistory
     }
 
     init(from decoder: Decoder) throws {
@@ -57,6 +60,7 @@ struct StoredSettings: Codable, Equatable, Sendable {
         aiConfiguration = try container.decodeIfPresent(AIConfiguration.self, forKey: .aiConfiguration) ?? AIConfiguration()
         aiModelPresets = try container.decodeIfPresent([AIModelPreset].self, forKey: .aiModelPresets) ?? []
         selectedAIModelID = try container.decodeIfPresent(UUID.self, forKey: .selectedAIModelID)
+        aiAnalysisHistory = try container.decodeIfPresent([AIAnalysisHistoryItem].self, forKey: .aiAnalysisHistory) ?? []
     }
 }
 

@@ -199,11 +199,22 @@ final class SwiftDataLedgerRepository: LedgerRepository {
             customName: normalized,
             iconName: "ellipsis",
             colorToken: "other",
-            sortOrder: (categories.map(\.sortOrder).max() ?? -1) + 1
+            sortOrder: (categories.filter { $0.systemKey != "other" }.map(\.sortOrder).max() ?? -1) + 1
         )
         context.insert(category)
         try context.save()
         return category
+    }
+
+    func reorderCategories(kind: EntryKind, orderedIDs: [UUID]) async throws {
+        let categories = try await categories(kind: kind)
+        let movable = categories.filter { $0.systemKey != "other" }
+        guard Set(orderedIDs) == Set(movable.map(\.id)) else { throw LedgerRepositoryValidationError.categoryNotFound }
+        for (index, id) in orderedIDs.enumerated() {
+            movable.first(where: { $0.id == id })?.sortOrder = index
+        }
+        categories.first(where: { $0.systemKey == "other" })?.sortOrder = Int.max
+        try context.save()
     }
 
     private func resolvedCategoryID(for draft: LedgerDraft) throws -> UUID {

@@ -4,6 +4,46 @@ import Testing
 
 @MainActor @Suite("App preferences")
 struct AppPreferencesTests {
+    @Test func modelPresetsCanBeReorderedRepeatedly() {
+        let presets = ["A", "B", "C"].map {
+            AIModelPreset(name: $0, configuration: AIConfiguration(model: $0))
+        }
+        let once = AIModelPresetOrder.reordered(presets, from: IndexSet(integer: 0), to: 3)
+        let twice = AIModelPresetOrder.reordered(once, from: IndexSet(integer: 0), to: 2)
+
+        #expect(once.map(\.name) == ["B", "C", "A"])
+        #expect(twice.map(\.name) == ["C", "B", "A"])
+
+        let dragged = AIModelPresetOrder.reordered(twice, moving: twice[2].id, before: twice[0].id)
+        #expect(dragged.map(\.name) == ["A", "C", "B"])
+
+        let movedToBottom = AIModelPresetOrder.reordered(
+            dragged,
+            moving: dragged[0].id,
+            relativeTo: dragged[2].id,
+            placeAfter: true
+        )
+        #expect(movedToBottom.map(\.name) == ["C", "B", "A"])
+    }
+
+    @Test func categoryReorderingKeepsOtherLastAcrossRepeatedMoves() {
+        let first = Category(kind: .expense, customName: "A", iconName: "tag", colorToken: "custom", sortOrder: 0)
+        let second = Category(kind: .expense, customName: "B", iconName: "tag", colorToken: "custom", sortOrder: 1)
+        let other = Category(kind: .expense, systemKey: "other", iconName: "ellipsis", colorToken: "other", sortOrder: .max)
+
+        let once = CategoryOrder.reordered([first, second, other], from: IndexSet(integer: 0), to: 2)
+        let twice = CategoryOrder.reordered(once, from: IndexSet(integer: 0), to: 2)
+
+        #expect(once.map(\.customName) == ["B", "A", nil])
+        #expect(twice.map(\.customName) == ["A", "B", nil])
+        #expect(twice.last?.systemKey == "other")
+
+        let dragged = CategoryOrder.reordered(twice, moving: second.id, before: first.id)
+        #expect(dragged.map(\.customName) == ["B", "A", nil])
+        let attemptedOtherDrag = CategoryOrder.reordered(dragged, moving: other.id, before: first.id)
+        #expect(attemptedOtherDrag.map(\.id) == dragged.map(\.id))
+    }
+
     @Test func modelPresetStatusDefaultsToNotConnectedAndPersists() throws {
         let preset = AIModelPreset(
             name: "OpenAI",

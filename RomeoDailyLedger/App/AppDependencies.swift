@@ -18,7 +18,6 @@ final class AppDependencies {
     let preferences: AppPreferences
     let modelContainer: ModelContainer
     let repository: LedgerRepository
-    let deletionUndoCoordinator: DeletionUndoCoordinator
     let aiClient: any AIRequesting
     let storage: StorageCoordinator
     let launchState: AppLaunchState
@@ -71,7 +70,6 @@ final class AppDependencies {
         self.repository = repository
         self.storage = storage
         self.launchState = AppLaunchState(storageError: launchError)
-        self.deletionUndoCoordinator = DeletionUndoCoordinator(repository: repository)
         self.aiClient = aiClient ?? (usesInMemoryStore ? UITestingAIClient() : AIClient())
     }
 }

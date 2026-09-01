@@ -2,6 +2,7 @@ import SwiftUI
 
 struct QuickEntryView: View {
     @Environment(\.appLanguage) private var language
+    @Environment(\.appCurrencyCode) private var currencyCode
     @Bindable var model: LedgerViewModel
     let theme: AppTheme
     let typography: AppTypography.Style
@@ -13,11 +14,13 @@ struct QuickEntryView: View {
                 HStack(spacing: 8) {
                     kindButton(.expense, title: AppLocalization.text("entry.expense", language: language))
                     kindButton(.income, title: AppLocalization.text("entry.income", language: language))
-                    TextField(AppLocalization.text("field.amount", language: language), text: $model.draft.amountText)
-                        .textFieldStyle(.roundedBorder)
-                        .frame(width: 130)
-                        .accessibilityLabel(AppLocalization.text("field.amount", language: language))
-                        .accessibilityIdentifier("quick-entry-amount")
+                    HStack(spacing: 4) {
+                        Text(LedgerFormatting.currencySymbol(for: currencyCode)).foregroundStyle(theme.secondaryText.color)
+                        TextField(AppLocalization.text("field.amount", language: language), text: $model.draft.amountText)
+                            .textFieldStyle(.roundedBorder)
+                            .accessibilityLabel(AppLocalization.text("field.amount", language: language))
+                            .accessibilityIdentifier("quick-entry-amount")
+                    }.frame(width: 150)
                     Picker(AppLocalization.text("field.category", language: language), selection: $model.draft.categoryID) {
                         ForEach(model.categories) { category in
                             Text(LedgerFormatting.categoryName(category, language: language)).tag(Optional(category.id))
@@ -44,10 +47,10 @@ struct QuickEntryView: View {
                     text: $model.draft.note,
                     prompt: AppLocalization.text("field.note", language: language),
                     minHeight: 82,
+                    accessibilityIdentifier: "quick-entry-note",
                     onSubmit: { Task { try? await model.saveQuickEntry() } }
                 )
                 .accessibilityLabel(AppLocalization.text("field.note", language: language))
-                .accessibilityIdentifier("quick-entry-note")
             }
             if model.errorMessage != nil {
                 Text(AppLocalization.text("error.saveEntry", language: language))

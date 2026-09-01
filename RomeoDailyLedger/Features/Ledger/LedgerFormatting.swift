@@ -14,7 +14,7 @@ enum LedgerFormatting {
         return number.hasPrefix("-") ? "-" + symbol + number.dropFirst() : symbol + number
     }
 
-    private static func currencySymbol(for code: String) -> String {
+    static func currencySymbol(for code: String) -> String {
         let approved = ["CNY": "¥", "JPY": "¥", "USD": "$", "EUR": "€", "GBP": "£", "HKD": "HK$"]
         if let symbol = approved[code] { return symbol }
         if Locale.commonISOCurrencyCodes.contains(code),

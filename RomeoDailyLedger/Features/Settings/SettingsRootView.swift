@@ -3,17 +3,24 @@ import SwiftUI
 
 struct SettingsRootView: View {
     enum Page: String, CaseIterable, Identifiable {
-        case general, appearance, categories, ai, data
+        case general, appearance, ai, data
         var id: Self { self }
     }
 
     let dependencies: AppDependencies
+    var standalone = false
 
+    @ViewBuilder
     var body: some View {
         @Bindable var preferences = dependencies.preferences
-        SettingsContentView(dependencies: dependencies)
-            .background { WindowAppearanceBridge(mode: preferences.themeMode) }
-            .preferredColorScheme(preferredScheme(for: preferences.themeMode))
+        if standalone {
+            SettingsContentView(dependencies: dependencies)
+                .frame(minWidth: 900, minHeight: 560)
+                .background { WindowAppearanceBridge(mode: preferences.themeMode) }
+                .preferredColorScheme(preferredScheme(for: preferences.themeMode))
+        } else {
+            SettingsContentView(dependencies: dependencies)
+        }
     }
 
     private func preferredScheme(for mode: ThemeMode) -> ColorScheme? {
@@ -56,8 +63,6 @@ private struct SettingsContentView: View {
                         GeneralSettingsView(preferences: preferences, storage: dependencies.storage, repository: dependencies.repository)
                     case .appearance:
                         AppearanceSettingsView(preferences: preferences, systemReduceMotion: systemReduceMotion)
-                    case .categories:
-                        CategoryManagementView(repository: dependencies.repository, language: preferences.language)
                     case .ai:
                         AISettingsView(preferences: preferences, client: dependencies.aiClient)
                     case .data:
@@ -79,7 +84,8 @@ private struct SettingsContentView: View {
         .environment(\.locale, preferences.language.locale)
         .environment(\.appLanguage, preferences.language)
         .environment(\.appCurrencyCode, preferences.currencyCode)
-        .frame(minWidth: 640, minHeight: 480)
+        .environment(\.font, .system(size: 14 * AppTypography.scaleFactor(percent: preferences.fontScalePercent)))
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("settings-root")
     }
@@ -115,10 +121,21 @@ private final class AppearanceHostingView: NSView {
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
         applyAppearance()
+        keepWindowVisible()
     }
 
     func applyAppearance() {
         window?.appearance = AppAppearancePolicy.appearanceName(for: mode).flatMap(NSAppearance.init(named:))
         window?.contentView?.viewDidChangeEffectiveAppearance()
+    }
+
+    private func keepWindowVisible() {
+        guard let window, let visible = window.screen?.visibleFrame else { return }
+        var frame = window.frame
+        if frame.maxY > visible.maxY { frame.origin.y = visible.maxY - frame.height }
+        if frame.minY < visible.minY { frame.origin.y = visible.minY }
+        if frame.minX < visible.minX { frame.origin.x = visible.minX }
+        if frame.maxX > visible.maxX { frame.origin.x = visible.maxX - frame.width }
+        window.setFrame(frame, display: true, animate: false)
     }
 }

@@ -1,7 +1,8 @@
+import AppKit
 import SwiftUI
 
 enum SidebarDestination: String, CaseIterable, Identifiable, Sendable {
-    case ledger, aiAssistant, calendar, insights, settings
+    case ledger, aiAssistant, calendar, insights, history, categories, settings
     var id: Self { self }
 
     func localizedTitle(language: AppLanguage) -> String {
@@ -21,6 +22,8 @@ enum SidebarDestination: String, CaseIterable, Identifiable, Sendable {
         case .aiAssistant: .aiAssistant
         case .calendar: .calendar
         case .insights: .insights
+        case .history: .history
+        case .categories: .categories
         case .settings: .settings
         }
     }
@@ -88,7 +91,7 @@ private struct RootContentView: View {
         let resolved = preferences.themeMode.resolve(systemIsDark: colorScheme == .dark)
         let theme = resolved == .dark ? AppTheme.dark : AppTheme.light
         let motion = MotionPolicy.navigation(systemReduceMotion: systemReduceMotion)
-        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.2"
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.3"
 
         NavigationSplitView {
             VStack(spacing: 0) {
@@ -122,11 +125,15 @@ private struct RootContentView: View {
             Group {
                 switch dependencies.selectedDestination {
                 case .ledger:
-                    LedgerView(repository: dependencies.repository, deletionUndoCoordinator: dependencies.deletionUndoCoordinator, theme: theme, typography: .system)
+                    LedgerView(repository: dependencies.repository, theme: theme, typography: .system)
                 case .calendar:
                     CalendarView(repository: dependencies.repository, theme: theme, typography: .system)
                 case .insights:
                     InsightsView(repository: dependencies.repository, theme: theme, typography: .system, motion: motion)
+                case .history:
+                    HistoryView(repository: dependencies.repository, theme: theme, typography: .system)
+                case .categories:
+                    CategoryManagementView(repository: dependencies.repository, language: preferences.language)
                 case .settings:
                     SettingsRootView(dependencies: dependencies)
                 case .aiAssistant:
@@ -143,13 +150,53 @@ private struct RootContentView: View {
         .environment(\.locale, preferences.language.locale)
         .environment(\.appLanguage, preferences.language)
         .environment(\.appCurrencyCode, preferences.currencyCode)
-        .background { AppCommands(dependencies: dependencies) }
+        .environment(\.font, .system(size: 14 * AppTypography.scaleFactor(percent: preferences.fontScalePercent)))
+        .background {
+            AppCommands(dependencies: dependencies)
+            FocusDismissMonitor()
+        }
         .frame(minWidth: 980, minHeight: 560)
     }
 
     private func animation(for policy: MotionPolicy) -> Animation? {
         guard policy.effectiveIntensity > 0 else { return nil }
         return policy.usesSpring ? .snappy(duration: policy.duration) : .easeOut(duration: policy.duration)
+    }
+}
+
+private struct FocusDismissMonitor: NSViewRepresentable {
+    func makeCoordinator() -> Coordinator { Coordinator() }
+
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView(frame: .zero)
+        context.coordinator.monitor = NSEvent.addLocalMonitorForEvents(matching: .leftMouseDown) { event in
+            guard let window = event.window,
+                  window == NSApp.keyWindow,
+                  let hitView = window.contentView?.hitTest(event.locationInWindow),
+                  !Self.isTextInput(hitView) else { return event }
+            window.makeFirstResponder(nil)
+            return event
+        }
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {}
+
+    static func dismantleNSView(_ nsView: NSView, coordinator: Coordinator) {
+        if let monitor = coordinator.monitor { NSEvent.removeMonitor(monitor) }
+    }
+
+    private static func isTextInput(_ view: NSView) -> Bool {
+        var candidate: NSView? = view
+        while let current = candidate {
+            if current is NSTextView || current is NSTextField { return true }
+            candidate = current.superview
+        }
+        return false
+    }
+
+    final class Coordinator {
+        var monitor: Any?
     }
 }
 

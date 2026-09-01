@@ -88,6 +88,8 @@ final class AppPreferences {
         }
     }
 
+    var aiAnalysisHistory: [AIAnalysisHistoryItem] { didSet { persist() } }
+
     var apiKey: String {
         get { aiConfiguration.apiKey }
         set { aiConfiguration.apiKey = newValue }
@@ -112,6 +114,7 @@ final class AppPreferences {
         }
         aiModelPresets = stored?.aiModelPresets ?? []
         selectedAIModelID = stored?.selectedAIModelID
+        aiAnalysisHistory = stored?.aiAnalysisHistory ?? []
         isLoading = false
         AppTypography.currentScalePercent = fontScalePercent
         persist()
@@ -127,7 +130,8 @@ final class AppPreferences {
             fontScalePercent: fontScalePercent,
             aiConfiguration: aiConfiguration,
             aiModelPresets: aiModelPresets,
-            selectedAIModelID: selectedAIModelID
+            selectedAIModelID: selectedAIModelID,
+            aiAnalysisHistory: aiAnalysisHistory
         ))
     }
 

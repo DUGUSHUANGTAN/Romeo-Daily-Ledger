@@ -70,6 +70,13 @@ struct AIModelPreset: Codable, Equatable, Identifiable, Sendable {
     }
 }
 
+struct AIAnalysisHistoryItem: Codable, Equatable, Hashable, Identifiable, Sendable {
+    var id: UUID = UUID()
+    var question: String
+    var answer: String
+    var createdAt: Date = .now
+}
+
 struct AILedgerDraft: Codable, Equatable, Sendable {
     var kind: EntryKind
     var amount: Decimal

@@ -15,6 +15,7 @@ protocol LedgerRepository {
     func deleteCategories(ids: Set<UUID>) async throws
     func deleteAllEntries() async throws
     func ensureCustomCategory(named name: String, kind: EntryKind) async throws -> Category
+    func reorderCategories(kind: EntryKind, orderedIDs: [UUID]) async throws
 }
 
 enum LedgerRepositoryCapabilityError: Error {
@@ -59,5 +60,9 @@ extension LedgerRepository {
 
     func deleteAllEntries() async throws {
         try await delete(ids: Set(try await allEntries().map(\.id)))
+    }
+
+    func reorderCategories(kind: EntryKind, orderedIDs: [UUID]) async throws {
+        throw LedgerRepositoryCapabilityError.customCategoryCreationUnsupported
     }
 }

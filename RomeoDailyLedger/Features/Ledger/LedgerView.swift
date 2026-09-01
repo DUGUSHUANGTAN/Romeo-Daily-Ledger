@@ -8,8 +8,8 @@ struct LedgerView: View {
     let theme: AppTheme
     let typography: AppTypography.Style
 
-    init(repository: LedgerRepository, deletionUndoCoordinator: DeletionUndoCoordinator, theme: AppTheme, typography: AppTypography.Style) {
-        _model = State(initialValue: LedgerViewModel(repository: repository, deletionUndoCoordinator: deletionUndoCoordinator))
+    init(repository: LedgerRepository, theme: AppTheme, typography: AppTypography.Style) {
+        _model = State(initialValue: LedgerViewModel(repository: repository))
         self.repository = repository
         self.theme = theme
         self.typography = typography
@@ -102,7 +102,11 @@ struct HistoryView: View {
                         Section {
                             ForEach(group.entries) { entry in
                                 HStack {
-                                    Text(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note)
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note)
+                                        Text("\(AppLocalization.text(entry.kind == .income ? "entry.income" : "entry.expense", language: language)) · \(categoryNames[entry.categoryID] ?? AppLocalization.text("category.other", language: language))")
+                                            .font(AppTypography.caption(typography)).foregroundStyle(theme.secondaryText.color)
+                                    }
                                     Spacer()
                                     Text(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode))
                                 }

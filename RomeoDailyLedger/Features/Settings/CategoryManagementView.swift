@@ -8,12 +8,14 @@ struct CategoryManagementView: View {
     @State private var selectedCategory: Category?
     @State private var editingCategory: Category?
     @State private var editedName = ""
-    @State private var isManaging = false
-    @State private var selectedCategoryIDs: Set<UUID> = []
-    @State private var isDeleteConfirmationPresented = false
+    @State private var pendingDeletion: Category?
     @State private var newCategoryKind: EntryKind?
     @State private var newCategoryName = ""
     @State private var errorMessage: String?
+    @State private var draggingCategoryID: UUID?
+    @State private var dragTranslation: CGSize = .zero
+    @State private var dropTargetID: UUID?
+    @State private var categoryFrames: [UUID: CGRect] = [:]
 
     var body: some View {
         if let selectedCategory {
@@ -26,24 +28,8 @@ struct CategoryManagementView: View {
     }
 
     private var categoryList: some View {
-        VStack(spacing: 0) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(AppLocalization.text("settings.categories.hint", language: language))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Button(AppLocalization.text(isManaging ? "button.done" : "button.manage", language: language)) {
-                    withAnimation(.easeInOut(duration: 0.18)) {
-                        isManaging.toggle()
-                        if !isManaging { selectedCategoryIDs.removeAll() }
-                    }
-                }
-                .accessibilityIdentifier("categories-manage")
-            }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 12)
-
-            List {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 22) {
                 categorySection(titleKey: "entry.expense", categories: expenseCategories)
                 categorySection(titleKey: "entry.income", categories: incomeCategories)
                 if errorMessage != nil {
@@ -52,22 +38,11 @@ struct CategoryManagementView: View {
                         .accessibilityIdentifier("settings-categories-error")
                 }
             }
-            .frame(maxWidth: .infinity)
+            .padding(24)
         }
+        .coordinateSpace(name: "category-drag-space")
+        .onPreferenceChange(CategoryFramePreferenceKey.self) { categoryFrames = $0 }
         .navigationTitle(AppLocalization.text("settings.categories.title", language: language))
-        .overlay(alignment: .bottomTrailing) {
-            if isManaging {
-                Button(AppLocalization.text("button.deleteSelected", language: language)) {
-                    isDeleteConfirmationPresented = true
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(.red)
-                .disabled(selectedCategoryIDs.isEmpty)
-                .padding(20)
-                .transition(.scale.combined(with: .opacity))
-                .accessibilityIdentifier("categories-delete-selected")
-            }
-        }
         .task { await loadCategories() }
         .alert(AppLocalization.text("settings.categories.editName", language: language), isPresented: editAlertBinding) {
             TextField(AppLocalization.text("field.category", language: language), text: $editedName)
@@ -89,22 +64,21 @@ struct CategoryManagementView: View {
         }
         .confirmationDialog(
             AppLocalization.text("ledger.delete.confirmTitle", language: language),
-            isPresented: $isDeleteConfirmationPresented,
+            isPresented: Binding(get: { pendingDeletion != nil }, set: { if !$0 { pendingDeletion = nil } }),
             titleVisibility: .visible
         ) {
             Button(AppLocalization.text("button.confirmDelete", language: language), role: .destructive) {
-                Task { await deleteSelection() }
+                if let category = pendingDeletion { Task { await delete(category) } }
             }
             Button(AppLocalization.text("button.cancel", language: language), role: .cancel) { }
         }
     }
 
     private func categorySection(titleKey: String, categories: [Category]) -> some View {
-        Section {
-            ForEach(categories, id: \.id) { category in categoryRow(category) }
-        } header: {
+        VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text(AppLocalization.text(titleKey, language: language))
+                    .font(.headline)
                 Spacer()
                 Button {
                     newCategoryName = ""
@@ -115,53 +89,85 @@ struct CategoryManagementView: View {
                 .buttonStyle(.borderless)
                 .accessibilityIdentifier(titleKey == "entry.income" ? "category-add-income" : "category-add-expense")
             }
+            ForEach(categories, id: \.id) { category in categoryRow(category) }
         }
     }
 
+    @ViewBuilder
     private func categoryRow(_ category: Category) -> some View {
         let isOther = category.systemKey == "other"
-        return HStack(spacing: 12) {
-            if isManaging {
-                Image(systemName: selectedCategoryIDs.contains(category.id) ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(isOther ? Color.secondary.opacity(0.45) : Color.accentColor)
-                    .accessibilityHidden(true)
-            }
+        let row = HStack(spacing: 12) {
             Circle()
                 .fill(category.kind == .income ? AppTheme.light.primaryAccent.color : AppTheme.light.secondaryAccent.color)
                 .frame(width: 8, height: 8)
                 .accessibilityHidden(true)
             Text(LedgerFormatting.categoryName(category, language: language))
                 .frame(maxWidth: .infinity, alignment: .leading)
-            if !isManaging {
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .accessibilityHidden(true)
+            if !isOther {
+                Button(role: .destructive) {
+                    pendingDeletion = category
+                } label: {
+                    Image(systemName: "trash")
+                }
+                .buttonStyle(.borderless)
+                .foregroundStyle(.red)
+                .accessibilityLabel(AppLocalization.text("button.delete", language: language))
+                .accessibilityIdentifier("category-delete-\(category.id.uuidString.lowercased())")
+                Button {
+                    editingCategory = category
+                    editedName = category.customName ?? ""
+                } label: { Image(systemName: "pencil") }
+                    .buttonStyle(.borderless)
+                    .accessibilityIdentifier("category-edit-\(category.id.uuidString.lowercased())")
             }
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
         }
         .contentShape(Rectangle())
-        .frame(maxWidth: .infinity)
-        .opacity(isManaging && isOther ? 0.62 : 1)
-        .onTapGesture {
-            if isManaging {
-                guard CategoryManagementPolicy.canDelete(systemKey: category.systemKey) else { return }
-                if selectedCategoryIDs.contains(category.id) {
-                    selectedCategoryIDs.remove(category.id)
-                } else {
-                    selectedCategoryIDs.insert(category.id)
-                }
-            } else {
-                selectedCategory = category
+        .frame(maxWidth: .infinity, minHeight: 38)
+        .padding(.horizontal, 4)
+        .padding(.vertical, 7)
+        .padding(.horizontal, 10)
+        .background(.background.opacity(0.55), in: RoundedRectangle(cornerRadius: 10))
+        .overlay { RoundedRectangle(cornerRadius: 10).stroke(.secondary.opacity(0.25)) }
+        .overlay(alignment: .top) {
+            if dropTargetID == category.id, draggingCategoryID != category.id {
+                Capsule()
+                    .fill(Color.accentColor)
+                    .frame(height: 3)
+                    .padding(.horizontal, 8)
+                    .offset(y: -6)
+                    .transition(.opacity.combined(with: .scale(scale: 0.8)))
             }
         }
-        .onLongPressGesture(minimumDuration: 0.5) {
-            guard !isManaging, CategoryManagementPolicy.canEdit(systemKey: category.systemKey) else { return }
-            editingCategory = category
-            editedName = category.customName ?? ""
+        .background {
+            GeometryReader { proxy in
+                Color.clear.preference(
+                    key: CategoryFramePreferenceKey.self,
+                    value: [category.id: proxy.frame(in: .named("category-drag-space"))]
+                )
+            }
+        }
+        .scaleEffect(draggingCategoryID == category.id ? 1.025 : 1)
+        .offset(draggingCategoryID == category.id ? dragTranslation : .zero)
+        .shadow(color: .black.opacity(draggingCategoryID == category.id ? 0.18 : 0), radius: 14, y: 7)
+        .zIndex(draggingCategoryID == category.id ? 10 : 0)
+        .animation(.snappy(duration: 0.2), value: draggingCategoryID)
+        .animation(.snappy(duration: 0.18), value: dropTargetID)
+        .onTapGesture {
+            selectedCategory = category
         }
         .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(selectedCategoryIDs.contains(category.id) ? .isSelected : [])
         .accessibilityIdentifier("category-\(category.kind.rawValue)-\(category.id.uuidString.lowercased())")
+
+        if isOther {
+            row
+        } else {
+            row
+                .highPriorityGesture(categoryDragGesture(for: category))
+        }
     }
 
     private var editAlertBinding: Binding<Bool> {
@@ -202,13 +208,80 @@ struct CategoryManagementView: View {
     }
 
     @MainActor
-    private func deleteSelection() async {
+    private func delete(_ category: Category) async {
         do {
-            try await repository.deleteCategories(ids: selectedCategoryIDs)
-            selectedCategoryIDs.removeAll()
-            isManaging = false
+            try await repository.deleteCategories(ids: [category.id])
+            pendingDeletion = nil
             await loadCategories()
         } catch { errorMessage = String(describing: error) }
+    }
+
+    private func move(kind: EntryKind, source: IndexSet, destination: Int) {
+        let current = kind == .expense ? expenseCategories : incomeCategories
+        let reordered = CategoryOrder.reordered(current, from: source, to: destination)
+        if kind == .expense { expenseCategories = reordered }
+        else { incomeCategories = reordered }
+        Task { @MainActor in
+            do {
+                try await repository.reorderCategories(
+                    kind: kind,
+                    orderedIDs: reordered.filter { $0.systemKey != "other" }.map(\.id)
+                )
+            } catch {
+                errorMessage = String(describing: error)
+                await loadCategories()
+            }
+        }
+    }
+
+    private func moveCategory(sourceID: UUID, onto target: Category) {
+        guard sourceID != target.id else { return }
+        let current = target.kind == .expense ? expenseCategories : incomeCategories
+        let reordered = CategoryOrder.reordered(current, moving: sourceID, before: target.id)
+        guard reordered.map(\.id) != current.map(\.id) else { return }
+        if target.kind == .expense { expenseCategories = reordered }
+        else { incomeCategories = reordered }
+        Task { @MainActor in
+            do {
+                try await repository.reorderCategories(
+                    kind: target.kind,
+                    orderedIDs: reordered.filter { $0.systemKey != "other" }.map(\.id)
+                )
+            } catch {
+                errorMessage = String(describing: error)
+                await loadCategories()
+            }
+        }
+    }
+
+    private func categoryDragGesture(for category: Category) -> some Gesture {
+        DragGesture(minimumDistance: 3, coordinateSpace: .named("category-drag-space"))
+            .onChanged { value in
+                draggingCategoryID = category.id
+                dragTranslation = value.translation
+                dropTargetID = nearestDropTarget(to: value.location, for: category)
+            }
+            .onEnded { _ in
+                if let targetID = dropTargetID,
+                   let target = (category.kind == .expense ? expenseCategories : incomeCategories)
+                    .first(where: { $0.id == targetID }) {
+                    moveCategory(sourceID: category.id, onto: target)
+                }
+                withAnimation(.snappy(duration: 0.24)) {
+                    draggingCategoryID = nil
+                    dragTranslation = .zero
+                    dropTargetID = nil
+                }
+            }
+    }
+
+    private func nearestDropTarget(to location: CGPoint, for category: Category) -> UUID? {
+        let candidates = (category.kind == .expense ? expenseCategories : incomeCategories)
+            .filter { $0.id != category.id }
+        return candidates.min { lhs, rhs in
+            abs((categoryFrames[lhs.id]?.midY ?? .greatestFiniteMagnitude) - location.y)
+                < abs((categoryFrames[rhs.id]?.midY ?? .greatestFiniteMagnitude) - location.y)
+        }?.id
     }
 
     @MainActor
@@ -219,6 +292,36 @@ struct CategoryManagementView: View {
             incomeCategories = try await repository.categories(kind: .income)
             errorMessage = nil
         } catch { errorMessage = error.localizedDescription }
+    }
+}
+
+private struct CategoryFramePreferenceKey: PreferenceKey {
+    static let defaultValue: [UUID: CGRect] = [:]
+
+    static func reduce(value: inout [UUID: CGRect], nextValue: () -> [UUID: CGRect]) {
+        value.merge(nextValue(), uniquingKeysWith: { _, new in new })
+    }
+}
+
+enum CategoryOrder {
+    static func reordered(_ categories: [Category], from source: IndexSet, to destination: Int) -> [Category] {
+        var movable = categories.filter { $0.systemKey != "other" }
+        let validSource = IndexSet(source.filter { $0 < movable.count })
+        guard !validSource.isEmpty else { return categories }
+        movable.move(fromOffsets: validSource, toOffset: min(destination, movable.count))
+        return movable + categories.filter { $0.systemKey == "other" }
+    }
+
+    static func reordered(_ categories: [Category], moving sourceID: UUID, before targetID: UUID) -> [Category] {
+        guard let source = categories.first(where: { $0.id == sourceID }), source.systemKey != "other",
+              categories.contains(where: { $0.id == targetID }) else { return categories }
+        var movable = categories.filter { $0.systemKey != "other" && $0.id != sourceID }
+        if let targetIndex = movable.firstIndex(where: { $0.id == targetID }) {
+            movable.insert(source, at: targetIndex)
+        } else {
+            movable.append(source)
+        }
+        return movable + categories.filter { $0.systemKey == "other" }
     }
 }
 
@@ -260,7 +363,12 @@ private struct CategoryEntriesView: View {
                             Section {
                                 ForEach(group.entries) { entry in
                                     HStack(spacing: 12) {
-                                        Text(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note)
+                                        VStack(alignment: .leading, spacing: 3) {
+                                            Text(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note)
+                                            Text("\(AppLocalization.text(entry.kind == .income ? "entry.income" : "entry.expense", language: language)) · \(LedgerFormatting.categoryName(category, language: language))")
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
                                         Spacer()
                                         Text(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode)).fontWeight(.semibold)
                                     }

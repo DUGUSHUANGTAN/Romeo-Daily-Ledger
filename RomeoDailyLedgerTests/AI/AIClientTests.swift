@@ -47,7 +47,7 @@ struct AIClientTests {
         #expect(result.entries.first?.category == "other")
     }
 
-    @Test func unknownCategoryFallsBackToOther() async throws {
+    @Test func customCategoryNameIsPreservedForLocalResolution() async throws {
         let body = Data(#"{"choices":[{"message":{"role":"assistant","content":"{\"entries\":[{\"kind\":\"expense\",\"amount\":25,\"currency\":\"CNY\",\"date\":\"2026-09-01\",\"note\":\"\",\"category\":\"restaurant\"}]}"}}]}"#.utf8)
         let client = AIClient(session: Self.session(data: body, status: 200))
 
@@ -57,7 +57,7 @@ struct AIClientTests {
             configuration: AIConfiguration(baseURL: URL(string: "https://example.test/v1")!, model: "ledger", apiKey: "key")
         )
 
-        #expect(result.entries.first?.category == "other")
+        #expect(result.entries.first?.category == "restaurant")
     }
     @Test func chatCompletionsResponseProducesDraft() async throws {
         let body = Data(#"{"choices":[{"message":{"role":"assistant","content":"{\"entries\":[{\"kind\":\"expense\",\"amount\":25,\"currency\":\"USD\",\"date\":\"2026-08-30\",\"note\":\"Lunch\",\"category\":\"food\"}]}"}}]}"#.utf8)

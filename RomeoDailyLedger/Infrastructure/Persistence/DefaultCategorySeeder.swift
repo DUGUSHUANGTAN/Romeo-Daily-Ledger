@@ -11,17 +11,8 @@ struct DefaultCategorySeeder {
     }
 
     static let definitions: [Definition] = [
-        Definition(kind: .expense, systemKey: "clothing", iconName: "shirt", colorToken: "clothing", sortOrder: 0),
-        Definition(kind: .expense, systemKey: "food", iconName: "utensils", colorToken: "food", sortOrder: 1),
-        Definition(kind: .expense, systemKey: "housing", iconName: "house", colorToken: "housing", sortOrder: 2),
-        Definition(kind: .expense, systemKey: "transport", iconName: "bus", colorToken: "transport", sortOrder: 3),
-        Definition(kind: .expense, systemKey: "entertainment", iconName: "gamepad-2", colorToken: "entertainment", sortOrder: 4),
-        Definition(kind: .expense, systemKey: "other", iconName: "ellipsis", colorToken: "other", sortOrder: 5),
-        Definition(kind: .income, systemKey: "salary", iconName: "briefcase-business", colorToken: "salary", sortOrder: 0),
-        Definition(kind: .income, systemKey: "bonus", iconName: "gift", colorToken: "bonus", sortOrder: 1),
-        Definition(kind: .income, systemKey: "investment", iconName: "chart-no-axes-combined", colorToken: "investment", sortOrder: 2),
-        Definition(kind: .income, systemKey: "refund", iconName: "rotate-ccw", colorToken: "refund", sortOrder: 3),
-        Definition(kind: .income, systemKey: "other", iconName: "ellipsis", colorToken: "other", sortOrder: 4),
+        Definition(kind: .expense, systemKey: "other", iconName: "ellipsis", colorToken: "other", sortOrder: Int.max),
+        Definition(kind: .income, systemKey: "other", iconName: "ellipsis", colorToken: "other", sortOrder: Int.max),
     ]
 
     let context: ModelContext
@@ -50,7 +41,23 @@ struct DefaultCategorySeeder {
             inserted = true
         }
 
-        if inserted {
+        let allowedKeys = Set(Self.definitions.map { "\($0.kind.rawValue):\($0.systemKey)" })
+        let obsolete = existing.filter {
+            guard let systemKey = $0.systemKey else { return false }
+            return !allowedKeys.contains("\($0.kindRaw):\(systemKey)")
+        }
+        let fallbacks = Dictionary(uniqueKeysWithValues: existing.compactMap {
+            $0.systemKey == "other" ? ($0.kind, $0.id) : nil
+        })
+        if !obsolete.isEmpty {
+            for entry in try context.fetch(FetchDescriptor<LedgerEntry>()) {
+                guard let category = obsolete.first(where: { $0.id == entry.categoryID }),
+                      let fallbackID = fallbacks[category.kind] else { continue }
+                entry.categoryID = fallbackID
+            }
+            obsolete.forEach(context.delete)
+        }
+        if inserted || !obsolete.isEmpty {
             try context.save()
         }
     }

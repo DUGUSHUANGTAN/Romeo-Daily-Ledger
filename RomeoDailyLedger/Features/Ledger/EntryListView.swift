@@ -32,6 +32,9 @@ struct EntryListView: View {
                                 Text(entry.occurredAt, format: .dateTime.year().month().day())
                                     .font(AppTypography.caption(typography))
                                     .foregroundStyle(theme.secondaryText.color)
+                                Text("\(AppLocalization.text(entry.kind == .income ? "entry.income" : "entry.expense", language: language)) · \(localizedCategory(entry))")
+                                    .font(AppTypography.caption(typography))
+                                    .foregroundStyle(theme.secondaryText.color)
                             }
                             Spacer()
                             Text(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode))
@@ -64,5 +67,10 @@ struct EntryListView: View {
         }
         .accessibilityLabel(AppLocalization.text("accessibility.entryList", language: language))
         .accessibilityIdentifier("entry-list")
+    }
+
+    private func localizedCategory(_ entry: LedgerEntry) -> String {
+        let value = model.categoryNames[entry.categoryID] ?? "other"
+        return AppLocalization.categoryName(systemKey: value, customName: value == "other" ? nil : value, language: language)
     }
 }

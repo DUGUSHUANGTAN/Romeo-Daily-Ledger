@@ -50,12 +50,8 @@ struct AIClient: AIRequesting, Sendable {
                 var draft = $0
                 draft.date = dateNormalizer.normalize(draft.date)
                 draft.currency = currencyCode.uppercased()
-                let allowedCategories: Set<String> = [
-                    "clothing", "food", "housing", "transport", "entertainment",
-                    "salary", "bonus", "investment", "refund", "other"
-                ]
-                let normalizedCategory = draft.category.lowercased()
-                draft.category = allowedCategories.contains(normalizedCategory) ? normalizedCategory : "other"
+                draft.category = draft.category.trimmingCharacters(in: .whitespacesAndNewlines)
+                if draft.category.isEmpty { draft.category = "other" }
                 return draft
             })
         } catch let error as AIClientError {
@@ -215,7 +211,7 @@ struct AIClient: AIRequesting, Sendable {
 
     private func ledgerInstructions(currencyCode: String) -> String {
         """
-        Return only one JSON object with an entries array. Every entry must contain kind, amount, and date. kind must be income or expense. amount must be positive. date must be YYYY-MM-DD in the user's local calendar. currency should be \(currencyCode.uppercased()); omit it when uncertain. note and category are optional. category may be clothing, food, housing, transport, entertainment, salary, bonus, investment, refund, or other; use other when uncertain. Never include markdown.
+        Return only one JSON object with an entries array. Every entry must contain kind, amount, and date. kind must be income or expense. amount must be positive. date must be YYYY-MM-DD in the user's local calendar. currency should be \(currencyCode.uppercased()); omit it when uncertain. note and category are optional. Use an exact local category name supplied with the prompt; use 其他/Other when uncertain. Never include markdown.
         Current local date: \(dateNormalizer.localDateString(for: dateNormalizer.today)). Current time zone: \(dateNormalizer.timeZoneIdentifier). If no date is provided, use today. Resolve relative expressions such as today/今天, yesterday/昨天, and this month/本月 from this local date and time zone.
         """
     }

@@ -10,6 +10,7 @@ struct CalendarView: View {
     @State private var selectedEntryIDs: Set<UUID> = []
     @State private var isDeleteConfirmationPresented = false
     @State private var yearText = ""
+    @State private var categoryNames: [UUID: String] = [:]
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
     let repository: LedgerRepository
     let theme: AppTheme
@@ -97,10 +98,9 @@ struct CalendarView: View {
                 LazyVStack(spacing: 8) {
                     ForEach(entries) { entry in
                         HStack(spacing: 12) {
-                            Text(AppLocalization.text(entry.kind == .income ? "entry.income" : "entry.expense", language: language))
-                                .font(AppTypography.caption(typography))
-                                .foregroundStyle(theme.secondaryText.color)
                             Text(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note)
+                            Text("\(AppLocalization.text(entry.kind == .income ? "entry.income" : "entry.expense", language: language)) · \(categoryNames[entry.categoryID] ?? AppLocalization.text("category.other", language: language))")
+                                .font(AppTypography.caption(typography)).foregroundStyle(theme.secondaryText.color)
                             Spacer()
                             Text(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode))
                         }
@@ -121,7 +121,7 @@ struct CalendarView: View {
                         )
                         .accessibilityAddTraits(.isButton)
                         .accessibilityAddTraits(selectedEntryIDs.contains(entry.id) ? .isSelected : [])
-                        .accessibilityLabel("\(AppLocalization.text(entry.kind == .income ? "entry.income" : "entry.expense", language: language)) \(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note) \(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode))")
+                        .accessibilityLabel("\(AppLocalization.text(entry.kind == .income ? "entry.income" : "entry.expense", language: language)) \(categoryNames[entry.categoryID] ?? AppLocalization.text("category.other", language: language)) \(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note) \(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode))")
                         .accessibilityIdentifier("calendar-entry-\(entry.id.uuidString.lowercased())")
                         .contextMenu {
                             Button(AppLocalization.text("button.editEntry", language: language)) { editingEntry = entry }
@@ -147,6 +147,7 @@ struct CalendarView: View {
         .background(theme.canvas.color)
         .task {
             try? await repository.seedDefaultsIfNeeded()
+            await loadCategoryNames()
             synchronizeYearText()
             await loadEntries()
         }
@@ -166,6 +167,11 @@ struct CalendarView: View {
             }
             Button(AppLocalization.text("button.cancel", language: language), role: .cancel) { }
         }
+    }
+
+    private func loadCategoryNames() async {
+        let values = ((try? await repository.categories(kind: .expense)) ?? []) + ((try? await repository.categories(kind: .income)) ?? [])
+        categoryNames = Dictionary(uniqueKeysWithValues: values.map { ($0.id, LedgerFormatting.categoryName($0, language: language)) })
     }
 
     private var weekdaySymbols: [String] {

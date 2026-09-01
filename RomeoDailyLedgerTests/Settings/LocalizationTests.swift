@@ -47,6 +47,8 @@ struct LocalizationTests {
     }
 
     @Test func categoryManagementActionsFollowTheSelectedLanguage() {
+        #expect(AppLocalization.text("button.delete", language: .simplifiedChinese) == "删除")
+        #expect(AppLocalization.text("button.delete", language: .traditionalChinese) == "刪除")
         #expect(AppLocalization.text("button.manage", language: .simplifiedChinese) == "管理")
         #expect(AppLocalization.text("button.done", language: .simplifiedChinese) == "完成")
         #expect(AppLocalization.text("button.manage", language: .traditionalChinese) == "管理")
@@ -56,6 +58,13 @@ struct LocalizationTests {
         #expect(AppLocalization.text("settings.categories.editName", language: .simplifiedChinese) == "修改分类名称")
         #expect(AppLocalization.text("state.empty", language: .simplifiedChinese) == "空")
         #expect(AppLanguage.english.datePickerLocale.identifier == "en_SE")
+    }
+
+    @Test func modelDeletionCopyIsLocalizedInChinese() {
+        for key in ["settings.ai.deleteModel.title", "settings.ai.deleteModel.message", "button.delete"] {
+            #expect(AppLocalization.text(key, language: .simplifiedChinese) != key)
+            #expect(AppLocalization.text(key, language: .traditionalChinese) != key)
+        }
     }
 
     @Test func updateCheckCopyIsCompleteInBothLanguages() {

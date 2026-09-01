@@ -37,7 +37,7 @@ struct LedgerRepositoryTests {
     try await repository.seedDefaultsIfNeeded()
 
     let keys = try await repository.categories(kind: .expense).compactMap(\.systemKey)
-    #expect(keys == ["clothing", "food", "housing", "transport", "entertainment", "other"])
+    #expect(keys == ["other"])
 }
 
 @MainActor
@@ -47,7 +47,7 @@ struct LedgerRepositoryTests {
     try await repository.seedDefaultsIfNeeded()
 
     let keys = try await repository.categories(kind: .income).compactMap(\.systemKey)
-    #expect(keys == ["salary", "bonus", "investment", "refund", "other"])
+    #expect(keys == ["other"])
 }
 
 @MainActor
@@ -57,8 +57,8 @@ struct LedgerRepositoryTests {
     try await repository.seedDefaultsIfNeeded()
     try await repository.seedDefaultsIfNeeded()
 
-    #expect(try await repository.categories(kind: .expense).count == 6)
-    #expect(try await repository.categories(kind: .income).count == 5)
+    #expect(try await repository.categories(kind: .expense).count == 1)
+    #expect(try await repository.categories(kind: .income).count == 1)
 }
 
 @MainActor
@@ -112,9 +112,7 @@ private func expectFallbackToOther(kind: EntryKind) async throws {
     try await repository.seedDefaultsIfNeeded()
     let saved = try await repository.insert(draft(at: .now, note: "before"))
     let originalUpdatedAt = saved.updatedAt
-    let incomeCategory = try #require(
-        try await repository.categories(kind: .income).first { $0.systemKey == "salary" }
-    )
+    let incomeCategory = try await repository.ensureCustomCategory(named: "工资", kind: .income)
     let changedDate = Date(timeIntervalSince1970: 1_800_000_000)
 
     try await repository.update(
@@ -189,7 +187,7 @@ private func expectFallbackToOther(kind: EntryKind) async throws {
 @Test func categoryUpdateEditsOnlyNameAndHiddenState() async throws {
     let repository = try TestRepository.make()
     try await repository.seedDefaultsIfNeeded()
-    let category = try #require(try await repository.categories(kind: .expense).first)
+    let category = try await repository.ensureCustomCategory(named: "餐饮", kind: .expense)
     let originalKind = category.kind
     let originalSystemKey = category.systemKey
 
@@ -203,14 +201,9 @@ private func expectFallbackToOther(kind: EntryKind) async throws {
 }
 
 @MainActor
-@Test func emptySystemCategoryNameRestoresDefaultAndCustomNameIsRejected() async throws {
+@Test func emptyCustomCategoryNameIsRejected() async throws {
     let repository = try TestRepository.make()
     try await repository.seedDefaultsIfNeeded()
-    let system = try #require(try await repository.categories(kind: .expense).first)
-    try await repository.updateCategory(id: system.id, displayName: "Temporary", isHidden: false)
-    try await repository.updateCategory(id: system.id, displayName: "  ", isHidden: false)
-    #expect(try await repository.category(id: system.id)?.customName == nil)
-
     let custom = try await repository.ensureCustomCategory(named: "Custom", kind: .expense)
     await #expect(throws: LedgerRepositoryValidationError.emptyCustomCategoryName) {
         try await repository.updateCategory(id: custom.id, displayName: "", isHidden: false)
@@ -221,9 +214,8 @@ private func expectFallbackToOther(kind: EntryKind) async throws {
 @Test func categoryNamesMustBeUniqueWithinTheSameKind() async throws {
     let repository = try TestRepository.make()
     try await repository.seedDefaultsIfNeeded()
-    let food = try #require(try await repository.categories(kind: .expense).first { $0.systemKey == "food" })
-    let clothing = try #require(try await repository.categories(kind: .expense).first { $0.systemKey == "clothing" })
-    try await repository.updateCategory(id: food.id, displayName: "Meals", isHidden: false)
+    let food = try await repository.ensureCustomCategory(named: "Meals", kind: .expense)
+    let clothing = try await repository.ensureCustomCategory(named: "Clothing", kind: .expense)
 
     await #expect(throws: (any Error).self) {
         try await repository.updateCategory(id: clothing.id, displayName: " meals ", isHidden: false)
@@ -231,26 +223,25 @@ private func expectFallbackToOther(kind: EntryKind) async throws {
 }
 
 @MainActor
-@Test func categoryNameCannotDuplicateASystemCategoryKey() async throws {
+@Test func categoryNameCannotDuplicateOther() async throws {
     let repository = try TestRepository.make()
     try await repository.seedDefaultsIfNeeded()
-    let clothing = try #require(try await repository.categories(kind: .expense).first { $0.systemKey == "clothing" })
-
+    let custom = try await repository.ensureCustomCategory(named: "Custom", kind: .expense)
     await #expect(throws: LedgerRepositoryValidationError.duplicateCategoryName) {
-        try await repository.updateCategory(id: clothing.id, displayName: " FOOD ", isHidden: false)
+        try await repository.updateCategory(id: custom.id, displayName: " other ", isHidden: false)
     }
 }
 
 @MainActor
-@Test func ensuringCategoryBySystemKeyReusesExistingCategory() async throws {
+@Test func ensuringCategoryByNameReusesExistingCategory() async throws {
     let repository = try TestRepository.make()
     try await repository.seedDefaultsIfNeeded()
-    let food = try #require(try await repository.categories(kind: .expense).first { $0.systemKey == "food" })
+    let food = try await repository.ensureCustomCategory(named: "Food", kind: .expense)
 
     let resolved = try await repository.ensureCustomCategory(named: " FOOD ", kind: .expense)
 
     #expect(resolved.id == food.id)
-    #expect(try await repository.categories(kind: .expense).count == 6)
+    #expect(try await repository.categories(kind: .expense).count == 2)
 }
 
 @MainActor

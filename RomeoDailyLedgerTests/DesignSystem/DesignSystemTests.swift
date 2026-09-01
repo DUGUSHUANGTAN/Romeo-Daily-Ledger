@@ -61,9 +61,9 @@ struct DesignSystemTests {
         #expect(AppTheme.dark.primaryAccent.hex == "B8E78C")
     }
 
-    @Test func sidebarHasTheFiveApprovedDestinationsAndLucideIcons() {
-        #expect(SidebarDestination.allCases == [.ledger, .aiAssistant, .calendar, .insights, .settings])
-        #expect(Set(SidebarDestination.allCases.map(\.icon)).count == 5)
+    @Test func sidebarHasTheSevenApprovedDestinationsAndLucideIcons() {
+        #expect(SidebarDestination.allCases == [.ledger, .aiAssistant, .calendar, .insights, .history, .categories, .settings])
+        #expect(Set(SidebarDestination.allCases.map(\.icon)).count == 7)
         #expect(SidebarDestination.settings.icon == .settings)
         #expect(SidebarDestination.settings.title.contains("⌘,") == false)
     }

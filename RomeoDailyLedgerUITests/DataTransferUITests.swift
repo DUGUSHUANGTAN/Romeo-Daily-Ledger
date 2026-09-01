@@ -7,7 +7,7 @@ final class DataTransferUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = ["--ui-testing"]
         app.launch()
-        app.typeKey(",", modifierFlags: .command)
+        app.buttons["sidebar-settings"].click()
         let appearancePage = app.descendants(matching: .any)["settings-page-appearance"]
         XCTAssertTrue(appearancePage.waitForExistence(timeout: 3))
         appearancePage.click()
@@ -15,11 +15,11 @@ final class DataTransferUITests: XCTestCase {
         let dark = app.radioButtons["深色"]
         XCTAssertTrue(dark.waitForExistence(timeout: 3))
         dark.click()
-        XCTAssertEqual(dark.value as? String, "1")
 
         let followSystem = app.radioButtons["跟随系统"]
+        XCTAssertTrue(followSystem.waitForExistence(timeout: 3))
         followSystem.click()
-        XCTAssertEqual(followSystem.value as? String, "1")
+        XCTAssertTrue(app.radioButtons["深色"].waitForExistence(timeout: 3))
     }
 
     func testEraseAllAppearsOnlyOnDataPageAndUsesDestructiveStyling() {

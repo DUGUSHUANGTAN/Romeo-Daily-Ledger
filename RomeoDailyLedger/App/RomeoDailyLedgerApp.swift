@@ -26,7 +26,7 @@ struct RomeoDailyLedgerApp: App {
         }
 
         Settings {
-            SettingsRootView(dependencies: dependencies)
+            SettingsRootView(dependencies: dependencies, standalone: true)
         }
     }
 }

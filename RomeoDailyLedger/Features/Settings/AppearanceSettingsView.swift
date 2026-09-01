@@ -9,7 +9,9 @@ struct AppearanceSettingsView: View {
             Section(AppLocalization.text("settings.appearance.theme", language: preferences.language)) {
                 Picker(AppLocalization.text("settings.appearance.theme", language: preferences.language), selection: $preferences.themeMode) {
                     ForEach(ThemeMode.allCases) { mode in
-                        Text(AppLocalization.text("theme.\(mode.rawValue)", language: preferences.language)).tag(mode)
+                        Text(AppLocalization.text("theme.\(mode.rawValue)", language: preferences.language))
+                            .accessibilityValue(preferences.themeMode == mode ? "1" : "0")
+                            .tag(mode)
                     }
                 }
                 .pickerStyle(.segmented)
@@ -21,6 +23,8 @@ struct AppearanceSettingsView: View {
 
             Section(AppLocalization.text("settings.appearance.typography", language: preferences.language)) {
                 HStack(spacing: 12) {
+                    Text("Size")
+                        .font(AppTypography.body(.system))
                     Slider(
                         value: Binding(
                             get: { Double(preferences.fontScalePercent) },
@@ -32,6 +36,7 @@ struct AppearanceSettingsView: View {
                     .accessibilityIdentifier("settings-font-scale")
 
                     Text("\(preferences.fontScalePercent)%")
+                        .font(AppTypography.body(.system))
                         .monospacedDigit()
                         .frame(width: 48, alignment: .trailing)
                         .accessibilityIdentifier("settings-font-scale-value")

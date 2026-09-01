@@ -63,7 +63,7 @@ final class LedgerFlowUITests: XCTestCase {
         entryRow(in: app, containing: "过期撤销").press(forDuration: 0.6)
         app.buttons["delete-selected-entries"].click()
         XCTAssertTrue(app.buttons["confirm-delete-selected"].waitForExistence(timeout: 2))
-        app.buttons["取消"].click()
+        app.sheets.buttons["取消"].click()
         XCTAssertTrue(entryRow(in: app, containing: "过期撤销").exists)
     }
 
@@ -171,10 +171,9 @@ final class LedgerFlowUITests: XCTestCase {
     func testCategoryEntriesUseClickToEditAndLongPressToManage() {
         let app = launchApp()
         addEntry(in: app, amount: "18", kind: "支出", note: "分类内批量")
-        app.typeKey(",", modifierFlags: .command)
-        app.descendants(matching: .any)["settings-page-categories"].click()
+        app.descendants(matching: .any)["sidebar-categories"].click()
         let expenseOther = app.descendants(matching: .any)
-            .matching(NSPredicate(format: "identifier BEGINSWITH %@ AND value == %@", "category-expense-", "其他"))
+            .matching(NSPredicate(format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "category-expense-", "其他"))
             .firstMatch
         XCTAssertTrue(expenseOther.waitForExistence(timeout: 2))
         expenseOther.click()

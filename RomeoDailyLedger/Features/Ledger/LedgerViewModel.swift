@@ -8,6 +8,7 @@ final class LedgerViewModel {
     var errorMessage: String?
     var entries: [LedgerEntry] = []
     var categories: [Category] = []
+    var categoryNames: [UUID: String] = [:]
     var selectedEntryIDs: Set<UUID> = []
     var editingEntry: LedgerEntry?
 
@@ -17,7 +18,6 @@ final class LedgerViewModel {
 
     init(
         repository: LedgerRepository,
-        deletionUndoCoordinator: DeletionUndoCoordinator? = nil,
         calendar: Calendar = .autoupdatingCurrent,
         clock: any AppClock = SystemAppClock(),
         timeZoneProvider: any AppTimeZoneProviding = SystemAppTimeZoneProvider()
@@ -74,7 +74,11 @@ final class LedgerViewModel {
     }
 
     func loadCategories() async throws {
-        categories = CategorySelection.available(from: try await repository.categories(kind: draft.kind), selectedID: draft.categoryID)
+        let expense = try await repository.categories(kind: .expense)
+        let income = try await repository.categories(kind: .income)
+        let all = expense + income
+        categoryNames = Dictionary(uniqueKeysWithValues: all.map { ($0.id, $0.customName ?? $0.systemKey ?? "other") })
+        categories = CategorySelection.available(from: all.filter { $0.kind == draft.kind }, selectedID: draft.categoryID)
         if let selected = draft.categoryID, !categories.contains(where: { $0.id == selected }) {
             draft.categoryID = nil
         }

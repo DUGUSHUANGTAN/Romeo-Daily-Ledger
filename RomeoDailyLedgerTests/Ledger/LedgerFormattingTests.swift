@@ -4,6 +4,11 @@ import Testing
 
 @Suite("Ledger formatting")
 struct LedgerFormattingTests {
+    @Test func currencySymbolCanPrefixEditableAmounts() {
+        #expect(LedgerFormatting.currencySymbol(for: "CNY") == "¥")
+        #expect(LedgerFormatting.currencySymbol(for: "USD") == "$")
+        #expect(LedgerFormatting.currencySymbol(for: "EUR") == "€")
+    }
     @Test func amountUsesApprovedDefaultUSDCurrency() {
         #expect(LedgerFormatting.amount(Decimal(string: "12.50")!) == "$12.50")
     }

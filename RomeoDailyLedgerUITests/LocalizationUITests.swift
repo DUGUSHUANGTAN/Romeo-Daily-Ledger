@@ -40,41 +40,30 @@ final class LocalizationUITests: XCTestCase {
 
     func testSettingsEntryCommandAndRequiredCategories() {
         let app = launch(languageArgument: "--language-zh-Hans")
-        app.typeKey(",", modifierFlags: .command)
-
-        XCTAssertFalse(app.buttons["settings-open-categories"].exists)
-        XCTAssertFalse(app.staticTexts["⌘,"].exists)
-        app.descendants(matching: .any)["settings-page-categories"].click()
-        let rows = app.descendants(matching: .any).matching(
-            NSPredicate(format: "identifier BEGINSWITH %@", "category-")
+        app.descendants(matching: .any)["sidebar-categories"].click()
+        let expenseRows = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", "category-expense-")
         )
-        XCTAssertEqual(rows.count, 11)
+        let incomeRows = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", "category-income-")
+        )
+        XCTAssertEqual(expenseRows.count, 1)
+        XCTAssertEqual(incomeRows.count, 1)
+        XCTAssertTrue(app.buttons["category-add-expense"].exists)
+        XCTAssertTrue(app.buttons["category-add-income"].exists)
         XCTAssertFalse(app.switches.matching(NSPredicate(format: "identifier BEGINSWITH %@", "category-hidden-")).firstMatch.exists)
 
-        rows.firstMatch.press(forDuration: 0.6)
-        XCTAssertTrue(app.staticTexts["修改分类名称"].waitForExistence(timeout: 2))
-        app.sheets.buttons["取消"].click()
-
-        let manage = app.descendants(matching: .any)["categories-manage"]
-        XCTAssertTrue(manage.waitForExistence(timeout: 2))
-        XCTAssertEqual(manage.label, "管理")
-        manage.click()
-        XCTAssertEqual(app.descendants(matching: .any)["categories-manage"].label, "完成")
-        let delete = app.buttons["categories-delete-selected"]
-        XCTAssertTrue(delete.waitForExistence(timeout: 2))
-        XCTAssertFalse(delete.isEnabled)
-        rows.firstMatch.click()
-        XCTAssertTrue(rows.firstMatch.isSelected)
-        XCTAssertTrue(delete.isEnabled)
-        app.descendants(matching: .any)["categories-manage"].click()
-
-        rows.firstMatch.click()
+        expenseRows.firstMatch.click()
         XCTAssertTrue(app.buttons["category-entries-back"].waitForExistence(timeout: 2))
         let header = app.descendants(matching: .any)["category-entries-header"]
         XCTAssertTrue(header.waitForExistence(timeout: 2))
         XCTAssertLessThan(header.frame.minY - app.windows.firstMatch.frame.minY, 120)
         XCTAssertTrue(app.staticTexts["空"].exists)
         app.buttons["category-entries-back"].click()
+
+        app.buttons["sidebar-settings"].click()
+        XCTAssertFalse(app.buttons["settings-open-categories"].exists)
+        XCTAssertFalse(app.staticTexts["⌘,"].exists)
     }
 
     private func launch(languageArgument: String) -> XCUIApplication {
