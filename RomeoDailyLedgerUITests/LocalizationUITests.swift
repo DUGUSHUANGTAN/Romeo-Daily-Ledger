@@ -46,12 +46,23 @@ final class LocalizationUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["⌘,"].exists)
         app.descendants(matching: .any)["settings-page-categories"].click()
         XCTAssertTrue(app.descendants(matching: .any)["settings-categories"].waitForExistence(timeout: 2))
-        for category in ["衣", "食", "住", "行", "娱乐", "其他", "工资", "奖金", "投资", "退款"] {
-            let field = app.textFields.matching(
-                NSPredicate(format: "placeholderValue == %@ OR value == %@", category, category)
-            ).firstMatch
-            XCTAssertTrue(field.exists, "缺少可编辑内置分类：\(category)")
-        }
+        let rows = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", "category-")
+        )
+        XCTAssertEqual(rows.count, 11)
+        XCTAssertFalse(app.switches.matching(NSPredicate(format: "identifier BEGINSWITH %@", "category-hidden-")).firstMatch.exists)
+
+        rows.firstMatch.click()
+        XCTAssertTrue(app.buttons["category-entries-back"].waitForExistence(timeout: 2))
+        app.buttons["category-entries-back"].click()
+
+        app.buttons["categories-manage"].click()
+        let delete = app.buttons["categories-delete-selected"]
+        XCTAssertTrue(delete.waitForExistence(timeout: 2))
+        XCTAssertFalse(delete.isEnabled)
+        rows.firstMatch.click()
+        XCTAssertTrue(rows.firstMatch.isSelected)
+        XCTAssertTrue(delete.isEnabled)
     }
 
     private func launch(languageArgument: String) -> XCUIApplication {

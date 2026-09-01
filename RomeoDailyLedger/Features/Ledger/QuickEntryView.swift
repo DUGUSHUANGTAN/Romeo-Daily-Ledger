@@ -18,7 +18,6 @@ struct QuickEntryView: View {
                     .accessibilityLabel(AppLocalization.text("field.amount", language: language))
                     .accessibilityIdentifier("quick-entry-amount")
                 Picker(AppLocalization.text("field.category", language: language), selection: $model.draft.categoryID) {
-                    Text(AppLocalization.text("category.unselectedFallback", language: language)).tag(UUID?.none)
                     ForEach(model.categories) { category in
                         Text(LedgerFormatting.categoryName(category, language: language)).tag(Optional(category.id))
                     }

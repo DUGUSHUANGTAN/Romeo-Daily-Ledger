@@ -32,7 +32,6 @@ struct EntryEditorView: View {
             }
             labeled(AppLocalization.text("field.category", language: language)) {
                 Picker(AppLocalization.text("field.category", language: language), selection: $model.draft.categoryID) {
-                    Text(AppLocalization.text("category.unselectedFallback", language: language)).tag(UUID?.none)
                     ForEach(categories) { category in
                         Text(LedgerFormatting.categoryName(category, language: language)).tag(Optional(category.id))
                     }
@@ -98,5 +97,8 @@ struct EntryEditorView: View {
 
     private func loadCategories() async {
         categories = CategorySelection.available(from: (try? await repository.categories(kind: model.draft.kind)) ?? [], selectedID: model.draft.categoryID)
+        if model.draft.categoryID == nil {
+            model.draft.categoryID = categories.first(where: { $0.systemKey == "other" })?.id
+        }
     }
 }

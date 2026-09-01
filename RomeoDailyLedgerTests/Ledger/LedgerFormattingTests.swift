@@ -41,4 +41,15 @@ struct LedgerFormattingTests {
         }
         #expect(try CategoryEditPolicy.displayName(systemKey: nil, input: "  Coffee  ") == "Coffee")
     }
+
+    @Test func fallbackDefaultExpenseNamesUseExpandedV102Wording() {
+        let categories = [
+            Category(kind: .expense, systemKey: "clothing", iconName: "", colorToken: "", sortOrder: 0),
+            Category(kind: .expense, systemKey: "food", iconName: "", colorToken: "", sortOrder: 1),
+            Category(kind: .expense, systemKey: "housing", iconName: "", colorToken: "", sortOrder: 2),
+            Category(kind: .expense, systemKey: "transport", iconName: "", colorToken: "", sortOrder: 3),
+        ]
+
+        #expect(categories.map(LedgerFormatting.categoryName) == ["衣物", "食物", "住宿", "行程"])
+    }
 }

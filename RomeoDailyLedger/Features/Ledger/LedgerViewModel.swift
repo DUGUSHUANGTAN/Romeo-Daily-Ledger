@@ -51,7 +51,7 @@ final class LedgerViewModel {
             _ = try await repository.insert(normalizedDraft)
             draft.amountText = ""
             draft.note = ""
-            draft.categoryID = nil
+            draft.categoryID = categories.first(where: { $0.systemKey == "other" })?.id
             draft.occurredAt = dateNormalizer.today
             errorMessage = nil
             try await reload()
@@ -81,6 +81,9 @@ final class LedgerViewModel {
         categories = CategorySelection.available(from: try await repository.categories(kind: draft.kind), selectedID: draft.categoryID)
         if let selected = draft.categoryID, !categories.contains(where: { $0.id == selected }) {
             draft.categoryID = nil
+        }
+        if draft.categoryID == nil {
+            draft.categoryID = categories.first(where: { $0.systemKey == "other" })?.id
         }
     }
 

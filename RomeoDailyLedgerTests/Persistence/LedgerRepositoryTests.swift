@@ -218,6 +218,88 @@ private func expectFallbackToOther(kind: EntryKind) async throws {
 }
 
 @MainActor
+@Test func categoryNamesMustBeUniqueWithinTheSameKind() async throws {
+    let repository = try TestRepository.make()
+    try await repository.seedDefaultsIfNeeded()
+    let food = try #require(try await repository.categories(kind: .expense).first { $0.systemKey == "food" })
+    let clothing = try #require(try await repository.categories(kind: .expense).first { $0.systemKey == "clothing" })
+    try await repository.updateCategory(id: food.id, displayName: "Meals", isHidden: false)
+
+    await #expect(throws: (any Error).self) {
+        try await repository.updateCategory(id: clothing.id, displayName: " meals ", isHidden: false)
+    }
+}
+
+@MainActor
+@Test func categoryNameCannotDuplicateASystemCategoryKey() async throws {
+    let repository = try TestRepository.make()
+    try await repository.seedDefaultsIfNeeded()
+    let clothing = try #require(try await repository.categories(kind: .expense).first { $0.systemKey == "clothing" })
+
+    await #expect(throws: LedgerRepositoryValidationError.duplicateCategoryName) {
+        try await repository.updateCategory(id: clothing.id, displayName: " FOOD ", isHidden: false)
+    }
+}
+
+@MainActor
+@Test func ensuringCategoryBySystemKeyReusesExistingCategory() async throws {
+    let repository = try TestRepository.make()
+    try await repository.seedDefaultsIfNeeded()
+    let food = try #require(try await repository.categories(kind: .expense).first { $0.systemKey == "food" })
+
+    let resolved = try await repository.ensureCustomCategory(named: " FOOD ", kind: .expense)
+
+    #expect(resolved.id == food.id)
+    #expect(try await repository.categories(kind: .expense).count == 6)
+}
+
+@MainActor
+@Test func otherCategoryCannotBeRenamedOrHidden() async throws {
+    let repository = try TestRepository.make()
+    try await repository.seedDefaultsIfNeeded()
+    let other = try #require(try await repository.categories(kind: .expense).first { $0.systemKey == "other" })
+
+    await #expect(throws: (any Error).self) {
+        try await repository.updateCategory(id: other.id, displayName: "Renamed", isHidden: true)
+    }
+
+    let unchanged = try #require(try await repository.category(id: other.id))
+    #expect(unchanged.customName == nil)
+    #expect(!unchanged.isHidden)
+}
+
+@MainActor
+@Test func deletingCategoryMovesItsEntriesToOtherOfTheSameKind() async throws {
+    let repository = try TestRepository.make()
+    try await repository.seedDefaultsIfNeeded()
+    let category = try await repository.ensureCustomCategory(named: "Coffee", kind: .expense)
+    let entry = try await repository.insert(
+        LedgerDraft(kind: .expense, amountText: "18", categoryID: category.id, note: "Latte", occurredAt: .now)
+    )
+
+    try await repository.deleteCategories(ids: [category.id])
+
+    #expect(try await repository.category(id: category.id) == nil)
+    let movedEntry = try #require(try await repository.allEntries().first { $0.id == entry.id })
+    let fallback = try #require(try await repository.category(id: movedEntry.categoryID))
+    #expect(fallback.kind == .expense)
+    #expect(fallback.systemKey == "other")
+}
+
+@MainActor
+@Test func otherCategoryCannotBeDeleted() async throws {
+    let repository = try TestRepository.make()
+    try await repository.seedDefaultsIfNeeded()
+    let other = try #require(try await repository.categories(kind: .income).first { $0.systemKey == "other" })
+
+    await #expect(throws: LedgerRepositoryValidationError.protectedCategory) {
+        try await repository.deleteCategories(ids: [other.id])
+    }
+
+    #expect(try await repository.category(id: other.id) != nil)
+}
+
+@MainActor
 @Test func deleteAllEntriesPreservesCategories() async throws {
     let repository = try TestRepository.make()
     try await repository.seedDefaultsIfNeeded()

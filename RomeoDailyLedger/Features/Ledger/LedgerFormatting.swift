@@ -26,10 +26,10 @@ enum LedgerFormatting {
     static func categoryName(_ category: Category) -> String {
         if let customName = category.customName, !customName.isEmpty { return customName }
         return switch category.systemKey {
-        case "clothing": "服饰"
-        case "food": "餐饮"
-        case "housing": "居住"
-        case "transport": "交通"
+        case "clothing": "衣物"
+        case "food": "食物"
+        case "housing": "住宿"
+        case "transport": "行程"
         case "entertainment": "娱乐"
         case "salary": "工资"
         case "bonus": "奖金"

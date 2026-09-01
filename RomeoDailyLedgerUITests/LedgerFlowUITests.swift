@@ -131,6 +131,19 @@ final class LedgerFlowUITests: XCTestCase {
         XCTAssertTrue(app.buttons["ledger-show-all"].waitForExistence(timeout: 2))
     }
 
+    func testAllEntriesSingleClickOpensEditor() {
+        let app = launchApp()
+        addEntry(in: app, amount: "15.00", kind: "支出", note: "全部账目编辑")
+        app.buttons["ledger-show-all"].click()
+        let row = app.buttons
+            .matching(NSPredicate(format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "ledger-all-entry-", "全部账目编辑"))
+            .firstMatch
+
+        XCTAssertTrue(row.waitForExistence(timeout: 2))
+        row.click()
+        XCTAssertTrue(app.textFields["editor-amount"].waitForExistence(timeout: 2))
+    }
+
     func testCalendarAndInsightsExposeBoundedMonthControls() {
         let app = launchApp()
         app.typeKey("2", modifierFlags: .command)

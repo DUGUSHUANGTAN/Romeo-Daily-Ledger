@@ -119,13 +119,57 @@ final class SwiftDataLedgerRepository: LedgerRepository {
         guard let category = try await category(id: id) else {
             throw LedgerRepositoryValidationError.categoryNotFound
         }
+        guard category.systemKey != "other" else {
+            throw LedgerRepositoryValidationError.protectedCategory
+        }
         let normalized = displayName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         if category.systemKey == nil && normalized.isEmpty {
             throw LedgerRepositoryValidationError.emptyCustomCategoryName
         }
+        if !normalized.isEmpty {
+            let siblings = try await categories(kind: category.kind)
+            guard !siblings.contains(where: {
+                guard $0.id != category.id else { return false }
+                let siblingName = $0.customName ?? $0.systemKey ?? ""
+                return siblingName.caseInsensitiveCompare(normalized) == .orderedSame
+            }) else {
+                throw LedgerRepositoryValidationError.duplicateCategoryName
+            }
+        }
         category.customName = normalized.isEmpty ? nil : normalized
         category.isHidden = isHidden
         try context.save()
+    }
+
+    func deleteCategories(ids: Set<UUID>) async throws {
+        guard !ids.isEmpty else { return }
+        let allCategories = try context.fetch(FetchDescriptor<Category>())
+        let targets = allCategories.filter { ids.contains($0.id) }
+        guard targets.count == ids.count else {
+            throw LedgerRepositoryValidationError.categoryNotFound
+        }
+        guard !targets.contains(where: { $0.systemKey == "other" }) else {
+            throw LedgerRepositoryValidationError.protectedCategory
+        }
+
+        let fallbacks = Dictionary(uniqueKeysWithValues: allCategories.compactMap { category in
+            category.systemKey == "other" ? (category.kind, category.id) : nil
+        })
+        let targetByID = Dictionary(uniqueKeysWithValues: targets.map { ($0.id, $0) })
+        let entries = try context.fetch(FetchDescriptor<LedgerEntry>())
+        for entry in entries {
+            guard let category = targetByID[entry.categoryID], let fallbackID = fallbacks[category.kind] else { continue }
+            entry.categoryID = fallbackID
+            entry.updatedAt = .now
+        }
+        for category in targets { context.delete(category) }
+
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func deleteAllEntries() async throws {
@@ -137,12 +181,16 @@ final class SwiftDataLedgerRepository: LedgerRepository {
 
     func ensureCustomCategory(named name: String, kind: EntryKind) async throws -> Category {
         let normalized = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !normalized.isEmpty else {
+            throw LedgerRepositoryValidationError.emptyCustomCategoryName
+        }
         let kindRaw = kind.rawValue
         let categories = try context.fetch(
             FetchDescriptor<Category>(predicate: #Predicate { category in category.kindRaw == kindRaw })
         )
         if let existing = categories.first(where: {
-            $0.customName?.caseInsensitiveCompare(normalized) == .orderedSame
+            let existingName = $0.customName ?? $0.systemKey ?? ""
+            return existingName.caseInsensitiveCompare(normalized) == .orderedSame
         }) {
             return existing
         }

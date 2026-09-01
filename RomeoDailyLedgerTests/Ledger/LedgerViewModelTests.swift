@@ -194,4 +194,15 @@ struct LedgerViewModelTests {
         #expect(CategorySelection.available(from: [visible, hidden], selectedID: nil).map(\.id) == [visible.id])
         #expect(CategorySelection.available(from: [visible, hidden], selectedID: hidden.id).map(\.id) == [visible.id, hidden.id])
     }
+
+    @Test func loadingCategoriesSelectsOtherWhenDraftHasNoCategory() async throws {
+        let repository = try TestRepository.make()
+        try await repository.seedDefaultsIfNeeded()
+        let model = LedgerViewModel(repository: repository)
+
+        try await model.loadCategories()
+
+        let other = try #require(model.categories.first { $0.systemKey == "other" })
+        #expect(model.draft.categoryID == other.id)
+    }
 }

@@ -81,6 +81,7 @@ private struct AllEntriesView: View {
     @Environment(\.appLanguage) private var language
     @Environment(\.appCurrencyCode) private var currencyCode
     @State private var entries: [LedgerEntry] = []
+    @State private var editingEntry: LedgerEntry?
     @State private var errorMessage: String?
     let repository: LedgerRepository
     let theme: AppTheme
@@ -101,12 +102,16 @@ private struct AllEntriesView: View {
                     ForEach(groupedEntries) { group in
                         Section {
                             ForEach(group.entries) { entry in
-                                HStack {
-                                    Text(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note)
-                                    Spacer()
-                                    Text(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode))
+                                Button { editingEntry = entry } label: {
+                                    HStack {
+                                        Text(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note)
+                                        Spacer()
+                                        Text(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode))
+                                    }
+                                    .padding(12).background(theme.surface.color, in: RoundedRectangle(cornerRadius: 8))
                                 }
-                                .padding(12).background(theme.surface.color, in: RoundedRectangle(cornerRadius: 8))
+                                .buttonStyle(.plain)
+                                .accessibilityIdentifier("ledger-all-entry-\(entry.id.uuidString.lowercased())")
                             }
                         } header: {
                             Text(group.date, format: .dateTime.year().month().day()).font(AppTypography.title(typography))
@@ -117,6 +122,11 @@ private struct AllEntriesView: View {
         }
         .padding(28).foregroundStyle(theme.primaryText.color).background(theme.canvas.color)
         .task { await load() }
+        .sheet(item: $editingEntry) { entry in
+            EntryEditorView(entry: entry, repository: repository, theme: theme, typography: typography) {
+                await load()
+            }
+        }
     }
 
     private var groupedEntries: [LedgerEntryGrouping.Group] {

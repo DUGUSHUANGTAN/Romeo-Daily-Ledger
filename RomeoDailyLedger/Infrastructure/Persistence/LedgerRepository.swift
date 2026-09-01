@@ -12,6 +12,7 @@ protocol LedgerRepository {
     func categories(kind: EntryKind) async throws -> [Category]
     func category(id: UUID) async throws -> Category?
     func updateCategory(id: UUID, displayName: String?, isHidden: Bool) async throws
+    func deleteCategories(ids: Set<UUID>) async throws
     func deleteAllEntries() async throws
     func ensureCustomCategory(named name: String, kind: EntryKind) async throws -> Category
 }
@@ -22,7 +23,9 @@ enum LedgerRepositoryCapabilityError: Error {
 
 enum LedgerRepositoryValidationError: Error, Equatable {
     case categoryNotFound
+    case duplicateCategoryName
     case emptyCustomCategoryName
+    case protectedCategory
 }
 
 extension LedgerRepository {
@@ -47,6 +50,10 @@ extension LedgerRepository {
     }
 
     func updateCategory(id: UUID, displayName: String?, isHidden: Bool) async throws {
+        throw LedgerRepositoryCapabilityError.customCategoryCreationUnsupported
+    }
+
+    func deleteCategories(ids: Set<UUID>) async throws {
         throw LedgerRepositoryCapabilityError.customCategoryCreationUnsupported
     }
 
