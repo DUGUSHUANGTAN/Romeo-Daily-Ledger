@@ -7,6 +7,8 @@ struct CalendarView: View {
     @State private var entries: [LedgerEntry] = []
     @State private var errorMessage: String?
     @State private var editingEntry: LedgerEntry?
+    @State private var selectedEntryIDs: Set<UUID> = []
+    @State private var isDeleteConfirmationPresented = false
     @State private var yearText = ""
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
     let repository: LedgerRepository
@@ -79,6 +81,8 @@ struct CalendarView: View {
                     .accessibilityIdentifier("calendar-day-income")
                 Text(AppLocalization.format("calendar.dayExpense", language: language, LedgerFormatting.amount(summary.expense, currencyCode: currencyCode)))
                     .accessibilityIdentifier("calendar-day-expense")
+                Text(AppLocalization.format("calendar.dayBalance", language: language, LedgerFormatting.amount(summary.balance, currencyCode: currencyCode)))
+                    .accessibilityIdentifier("calendar-day-balance")
             }
             .font(AppTypography.caption(typography))
             .foregroundStyle(theme.secondaryText.color)
@@ -92,21 +96,31 @@ struct CalendarView: View {
             } else {
                 LazyVStack(spacing: 8) {
                     ForEach(entries) { entry in
-                        Button {
-                            editingEntry = entry
-                        } label: {
-                            HStack(spacing: 12) {
-                                Text(AppLocalization.text(entry.kind == .income ? "entry.income" : "entry.expense", language: language))
-                                    .font(AppTypography.caption(typography))
-                                    .foregroundStyle(theme.secondaryText.color)
-                                Text(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note)
-                                Spacer()
-                                Text(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode))
-                            }
-                            .padding(12)
-                            .background(theme.surface.color, in: RoundedRectangle(cornerRadius: 10))
+                        HStack(spacing: 12) {
+                            Text(AppLocalization.text(entry.kind == .income ? "entry.income" : "entry.expense", language: language))
+                                .font(AppTypography.caption(typography))
+                                .foregroundStyle(theme.secondaryText.color)
+                            Text(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note)
+                            Spacer()
+                            Text(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode))
                         }
-                        .buttonStyle(.plain)
+                        .padding(12)
+                        .background(selectedEntryIDs.contains(entry.id) ? theme.primaryAccent.color.opacity(0.16) : theme.surface.color, in: RoundedRectangle(cornerRadius: 10))
+                        .contentShape(Rectangle())
+                        .gesture(
+                            LongPressGesture(minimumDuration: 0.5)
+                                .exclusively(before: TapGesture())
+                                .onEnded { value in
+                                    switch value {
+                                    case .first: selectedEntryIDs.insert(entry.id)
+                                    case .second:
+                                        if selectedEntryIDs.isEmpty { editingEntry = entry }
+                                        else { toggleSelection(entry.id) }
+                                    }
+                                }
+                        )
+                        .accessibilityAddTraits(.isButton)
+                        .accessibilityAddTraits(selectedEntryIDs.contains(entry.id) ? .isSelected : [])
                         .accessibilityLabel("\(AppLocalization.text(entry.kind == .income ? "entry.income" : "entry.expense", language: language)) \(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note) \(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode))")
                         .accessibilityIdentifier("calendar-entry-\(entry.id.uuidString.lowercased())")
                         .contextMenu {
@@ -115,6 +129,14 @@ struct CalendarView: View {
                     }
                 }
                 .accessibilityIdentifier("calendar-entry-list")
+            }
+            if !selectedEntryIDs.isEmpty {
+                SelectionSummaryBar(summary: SelectionSummary(entries: entries.filter { selectedEntryIDs.contains($0.id) }), theme: theme, typography: typography) {
+                    isDeleteConfirmationPresented = true
+                } onCancel: {
+                    selectedEntryIDs.removeAll()
+                }
+                .accessibilityIdentifier("calendar-selection-summary")
             }
             }
             .padding(28)
@@ -133,6 +155,16 @@ struct CalendarView: View {
             EntryEditorView(entry: entry, repository: repository, theme: theme, typography: typography) {
                 await loadEntries()
             }
+        }
+        .confirmationDialog(
+            AppLocalization.text("ledger.delete.confirmTitle", language: language),
+            isPresented: $isDeleteConfirmationPresented,
+            titleVisibility: .visible
+        ) {
+            Button(AppLocalization.text("button.confirmDelete", language: language), role: .destructive) {
+                Task { await deleteSelection() }
+            }
+            Button(AppLocalization.text("button.cancel", language: language), role: .cancel) { }
         }
     }
 
@@ -165,7 +197,23 @@ struct CalendarView: View {
     private func loadEntries() async {
         do {
             entries = try await repository.entries(in: model.dayInterval(containing: model.selectedDate))
+            selectedEntryIDs.formIntersection(Set(entries.map(\.id)))
             errorMessage = nil
+        } catch {
+            errorMessage = String(describing: error)
+        }
+    }
+
+    private func toggleSelection(_ id: UUID) {
+        if selectedEntryIDs.contains(id) { selectedEntryIDs.remove(id) }
+        else { selectedEntryIDs.insert(id) }
+    }
+
+    private func deleteSelection() async {
+        do {
+            try await repository.delete(ids: selectedEntryIDs)
+            selectedEntryIDs.removeAll()
+            await loadEntries()
         } catch {
             errorMessage = String(describing: error)
         }

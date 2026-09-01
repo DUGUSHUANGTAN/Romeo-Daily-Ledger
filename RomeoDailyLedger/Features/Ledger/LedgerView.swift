@@ -4,7 +4,6 @@ struct LedgerView: View {
     @Environment(\.appLanguage) private var language
     @State private var model: LedgerViewModel
     @State private var isDeleteConfirmationPresented = false
-    @State private var showsAllEntries = false
     let repository: LedgerRepository
     let theme: AppTheme
     let typography: AppTypography.Style
@@ -17,14 +16,6 @@ struct LedgerView: View {
     }
 
     var body: some View {
-        if showsAllEntries {
-            AllEntriesView(repository: repository, theme: theme, typography: typography) { showsAllEntries = false }
-        } else {
-            dailyLedger
-        }
-    }
-
-    private var dailyLedger: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
@@ -34,10 +25,6 @@ struct LedgerView: View {
                         .foregroundStyle(theme.secondaryText.color)
                 }
                 Spacer()
-                if model.canUndo {
-                    Button(AppLocalization.text("button.undoDelete", language: language)) { Task { await model.undoDelete() } }
-                        .accessibilityIdentifier("undo-delete")
-                }
             }
             QuickEntryView(model: model, theme: theme, typography: typography)
             EntryListView(model: model, theme: theme, typography: typography)
@@ -47,11 +34,6 @@ struct LedgerView: View {
                 } onCancel: {
                     model.clearSelection()
                 }
-            }
-            HStack {
-                Spacer()
-                Button(AppLocalization.text("ledger.all", language: language)) { showsAllEntries = true }
-                    .accessibilityIdentifier("ledger-show-all")
             }
         }
         .padding(28)
@@ -74,35 +56,47 @@ struct LedgerView: View {
             }
             .accessibilityIdentifier("confirm-delete-selected")
             Button(AppLocalization.text("button.cancel", language: language), role: .cancel) { }
-        } message: {
-            Text(AppLocalization.text("ledger.delete.undoHelp", language: language))
         }
     }
 }
 
-private struct AllEntriesView: View {
+struct HistoryView: View {
     @Environment(\.appLanguage) private var language
     @Environment(\.appCurrencyCode) private var currencyCode
-    @State private var entries: [LedgerEntry] = []
+    @State private var model: EntriesCollectionModel
     @State private var editingEntry: LedgerEntry?
-    @State private var errorMessage: String?
-    @State private var selectedEntryIDs: Set<UUID> = []
     @State private var isDeleteConfirmationPresented = false
+    @State private var searchText = ""
+    @State private var categoryNames: [UUID: String] = [:]
     let repository: LedgerRepository
     let theme: AppTheme
     let typography: AppTypography.Style
-    let onBack: () -> Void
+
+    init(repository: LedgerRepository, theme: AppTheme, typography: AppTypography.Style) {
+        _model = State(initialValue: EntriesCollectionModel(repository: repository))
+        self.repository = repository
+        self.theme = theme
+        self.typography = typography
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack {
-                Button(AppLocalization.text("button.back", language: language), action: onBack)
-                    .accessibilityIdentifier("ledger-all-back")
-                Text(AppLocalization.text("ledger.allEntries", language: language)).font(AppTypography.display(typography))
+                Text(AppLocalization.text("history.title", language: language)).font(AppTypography.display(typography))
                 Spacer()
             }
-            if errorMessage != nil { Text(AppLocalization.text("error.loadEntries", language: language)).foregroundStyle(.red) }
+            TextField(AppLocalization.text("history.search.placeholder", language: language), text: $searchText)
+                .textFieldStyle(.roundedBorder)
+                .accessibilityIdentifier("history-search")
+            if model.errorMessage != nil { Text(AppLocalization.text("error.loadEntries", language: language)).foregroundStyle(.red) }
             ScrollView {
+                if groupedEntries.isEmpty {
+                    Text(AppLocalization.text("state.empty", language: language))
+                        .font(AppTypography.title(typography))
+                        .foregroundStyle(theme.secondaryText.color)
+                        .frame(maxWidth: .infinity, minHeight: 180)
+                        .accessibilityIdentifier("history-empty")
+                }
                 LazyVStack(alignment: .leading, spacing: 14) {
                     ForEach(groupedEntries) { group in
                         Section {
@@ -113,37 +107,37 @@ private struct AllEntriesView: View {
                                     Text(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode))
                                 }
                                 .padding(12)
-                                .background(selectedEntryIDs.contains(entry.id) ? theme.primaryAccent.color.opacity(0.16) : theme.surface.color, in: RoundedRectangle(cornerRadius: 8))
+                                .background(model.selectedEntryIDs.contains(entry.id) ? theme.primaryAccent.color.opacity(0.16) : theme.surface.color, in: RoundedRectangle(cornerRadius: 8))
                                 .contentShape(Rectangle())
                                 .gesture(
                                     LongPressGesture(minimumDuration: 0.5)
                                         .exclusively(before: TapGesture())
                                         .onEnded { value in
                                             switch value {
-                                            case .first: selectedEntryIDs.insert(entry.id)
+                                            case .first: model.selectedEntryIDs.insert(entry.id)
                                             case .second:
-                                                if selectedEntryIDs.isEmpty { editingEntry = entry }
-                                                else { toggleSelection(entry.id) }
+                                                if model.selectedEntryIDs.isEmpty { editingEntry = entry }
+                                                else { model.toggleSelection(entry.id) }
                                             }
                                         }
                                 )
                                 .accessibilityAddTraits(.isButton)
-                                .accessibilityAddTraits(selectedEntryIDs.contains(entry.id) ? .isSelected : [])
-                                .accessibilityIdentifier("ledger-all-entry-\(entry.id.uuidString.lowercased())")
+                                .accessibilityAddTraits(model.selectedEntryIDs.contains(entry.id) ? .isSelected : [])
+                                .accessibilityIdentifier("history-entry-\(entry.id.uuidString.lowercased())")
                             }
                         } header: {
                             Text(group.date, format: .dateTime.year().month().day()).font(AppTypography.title(typography))
                         }
                     }
                 }
-            }.accessibilityIdentifier("ledger-all-list")
-            if !selectedEntryIDs.isEmpty {
-                SelectionSummaryBar(summary: selectionSummary, theme: theme, typography: typography) {
+            }.accessibilityIdentifier("history-list")
+            if !model.selectedEntryIDs.isEmpty {
+                SelectionSummaryBar(summary: model.selectionSummary, theme: theme, typography: typography) {
                     isDeleteConfirmationPresented = true
                 } onCancel: {
-                    selectedEntryIDs.removeAll()
+                    model.selectedEntryIDs.removeAll()
                 }
-                .accessibilityIdentifier("ledger-all-selection-summary")
+                .accessibilityIdentifier("history-selection-summary")
             }
         }
         .padding(28).foregroundStyle(theme.primaryText.color).background(theme.canvas.color)
@@ -167,32 +161,20 @@ private struct AllEntriesView: View {
     }
 
     private var groupedEntries: [LedgerEntryGrouping.Group] {
-        LedgerEntryGrouping.groups(entries)
-    }
-
-    private var selectionSummary: SelectionSummary {
-        SelectionSummary(entries: entries.filter { selectedEntryIDs.contains($0.id) })
-    }
-
-    private func toggleSelection(_ id: UUID) {
-        if selectedEntryIDs.contains(id) { selectedEntryIDs.remove(id) }
-        else { selectedEntryIDs.insert(id) }
+        let index = HistorySearchIndex(entries: model.entries, categoryNames: categoryNames, calendar: .autoupdatingCurrent)
+        return LedgerEntryGrouping.groups(index.results(matching: searchText))
     }
 
     private func deleteSelection() async {
-        do {
-            try await repository.delete(ids: selectedEntryIDs)
-            selectedEntryIDs.removeAll()
-            await load()
-        } catch { errorMessage = String(describing: error) }
+        await model.deleteSelection()
     }
 
     private func load() async {
-        do {
-            entries = try await repository.allEntries()
-            selectedEntryIDs.formIntersection(Set(entries.map(\.id)))
-            errorMessage = nil
-        }
-        catch { errorMessage = String(describing: error) }
+        await model.loadAll()
+        let expense = (try? await repository.categories(kind: .expense)) ?? []
+        let income = (try? await repository.categories(kind: .income)) ?? []
+        categoryNames = Dictionary(uniqueKeysWithValues: (expense + income).map {
+            ($0.id, LedgerFormatting.categoryName($0, language: language))
+        })
     }
 }

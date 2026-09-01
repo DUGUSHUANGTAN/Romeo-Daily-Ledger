@@ -63,3 +63,39 @@ struct CalendarViewModelTests {
         #expect(model.calendar.component(.month, from: model.displayedMonth) == 12)
     }
 }
+
+@Suite("History ledger")
+@MainActor
+struct HistoryLedgerTests {
+    @Test func searchMatchesLocalDateNoteAndLocalizedCategoryName() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Asia/Shanghai")!
+        let date = try #require(ISO8601DateFormatter().date(from: "2026-08-29T12:00:00+08:00"))
+        let foodID = UUID()
+        let entries = [
+            LedgerEntry(kind: .expense, amount: 18, categoryID: foodID, note: "拿铁", occurredAt: date),
+            LedgerEntry(kind: .income, amount: 100, categoryID: UUID(), note: "奖金", occurredAt: date)
+        ]
+        let index = HistorySearchIndex(entries: entries, categoryNames: [foodID: "餐饮"], calendar: calendar)
+
+        #expect(index.results(matching: "2026-08-29").count == 2)
+        #expect(index.results(matching: "拿铁").map(\.note) == ["拿铁"])
+        #expect(index.results(matching: "餐饮").map(\.note) == ["拿铁"])
+        #expect(index.results(matching: "不存在").isEmpty)
+    }
+
+    @Test func selectionSummaryIncludesBalanceAndConfirmedDeleteIsImmediate() async {
+        let repository = RecordingLedgerRepository()
+        let income = LedgerEntry(kind: .income, amount: 100, categoryID: UUID(), note: "Income", occurredAt: .now)
+        let expense = LedgerEntry(kind: .expense, amount: 35, categoryID: UUID(), note: "Expense", occurredAt: .now)
+        repository.entriesToReturn = [income, expense]
+        let model = EntriesCollectionModel(repository: repository)
+        await model.loadAll()
+        model.selectedEntryIDs = [income.id, expense.id]
+
+        #expect(model.selectionSummary.balance == 65)
+        await model.deleteSelection()
+        #expect(repository.deletedIDSets == [[income.id, expense.id]])
+        #expect(model.selectedEntryIDs.isEmpty)
+    }
+}

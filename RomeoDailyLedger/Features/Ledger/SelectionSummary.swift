@@ -8,6 +8,8 @@ struct SelectionSummary: Equatable {
         income - expense
     }
 
+    var balance: Decimal { net }
+
     init(entries: [LedgerEntry]) {
         var income: Decimal = 0
         var expense: Decimal = 0

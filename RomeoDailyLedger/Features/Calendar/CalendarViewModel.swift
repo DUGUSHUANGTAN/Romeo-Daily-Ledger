@@ -80,3 +80,76 @@ final class CalendarViewModel {
         calendar.dateInterval(of: .month, for: date)!.start
     }
 }
+
+struct HistorySearchIndex {
+    let entries: [LedgerEntry]
+    let categoryNames: [UUID: String]
+    var calendar: Calendar
+
+    func results(matching query: String) -> [LedgerEntry] {
+        let needle = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !needle.isEmpty else { return entries }
+        let formatter = DateFormatter()
+        formatter.calendar = calendar
+        formatter.timeZone = calendar.timeZone
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        return entries.filter { entry in
+            entry.note.localizedCaseInsensitiveContains(needle)
+                || (categoryNames[entry.categoryID]?.localizedCaseInsensitiveContains(needle) == true)
+                || formatter.string(from: entry.occurredAt).localizedCaseInsensitiveContains(needle)
+        }
+    }
+}
+
+@Observable
+@MainActor
+final class EntriesCollectionModel {
+    var entries: [LedgerEntry] = []
+    var selectedEntryIDs: Set<UUID> = []
+    var errorMessage: String?
+    private let repository: LedgerRepository
+
+    init(repository: LedgerRepository) {
+        self.repository = repository
+    }
+
+    var selectionSummary: SelectionSummary {
+        SelectionSummary(entries: entries.filter { selectedEntryIDs.contains($0.id) })
+    }
+
+    func loadAll() async {
+        await load { try await repository.allEntries() }
+    }
+
+    func load(interval: DateInterval) async {
+        await load { try await repository.entries(in: interval) }
+    }
+
+    func toggleSelection(_ id: UUID) {
+        if selectedEntryIDs.contains(id) { selectedEntryIDs.remove(id) }
+        else { selectedEntryIDs.insert(id) }
+    }
+
+    func deleteSelection() async {
+        guard !selectedEntryIDs.isEmpty else { return }
+        do {
+            try await repository.delete(ids: selectedEntryIDs)
+            entries.removeAll { selectedEntryIDs.contains($0.id) }
+            selectedEntryIDs.removeAll()
+            errorMessage = nil
+        } catch {
+            errorMessage = String(describing: error)
+        }
+    }
+
+    private func load(_ operation: () async throws -> [LedgerEntry]) async {
+        do {
+            entries = try await operation()
+            selectedEntryIDs.formIntersection(Set(entries.map(\.id)))
+            errorMessage = nil
+        } catch {
+            errorMessage = String(describing: error)
+        }
+    }
+}

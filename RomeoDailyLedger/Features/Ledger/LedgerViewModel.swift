@@ -12,7 +12,6 @@ final class LedgerViewModel {
     var editingEntry: LedgerEntry?
 
     private let repository: LedgerRepository
-    private let deletionUndoCoordinator: DeletionUndoCoordinator?
     private let calendar: Calendar
     private let dateNormalizer: AppDateNormalizer
 
@@ -24,7 +23,6 @@ final class LedgerViewModel {
         timeZoneProvider: any AppTimeZoneProviding = SystemAppTimeZoneProvider()
     ) {
         self.repository = repository
-        self.deletionUndoCoordinator = deletionUndoCoordinator
         self.calendar = calendar
         self.dateNormalizer = AppDateNormalizer(clock: clock, timeZoneProvider: timeZoneProvider)
         self.draft = LedgerDraft(
@@ -64,8 +62,6 @@ final class LedgerViewModel {
     var selectionSummary: SelectionSummary {
         SelectionSummary(entries: entries.filter { selectedEntryIDs.contains($0.id) })
     }
-
-    var canUndo: Bool { deletionUndoCoordinator?.canUndo == true }
 
     func start() async {
         do {
@@ -118,10 +114,9 @@ final class LedgerViewModel {
     }
 
     func deleteSelection() async {
-        guard let deletionUndoCoordinator else { return }
-        let selected = entries.filter { selectedEntryIDs.contains($0.id) }
+        guard !selectedEntryIDs.isEmpty else { return }
         do {
-            try await deletionUndoCoordinator.delete(entries: selected)
+            try await repository.delete(ids: selectedEntryIDs)
             selectedEntryIDs = []
             try await reload()
         } catch {
@@ -129,12 +124,4 @@ final class LedgerViewModel {
         }
     }
 
-    func undoDelete() async {
-        do {
-            _ = try await deletionUndoCoordinator?.undo()
-            try await reload()
-        } catch {
-            errorMessage = String(describing: error)
-        }
-    }
 }

@@ -11,6 +11,8 @@ struct CategoryManagementView: View {
     @State private var isManaging = false
     @State private var selectedCategoryIDs: Set<UUID> = []
     @State private var isDeleteConfirmationPresented = false
+    @State private var newCategoryKind: EntryKind?
+    @State private var newCategoryName = ""
     @State private var errorMessage: String?
 
     var body: some View {
@@ -50,6 +52,7 @@ struct CategoryManagementView: View {
                         .accessibilityIdentifier("settings-categories-error")
                 }
             }
+            .frame(maxWidth: .infinity)
         }
         .navigationTitle(AppLocalization.text("settings.categories.title", language: language))
         .overlay(alignment: .bottomTrailing) {
@@ -75,6 +78,15 @@ struct CategoryManagementView: View {
                 Task { await save(category, name: editedName) }
             }
         }
+        .alert(AppLocalization.text("settings.categories.add", language: language), isPresented: addAlertBinding) {
+            TextField(AppLocalization.text("field.category", language: language), text: $newCategoryName)
+                .accessibilityIdentifier("category-new-name")
+            Button(AppLocalization.text("button.cancel", language: language), role: .cancel) { newCategoryKind = nil }
+            Button(AppLocalization.text("button.save", language: language)) {
+                guard let kind = newCategoryKind else { return }
+                Task { await addCategory(named: newCategoryName, kind: kind) }
+            }
+        }
         .confirmationDialog(
             AppLocalization.text("ledger.delete.confirmTitle", language: language),
             isPresented: $isDeleteConfirmationPresented,
@@ -88,8 +100,21 @@ struct CategoryManagementView: View {
     }
 
     private func categorySection(titleKey: String, categories: [Category]) -> some View {
-        Section(AppLocalization.text(titleKey, language: language)) {
+        Section {
             ForEach(categories, id: \.id) { category in categoryRow(category) }
+        } header: {
+            HStack {
+                Text(AppLocalization.text(titleKey, language: language))
+                Spacer()
+                Button {
+                    newCategoryName = ""
+                    newCategoryKind = categories.first?.kind ?? (titleKey == "entry.income" ? .income : .expense)
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .buttonStyle(.borderless)
+                .accessibilityIdentifier(titleKey == "entry.income" ? "category-add-income" : "category-add-expense")
+            }
         }
     }
 
@@ -115,10 +140,11 @@ struct CategoryManagementView: View {
             }
         }
         .contentShape(Rectangle())
+        .frame(maxWidth: .infinity)
         .opacity(isManaging && isOther ? 0.62 : 1)
         .onTapGesture {
             if isManaging {
-                guard category.systemKey != "other" else { return }
+                guard CategoryManagementPolicy.canDelete(systemKey: category.systemKey) else { return }
                 if selectedCategoryIDs.contains(category.id) {
                     selectedCategoryIDs.remove(category.id)
                 } else {
@@ -129,7 +155,7 @@ struct CategoryManagementView: View {
             }
         }
         .onLongPressGesture(minimumDuration: 0.5) {
-            guard !isManaging, category.systemKey != "other" else { return }
+            guard !isManaging, CategoryManagementPolicy.canEdit(systemKey: category.systemKey) else { return }
             editingCategory = category
             editedName = category.customName ?? ""
         }
@@ -142,12 +168,35 @@ struct CategoryManagementView: View {
         Binding(get: { editingCategory != nil }, set: { if !$0 { editingCategory = nil } })
     }
 
+    private var addAlertBinding: Binding<Bool> {
+        Binding(get: { newCategoryKind != nil }, set: { if !$0 { newCategoryKind = nil } })
+    }
+
     @MainActor
     private func save(_ category: Category, name: String) async {
         do {
             let displayName = try CategoryEditPolicy.displayName(systemKey: category.systemKey, input: name)
+            let siblings = category.kind == .expense ? expenseCategories : incomeCategories
+            let names = siblings.filter { $0.id != category.id }.map { LedgerFormatting.categoryName($0, language: language) }
+            guard !CategoryNamePolicy.isDuplicate(displayName ?? "", existingDisplayNames: names) else {
+                throw LedgerRepositoryValidationError.duplicateCategoryName
+            }
             try await repository.updateCategory(id: category.id, displayName: displayName, isHidden: false)
             editingCategory = nil
+            await loadCategories()
+        } catch { errorMessage = String(describing: error) }
+    }
+
+    @MainActor
+    private func addCategory(named name: String, kind: EntryKind) async {
+        do {
+            let categories = kind == .expense ? expenseCategories : incomeCategories
+            let names = categories.map { LedgerFormatting.categoryName($0, language: language) }
+            guard !CategoryNamePolicy.isDuplicate(name, existingDisplayNames: names) else {
+                throw LedgerRepositoryValidationError.duplicateCategoryName
+            }
+            _ = try await repository.ensureCustomCategory(named: name, kind: kind)
+            newCategoryKind = nil
             await loadCategories()
         } catch { errorMessage = String(describing: error) }
     }
@@ -200,7 +249,7 @@ private struct CategoryEntriesView: View {
                 Text(AppLocalization.text("error.loadEntries", language: language)).foregroundStyle(.red)
             } else if entries.isEmpty {
                 Text(AppLocalization.text("state.empty", language: language))
-                    .font(.caption)
+                    .font(.title2)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                     .accessibilityIdentifier("category-entries-empty")
@@ -311,4 +360,17 @@ enum CategoryEditPolicy {
         }
         return trimmed
     }
+}
+
+enum CategoryNamePolicy {
+    static func isDuplicate(_ candidate: String, existingDisplayNames: [String]) -> Bool {
+        let normalized = candidate.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !normalized.isEmpty else { return false }
+        return existingDisplayNames.contains { $0.caseInsensitiveCompare(normalized) == .orderedSame }
+    }
+}
+
+enum CategoryManagementPolicy {
+    static func canEdit(systemKey: String?) -> Bool { systemKey != "other" }
+    static func canDelete(systemKey: String?) -> Bool { systemKey != "other" }
 }

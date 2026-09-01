@@ -44,7 +44,7 @@ final class LedgerFlowUITests: XCTestCase {
         XCTAssertFalse(app.descendants(matching: .any)["selection-summary-bar"].exists)
     }
 
-    func testDeleteAndUndoRestoresEntry() {
+    func testDeleteRequiresConfirmationAndDoesNotOfferUndo() {
         let app = launchApp()
         addEntry(in: app, amount: "8.80", kind: "支出", note: "咖啡")
         entryRow(in: app, containing: "咖啡").press(forDuration: 0.6)
@@ -54,23 +54,17 @@ final class LedgerFlowUITests: XCTestCase {
         app.buttons["confirm-delete-selected"].click()
         XCTAssertFalse(entryRow(in: app, containing: "咖啡").exists)
 
-        XCTAssertTrue(app.buttons["undo-delete"].waitForExistence(timeout: 2))
-        app.buttons["undo-delete"].click()
-        XCTAssertTrue(entryRow(in: app, containing: "咖啡").waitForExistence(timeout: 2))
+        XCTAssertFalse(app.buttons["undo-delete"].exists)
     }
 
-    func testUndoEntryExpires() {
+    func testCancellingDeletionKeepsEntry() {
         let app = launchApp()
         addEntry(in: app, amount: "6.60", kind: "支出", note: "过期撤销")
         entryRow(in: app, containing: "过期撤销").press(forDuration: 0.6)
         app.buttons["delete-selected-entries"].click()
         XCTAssertTrue(app.buttons["confirm-delete-selected"].waitForExistence(timeout: 2))
-        app.buttons["confirm-delete-selected"].click()
-        XCTAssertTrue(app.buttons["undo-delete"].waitForExistence(timeout: 2))
-
-        Thread.sleep(forTimeInterval: 6)
-
-        XCTAssertFalse(app.buttons["undo-delete"].exists)
+        app.buttons["取消"].click()
+        XCTAssertTrue(entryRow(in: app, containing: "过期撤销").exists)
     }
 
     func testCalendarFiltersEntriesBySelectedLocalDay() {
@@ -91,7 +85,7 @@ final class LedgerFlowUITests: XCTestCase {
         app.buttons["calendar-today"].click()
         XCTAssertTrue(app.staticTexts["当日收入 $0.00"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.staticTexts["当日支出 $9.90"].exists)
-        let calendarEntry = app.buttons
+        let calendarEntry = app.descendants(matching: .any)
             .matching(NSPredicate(format: "identifier BEGINSWITH %@", "calendar-entry-"))
             .firstMatch
         XCTAssertTrue(calendarEntry.waitForExistence(timeout: 2))
@@ -126,22 +120,20 @@ final class LedgerFlowUITests: XCTestCase {
         XCTAssertFalse(app.buttons["insights-next-month"].exists)
     }
 
-    func testAllEntriesReplacesOnlyDetailAndReturnsToLedger() {
+    func testHistoryIsAnIndependentSidebarDestination() {
         let app = launchApp()
-        XCTAssertTrue(app.descendants(matching: .any)["sidebar-ledger"].exists)
-        app.buttons["ledger-show-all"].click()
-        XCTAssertTrue(app.scrollViews["ledger-all-list"].waitForExistence(timeout: 2))
-        XCTAssertTrue(app.descendants(matching: .any)["sidebar-ledger"].exists)
-        app.buttons["ledger-all-back"].click()
-        XCTAssertTrue(app.buttons["ledger-show-all"].waitForExistence(timeout: 2))
+        app.descendants(matching: .any)["sidebar-history"].click()
+        XCTAssertTrue(app.scrollViews["history-list"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.textFields["history-search"].exists)
+        XCTAssertFalse(app.buttons["ledger-show-all"].exists)
     }
 
-    func testAllEntriesSingleClickOpensEditor() {
+    func testHistorySingleClickOpensEditor() {
         let app = launchApp()
         addEntry(in: app, amount: "15.00", kind: "支出", note: "全部账目编辑")
-        app.buttons["ledger-show-all"].click()
-        let row = app.buttons
-            .matching(NSPredicate(format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "ledger-all-entry-", "全部账目编辑"))
+        app.descendants(matching: .any)["sidebar-history"].click()
+        let row = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "history-entry-", "全部账目编辑"))
             .firstMatch
 
         XCTAssertTrue(row.waitForExistence(timeout: 2))
@@ -149,17 +141,19 @@ final class LedgerFlowUITests: XCTestCase {
         XCTAssertTrue(app.textFields["editor-amount"].waitForExistence(timeout: 2))
     }
 
-    func testAllEntriesLongPressShowsDeleteAndSelectionNetSummary() {
+    func testHistorySearchAndLongPressSelection() {
         let app = launchApp()
         addEntry(in: app, amount: "100", kind: "收入", note: "全部收入")
         addEntry(in: app, amount: "30", kind: "支出", note: "全部支出")
-        app.buttons["ledger-show-all"].click()
-        let income = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "ledger-all-entry-", "全部收入")).firstMatch
-        let expense = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "ledger-all-entry-", "全部支出")).firstMatch
+        app.descendants(matching: .any)["sidebar-history"].click()
+        app.textFields["history-search"].click()
+        app.textFields["history-search"].typeText("全部")
+        let income = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "history-entry-", "全部收入")).firstMatch
+        let expense = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "history-entry-", "全部支出")).firstMatch
         XCTAssertTrue(income.waitForExistence(timeout: 2))
         income.press(forDuration: 0.6)
         expense.click()
-        XCTAssertTrue(app.descendants(matching: .any)["ledger-all-selection-summary"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.descendants(matching: .any)["history-selection-summary"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.buttons["delete-selected-entries"].exists)
         XCTAssertTrue(app.staticTexts["净额 $70.00"].exists)
     }

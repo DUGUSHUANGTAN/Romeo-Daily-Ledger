@@ -205,4 +205,18 @@ struct LedgerViewModelTests {
         let other = try #require(model.categories.first { $0.systemKey == "other" })
         #expect(model.draft.categoryID == other.id)
     }
+
+    @Test func confirmedDeletionDeletesImmediatelyWithoutUndoSnapshot() async {
+        let repository = RecordingLedgerRepository()
+        let entry = LedgerEntry(kind: .expense, amount: 12, categoryID: UUID(), note: "Lunch", occurredAt: .now)
+        repository.entriesToReturn = [entry]
+        let model = LedgerViewModel(repository: repository)
+        model.entries = [entry]
+        model.selectedEntryIDs = [entry.id]
+
+        await model.deleteSelection()
+
+        #expect(repository.deletedIDSets == [[entry.id]])
+        #expect(model.selectedEntryIDs.isEmpty)
+    }
 }

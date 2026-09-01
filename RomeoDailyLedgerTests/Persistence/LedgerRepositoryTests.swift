@@ -322,4 +322,18 @@ private func draft(at date: Date, note: String) -> LedgerDraft {
     )
 }
 
+@Suite("Category management policy")
+struct CategoryManagementPolicyTests {
+    @Test func rejectsLocalizedDisplayNameDuplicateWithinKind() {
+        #expect(CategoryNamePolicy.isDuplicate(" 餐饮 ", existingDisplayNames: ["餐饮", "交通"]))
+        #expect(!CategoryNamePolicy.isDuplicate("餐饮", existingDisplayNames: ["工资", "奖金"]))
+    }
+
+    @Test func otherCannotBeEditedOrSelectedForDeletion() {
+        #expect(!CategoryManagementPolicy.canEdit(systemKey: "other"))
+        #expect(!CategoryManagementPolicy.canDelete(systemKey: "other"))
+        #expect(CategoryManagementPolicy.canEdit(systemKey: nil))
+    }
+}
+
 }
