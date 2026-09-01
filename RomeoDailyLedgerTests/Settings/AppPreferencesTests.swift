@@ -27,6 +27,7 @@ struct AppPreferencesTests {
         #expect(preferences.currencyCode == "USD")
         #expect(preferences.themeMode == .system)
         #expect(preferences.language == .simplifiedChinese)
+        #expect(preferences.fontScalePercent == 100)
     }
 
     @Test func preferencesPersistThroughInjectedUserDefaults() {
@@ -36,11 +37,26 @@ struct AppPreferencesTests {
         first.currencyCode = "EUR"
         first.themeMode = .dark
         first.language = .english
+        first.fontScalePercent = 125
 
         let restored = AppPreferences(defaults: defaults, settingsStore: store)
         #expect(restored.currencyCode == "EUR")
         #expect(restored.themeMode == .dark)
         #expect(restored.language == .english)
+        #expect(restored.fontScalePercent == 125)
+    }
+
+    @Test func fontScaleIsClampedAndRoundedToFivePercentSteps() {
+        let preferences = AppPreferences(defaults: isolatedDefaults(), settingsStore: temporaryStore())
+
+        preferences.fontScalePercent = 143
+        #expect(preferences.fontScalePercent == 140)
+
+        preferences.fontScalePercent = 82
+        #expect(preferences.fontScalePercent == 80)
+
+        preferences.fontScalePercent = 113
+        #expect(preferences.fontScalePercent == 115)
     }
 
     @Test func settingsJSONDoesNotPersistRemovedTypographyOrMotionControls() throws {

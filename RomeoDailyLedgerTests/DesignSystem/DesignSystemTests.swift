@@ -25,6 +25,18 @@ struct DesignSystemTests {
         #expect(ThemeMode.dark.resolve(systemIsDark: false) == .dark)
     }
 
+    @Test func returningToSystemClearsAnExplicitNativeAppearance() {
+        #expect(AppAppearancePolicy.appearanceName(for: .dark) == .darkAqua)
+        #expect(AppAppearancePolicy.appearanceName(for: .light) == .aqua)
+        #expect(AppAppearancePolicy.appearanceName(for: .system) == nil)
+    }
+
+    @Test func fontScaleConvertsPercentageToAStableMultiplier() {
+        #expect(AppTypography.scaleFactor(percent: 80) == 0.8)
+        #expect(AppTypography.scaleFactor(percent: 100) == 1.0)
+        #expect(AppTypography.scaleFactor(percent: 140) == 1.4)
+    }
+
     @Test func typographyOffersOnlyNativeFontStrategies() {
         #expect(AppTypography.Style.allCases == [.system, .editorial, .rounded])
         #expect(AppTypography.Style.allCases.allSatisfy(\.usesBundledFont) == false)

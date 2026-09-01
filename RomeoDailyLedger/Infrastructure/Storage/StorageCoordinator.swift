@@ -21,18 +21,20 @@ struct StoredSettings: Codable, Equatable, Sendable {
     var currencyCode = "USD"
     var language = AppLanguage.simplifiedChinese.rawValue
     var themeMode = ThemeMode.system.rawValue
+    var fontScalePercent: Int?
     var aiConfiguration = AIConfiguration()
     var aiModelPresets: [AIModelPreset] = []
     var selectedAIModelID: UUID?
 
     private enum CodingKeys: String, CodingKey {
-        case currencyCode, language, themeMode, aiConfiguration, aiModelPresets, selectedAIModelID
+        case currencyCode, language, themeMode, fontScalePercent, aiConfiguration, aiModelPresets, selectedAIModelID
     }
 
     init(
         currencyCode: String = "USD",
         language: String = AppLanguage.simplifiedChinese.rawValue,
         themeMode: String = ThemeMode.system.rawValue,
+        fontScalePercent: Int? = 100,
         aiConfiguration: AIConfiguration = AIConfiguration(),
         aiModelPresets: [AIModelPreset] = [],
         selectedAIModelID: UUID? = nil
@@ -40,6 +42,7 @@ struct StoredSettings: Codable, Equatable, Sendable {
         self.currencyCode = currencyCode
         self.language = language
         self.themeMode = themeMode
+        self.fontScalePercent = fontScalePercent
         self.aiConfiguration = aiConfiguration
         self.aiModelPresets = aiModelPresets
         self.selectedAIModelID = selectedAIModelID
@@ -50,6 +53,7 @@ struct StoredSettings: Codable, Equatable, Sendable {
         currencyCode = try container.decodeIfPresent(String.self, forKey: .currencyCode) ?? "USD"
         language = try container.decodeIfPresent(String.self, forKey: .language) ?? AppLanguage.simplifiedChinese.rawValue
         themeMode = try container.decodeIfPresent(String.self, forKey: .themeMode) ?? ThemeMode.system.rawValue
+        fontScalePercent = try container.decodeIfPresent(Int.self, forKey: .fontScalePercent)
         aiConfiguration = try container.decodeIfPresent(AIConfiguration.self, forKey: .aiConfiguration) ?? AIConfiguration()
         aiModelPresets = try container.decodeIfPresent([AIModelPreset].self, forKey: .aiModelPresets) ?? []
         selectedAIModelID = try container.decodeIfPresent(UUID.self, forKey: .selectedAIModelID)

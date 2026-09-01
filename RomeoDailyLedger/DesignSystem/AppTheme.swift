@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 struct AppColor: Equatable, Sendable {
@@ -27,6 +28,21 @@ enum ThemeMode: String, CaseIterable, Identifiable, Sendable {
 }
 
 enum ResolvedTheme: String, Sendable { case light, dark }
+
+enum AppAppearancePolicy {
+    static func appearanceName(for mode: ThemeMode) -> NSAppearance.Name? {
+        switch mode {
+        case .system: nil
+        case .light: .aqua
+        case .dark: .darkAqua
+        }
+    }
+
+    @MainActor static func apply(_ mode: ThemeMode, application: NSApplication = .shared) {
+        application.appearance = appearanceName(for: mode).flatMap(NSAppearance.init(named:))
+        application.windows.forEach { $0.contentView?.viewDidChangeEffectiveAppearance() }
+    }
+}
 
 struct AppTheme: Equatable, Sendable {
     let canvas: AppColor

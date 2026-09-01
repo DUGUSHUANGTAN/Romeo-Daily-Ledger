@@ -23,6 +23,7 @@ final class AppPreferences {
         static let currencyCode = "preferences.currencyCode"
         static let language = "preferences.language"
         static let themeMode = "preferences.themeMode"
+        static let fontScalePercent = "preferences.fontScalePercent"
         static let aiConfiguration = "preferences.aiConfiguration"
     }
 
@@ -47,6 +48,18 @@ final class AppPreferences {
 
     var themeMode: ThemeMode {
         didSet { persist() }
+    }
+
+    var fontScalePercent: Int {
+        didSet {
+            let normalized = Self.normalizedFontScalePercent(fontScalePercent)
+            if normalized != fontScalePercent {
+                fontScalePercent = normalized
+                return
+            }
+            AppTypography.currentScalePercent = normalized
+            persist()
+        }
     }
 
     var aiConfiguration: AIConfiguration {
@@ -88,6 +101,7 @@ final class AppPreferences {
         currencyCode = Self.normalizedCurrencyCode(stored?.currencyCode ?? defaults.string(forKey: Key.currencyCode) ?? "USD")
         language = AppLanguage(rawValue: stored?.language ?? defaults.string(forKey: Key.language) ?? "") ?? .simplifiedChinese
         themeMode = ThemeMode(rawValue: stored?.themeMode ?? defaults.string(forKey: Key.themeMode) ?? "") ?? .system
+        fontScalePercent = Self.normalizedFontScalePercent(stored?.fontScalePercent ?? defaults.integer(forKey: Key.fontScalePercent))
         if let configuration = stored?.aiConfiguration {
             aiConfiguration = configuration
         } else if let data = defaults.data(forKey: Key.aiConfiguration),
@@ -99,8 +113,9 @@ final class AppPreferences {
         aiModelPresets = stored?.aiModelPresets ?? []
         selectedAIModelID = stored?.selectedAIModelID
         isLoading = false
+        AppTypography.currentScalePercent = fontScalePercent
         persist()
-        [Key.currencyCode, Key.language, Key.themeMode, "preferences.typographyStyle", "preferences.motionIntensity", Key.aiConfiguration].forEach(defaults.removeObject)
+        [Key.currencyCode, Key.language, Key.themeMode, Key.fontScalePercent, "preferences.typographyStyle", "preferences.motionIntensity", Key.aiConfiguration].forEach(defaults.removeObject)
     }
 
     private func persist() {
@@ -109,6 +124,7 @@ final class AppPreferences {
             currencyCode: currencyCode,
             language: language.rawValue,
             themeMode: themeMode.rawValue,
+            fontScalePercent: fontScalePercent,
             aiConfiguration: aiConfiguration,
             aiModelPresets: aiModelPresets,
             selectedAIModelID: selectedAIModelID
@@ -118,6 +134,12 @@ final class AppPreferences {
     private static func normalizedCurrencyCode(_ value: String) -> String {
         let normalized = value.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         return normalized.isEmpty ? "USD" : String(normalized.prefix(3))
+    }
+
+    private static func normalizedFontScalePercent(_ value: Int) -> Int {
+        guard value != 0 else { return 100 }
+        let clamped = min(max(value, 80), 140)
+        return Int((Double(clamped) / 5).rounded()) * 5
     }
 }
 

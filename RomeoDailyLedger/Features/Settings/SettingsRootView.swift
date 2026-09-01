@@ -118,13 +118,7 @@ private final class AppearanceHostingView: NSView {
     }
 
     func applyAppearance() {
-        switch mode {
-        case .system:
-            window?.appearance = nil
-        case .light:
-            window?.appearance = NSAppearance(named: .aqua)
-        case .dark:
-            window?.appearance = NSAppearance(named: .darkAqua)
-        }
+        window?.appearance = AppAppearancePolicy.appearanceName(for: mode).flatMap(NSAppearance.init(named:))
+        window?.contentView?.viewDidChangeEffectiveAppearance()
     }
 }
