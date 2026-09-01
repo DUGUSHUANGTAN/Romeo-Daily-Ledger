@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 struct SettingsRootView: View {
@@ -11,6 +12,7 @@ struct SettingsRootView: View {
     var body: some View {
         @Bindable var preferences = dependencies.preferences
         SettingsContentView(dependencies: dependencies)
+            .background { WindowAppearanceBridge(mode: preferences.themeMode) }
             .preferredColorScheme(preferredScheme(for: preferences.themeMode))
     }
 
@@ -30,19 +32,14 @@ private struct SettingsContentView: View {
         @Bindable var preferences = dependencies.preferences
         let resolved = preferences.themeMode.resolve(systemIsDark: colorScheme == .dark)
         let theme = resolved == .dark ? AppTheme.dark : AppTheme.light
+        let motion = MotionPolicy.navigation(systemReduceMotion: systemReduceMotion)
 
         NavigationSplitView {
             List(Page.allCases, selection: $selectedPage) { page in
                 Text(title(for: page, language: preferences.language))
                     .tag(page)
                     .accessibilityIdentifier("settings-page-\(page.rawValue)")
-                    .foregroundStyle(selectedPage == page ? theme.selectionForeground.color : theme.primaryText.color)
                     .frame(minHeight: 34)
-                    .listRowBackground(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(selectedPage == page ? theme.primaryAccent.color : Color.clear)
-                            .padding(.vertical, 2)
-                    )
             }
             .navigationTitle(AppLocalization.text("nav.settings.title", language: preferences.language))
             .listStyle(.sidebar)
@@ -61,9 +58,12 @@ private struct SettingsContentView: View {
                 case .ai:
                     AISettingsView(preferences: preferences, client: dependencies.aiClient)
                 case .data:
-                    DataSettingsView(repository: dependencies.repository, language: preferences.language, currencyCode: preferences.currencyCode)
+                    DataSettingsView(repository: dependencies.repository, storage: dependencies.storage, language: preferences.language, currencyCode: preferences.currencyCode)
                 }
             }
+            .id(selectedPage)
+            .transition(.opacity)
+            .animation(pageAnimation(motion), value: selectedPage)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(theme.canvas.color)
         }
@@ -79,4 +79,43 @@ private struct SettingsContentView: View {
         AppLocalization.text("settings.\(page.rawValue).title", language: language)
     }
 
+    private func pageAnimation(_ motion: MotionPolicy) -> Animation? {
+        motion.effectiveIntensity == 0 ? nil : .easeOut(duration: motion.duration)
+    }
+
+}
+
+private struct WindowAppearanceBridge: NSViewRepresentable {
+    let mode: ThemeMode
+
+    func makeNSView(context: Context) -> AppearanceHostingView {
+        let view = AppearanceHostingView()
+        view.mode = mode
+        return view
+    }
+
+    func updateNSView(_ view: AppearanceHostingView, context: Context) {
+        view.mode = mode
+        view.applyAppearance()
+    }
+}
+
+private final class AppearanceHostingView: NSView {
+    var mode: ThemeMode = .system
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        applyAppearance()
+    }
+
+    func applyAppearance() {
+        switch mode {
+        case .system:
+            window?.appearance = nil
+        case .light:
+            window?.appearance = NSAppearance(named: .aqua)
+        case .dark:
+            window?.appearance = NSAppearance(named: .darkAqua)
+        }
+    }
 }

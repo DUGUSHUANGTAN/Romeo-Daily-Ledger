@@ -12,4 +12,8 @@ struct MotionPolicy: Equatable, Sendable {
     var effectiveIntensity: Int { systemReduceMotion ? 0 : requestedIntensity }
     var duration: TimeInterval { effectiveIntensity == 0 ? 0 : 0.12 + (Double(effectiveIntensity) / 100 * 0.16) }
     var usesSpring: Bool { effectiveIntensity >= 50 }
+
+    static func navigation(systemReduceMotion: Bool) -> MotionPolicy {
+        MotionPolicy(slider: 42, systemReduceMotion: systemReduceMotion)
+    }
 }

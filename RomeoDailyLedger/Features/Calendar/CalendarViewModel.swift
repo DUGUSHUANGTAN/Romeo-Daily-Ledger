@@ -16,6 +16,12 @@ final class CalendarViewModel {
     var displayedMonth: Date
     var selectedDate: Date
 
+    static func validatedYear(from text: String) -> Int? {
+        guard let year = Int(text.trimmingCharacters(in: .whitespacesAndNewlines)),
+              supportedYears.contains(year) else { return nil }
+        return year
+    }
+
     init(
         calendar: Calendar = .autoupdatingCurrent,
         timeZone: TimeZone = .autoupdatingCurrent,

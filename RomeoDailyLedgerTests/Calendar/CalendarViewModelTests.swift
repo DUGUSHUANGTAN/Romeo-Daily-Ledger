@@ -5,6 +5,12 @@ import Testing
 @Suite("CalendarViewModel")
 @MainActor
 struct CalendarViewModelTests {
+    @Test func manuallyEnteredYearAcceptsValidTextAndRejectsInvalidText() {
+        #expect(CalendarViewModel.validatedYear(from: "2026") == 2026)
+        #expect(CalendarViewModel.validatedYear(from: " 2001 ") == 2001)
+        #expect(CalendarViewModel.validatedYear(from: "twenty") == nil)
+        #expect(CalendarViewModel.validatedYear(from: "2200") == nil)
+    }
     private let shanghai = TimeZone(identifier: "Asia/Shanghai")!
 
     @Test func selectedDayUsesLocalCalendarBoundaries() throws {

@@ -7,6 +7,8 @@ struct CalendarView: View {
     @State private var entries: [LedgerEntry] = []
     @State private var errorMessage: String?
     @State private var editingEntry: LedgerEntry?
+    @State private var yearText = ""
+    @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
     let repository: LedgerRepository
     let theme: AppTheme
     let typography: AppTypography.Style
@@ -15,31 +17,30 @@ struct CalendarView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
-            HStack {
+            VStack(alignment: .leading, spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(AppLocalization.text("nav.calendar.title", language: language)).font(AppTypography.display(typography))
                     Text(model.displayedMonth, format: .dateTime.year().month(.wide))
                         .font(AppTypography.body(typography))
                         .foregroundStyle(theme.secondaryText.color)
                 }
-                Spacer()
-                Picker(AppLocalization.text("calendar.year", language: language), selection: yearBinding) {
-                    ForEach(CalendarViewModel.supportedYears, id: \.self) { Text(String($0)).tag($0) }
+                HStack(spacing: 10) {
+                    TextField(AppLocalization.text("calendar.year", language: language), text: $yearText)
+                        .labelsHidden()
+                        .frame(width: 72)
+                        .accessibilityIdentifier("calendar-year")
+                        .onSubmit { commitYear() }
+                    Picker(AppLocalization.text("calendar.month", language: language), selection: monthBinding) {
+                        ForEach(1...12, id: \.self) { Text(model.calendar.monthSymbols[$0 - 1]).tag($0) }
+                    }
+                    .labelsHidden().frame(width: 110).accessibilityIdentifier("calendar-month")
+                    Button(AppLocalization.text("button.today", language: language)) {
+                        model.selectToday()
+                        Task { await loadEntries() }
+                    }
+                    .accessibilityIdentifier("calendar-today")
+                    Spacer(minLength: 0)
                 }
-                .labelsHidden().frame(width: 92).accessibilityIdentifier("calendar-year")
-                Picker(AppLocalization.text("calendar.month", language: language), selection: monthBinding) {
-                    ForEach(1...12, id: \.self) { Text(model.calendar.monthSymbols[$0 - 1]).tag($0) }
-                }
-                .labelsHidden().frame(width: 110).accessibilityIdentifier("calendar-month")
-                Button(AppLocalization.text("button.previousMonth", language: language)) { model.moveMonth(by: -1) }
-                    .accessibilityIdentifier("calendar-previous-month")
-                Button(AppLocalization.text("button.today", language: language)) {
-                    model.selectToday()
-                    Task { await loadEntries() }
-                }
-                .accessibilityIdentifier("calendar-today")
-                Button(AppLocalization.text("button.nextMonth", language: language)) { model.moveMonth(by: 1) }
-                    .accessibilityIdentifier("calendar-next-month")
             }
             LazyVGrid(columns: columns, spacing: 6) {
                 ForEach(weekdaySymbols, id: \.self) { symbol in
@@ -56,6 +57,7 @@ struct CalendarView: View {
                             .background(model.calendar.isDate(day.date, inSameDayAs: model.selectedDate) ? theme.primaryAccent.color.opacity(0.18) : Color.clear, in: RoundedRectangle(cornerRadius: 8))
                     }
                     .buttonStyle(.plain)
+                    .animation(selectionAnimation, value: model.selectedDate)
                     .accessibilityLabel(day.date.formatted(date: .long, time: .omitted))
                     .accessibilityAddTraits(model.calendar.isDate(day.date, inSameDayAs: model.selectedDate) ? .isSelected : [])
                     .accessibilityValue(AppLocalization.text(model.calendar.isDate(day.date, inSameDayAs: model.selectedDate) ? "accessibility.selected" : "accessibility.notSelected", language: language))
@@ -122,8 +124,10 @@ struct CalendarView: View {
         .background(theme.canvas.color)
         .task {
             try? await repository.seedDefaultsIfNeeded()
+            synchronizeYearText()
             await loadEntries()
         }
+        .onChange(of: model.displayedMonth) { _, _ in synchronizeYearText() }
         .sheet(item: $editingEntry) { entry in
             EntryEditorView(entry: entry, repository: repository, theme: theme, typography: typography) {
                 await loadEntries()
@@ -137,8 +141,25 @@ struct CalendarView: View {
         return Array(symbols[split...] + symbols[..<split])
     }
 
-    private var yearBinding: Binding<Int> { Binding(get: { model.calendar.component(.year, from: model.displayedMonth) }, set: { model.select(year: $0, month: model.calendar.component(.month, from: model.displayedMonth)); Task { await loadEntries() } }) }
     private var monthBinding: Binding<Int> { Binding(get: { model.calendar.component(.month, from: model.displayedMonth) }, set: { model.select(year: model.calendar.component(.year, from: model.displayedMonth), month: $0); Task { await loadEntries() } }) }
+
+    private var selectionAnimation: Animation? {
+        let policy = MotionPolicy.navigation(systemReduceMotion: systemReduceMotion)
+        return policy.effectiveIntensity == 0 ? nil : .easeOut(duration: policy.duration)
+    }
+
+    private func synchronizeYearText() {
+        yearText = String(model.calendar.component(.year, from: model.displayedMonth))
+    }
+
+    private func commitYear() {
+        guard let year = CalendarViewModel.validatedYear(from: yearText) else {
+            synchronizeYearText()
+            return
+        }
+        model.select(year: year, month: model.calendar.component(.month, from: model.displayedMonth))
+        Task { await loadEntries() }
+    }
 
     private func loadEntries() async {
         do {

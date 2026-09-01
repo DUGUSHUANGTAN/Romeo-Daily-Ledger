@@ -8,7 +8,7 @@ struct DesignSystemTests {
         #expect(AppTheme.light.primaryAccent.hex == "1F5B4A")
         #expect(AppTheme.light.secondaryAccent.hex == "E89769")
         #expect(AppTheme.dark.canvas.hex == "161B21")
-        #expect(AppTheme.dark.primaryAccent.hex == "2A6655")
+        #expect(AppTheme.dark.primaryAccent.hex == "B8E78C")
         #expect(AppTheme.light.selectionForeground.hex == "F7FAF8")
         #expect(AppTheme.dark.selectionForeground.hex == "F7FAF8")
     }
@@ -38,6 +38,15 @@ struct DesignSystemTests {
 
     @Test func reduceMotionOverridesSlider() {
         #expect(MotionPolicy(slider: 100, systemReduceMotion: true).effectiveIntensity == 0)
+    }
+
+    @Test func navigationMotionIsTactileButRespectsReducedMotion() {
+        #expect(MotionPolicy.navigation(systemReduceMotion: false).effectiveIntensity > 0)
+        #expect(MotionPolicy.navigation(systemReduceMotion: true).effectiveIntensity == 0)
+    }
+
+    @Test func darkInteractiveTextUsesThePreviousLighterAccent() {
+        #expect(AppTheme.dark.primaryAccent.hex == "B8E78C")
     }
 
     @Test func sidebarHasTheFiveApprovedDestinationsAndLucideIcons() {

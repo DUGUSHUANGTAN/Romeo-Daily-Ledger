@@ -26,7 +26,7 @@ enum ThemeMode: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
-enum ResolvedTheme: Sendable { case light, dark }
+enum ResolvedTheme: String, Sendable { case light, dark }
 
 struct AppTheme: Equatable, Sendable {
     let canvas: AppColor
@@ -40,5 +40,5 @@ struct AppTheme: Equatable, Sendable {
     let divider: AppColor
 
     static let light = AppTheme(canvas: AppColor(hex: "FFFDF8"), chrome: AppColor(hex: "EEE7DA"), primaryText: AppColor(hex: "28241E"), secondaryText: AppColor(hex: "625B50"), primaryAccent: AppColor(hex: "1F5B4A"), selectionForeground: AppColor(hex: "F7FAF8"), secondaryAccent: AppColor(hex: "E89769"), surface: AppColor(hex: "F3EDE1"), divider: AppColor(hex: "D7CDBC"))
-    static let dark = AppTheme(canvas: AppColor(hex: "161B21"), chrome: AppColor(hex: "101318"), primaryText: AppColor(hex: "EEF1F4"), secondaryText: AppColor(hex: "AAB2B9"), primaryAccent: AppColor(hex: "2A6655"), selectionForeground: AppColor(hex: "F7FAF8"), secondaryAccent: AppColor(hex: "839A72"), surface: AppColor(hex: "20262D"), divider: AppColor(hex: "343D46"))
+    static let dark = AppTheme(canvas: AppColor(hex: "161B21"), chrome: AppColor(hex: "101318"), primaryText: AppColor(hex: "EEF1F4"), secondaryText: AppColor(hex: "AAB2B9"), primaryAccent: AppColor(hex: "B8E78C"), selectionForeground: AppColor(hex: "F7FAF8"), secondaryAccent: AppColor(hex: "839A72"), surface: AppColor(hex: "20262D"), divider: AppColor(hex: "343D46"))
 }

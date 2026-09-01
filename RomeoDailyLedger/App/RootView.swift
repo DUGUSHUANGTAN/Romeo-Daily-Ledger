@@ -87,7 +87,7 @@ private struct RootContentView: View {
         @Bindable var preferences = dependencies.preferences
         let resolved = preferences.themeMode.resolve(systemIsDark: colorScheme == .dark)
         let theme = resolved == .dark ? AppTheme.dark : AppTheme.light
-        let motion = MotionPolicy(slider: 0, systemReduceMotion: systemReduceMotion)
+        let motion = MotionPolicy.navigation(systemReduceMotion: systemReduceMotion)
 
         NavigationSplitView {
             List(SidebarDestination.allCases, selection: $dependencies.selectedDestination) { destination in
@@ -96,16 +96,9 @@ private struct RootContentView: View {
                         Text(destination.localizedTitle(language: preferences.language))
                     } icon: {
                         LucideIconView(icon: destination.icon)
-                            .foregroundStyle(dependencies.selectedDestination == destination ? theme.selectionForeground.color : theme.primaryText.color)
                     }
-                    .foregroundStyle(dependencies.selectedDestination == destination ? theme.selectionForeground.color : theme.primaryText.color)
                     .accessibilityLabel(destination.localizedTitle(language: preferences.language))
                 }
-                .listRowBackground(
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(dependencies.selectedDestination == destination ? theme.primaryAccent.color : Color.clear)
-                        .padding(.vertical, 2)
-                )
                 .frame(minHeight: 34)
                 .accessibilityIdentifier("sidebar-\(destination.rawValue)")
             }
@@ -115,18 +108,25 @@ private struct RootContentView: View {
             .listStyle(.sidebar)
             .navigationSplitViewColumnWidth(min: 190, ideal: 220, max: 260)
         } detail: {
-            switch dependencies.selectedDestination {
-            case .ledger:
-                LedgerView(repository: dependencies.repository, deletionUndoCoordinator: dependencies.deletionUndoCoordinator, theme: theme, typography: .system)
-            case .calendar:
-                CalendarView(repository: dependencies.repository, theme: theme, typography: .system)
-            case .insights:
-                InsightsView(repository: dependencies.repository, theme: theme, typography: .system, motion: motion)
-            case .settings:
-                SettingsRootView(dependencies: dependencies)
-            case .aiAssistant:
-                AILedgerAssistantView(dependencies: dependencies, theme: theme, typography: .system)
+            Group {
+                switch dependencies.selectedDestination {
+                case .ledger:
+                    LedgerView(repository: dependencies.repository, deletionUndoCoordinator: dependencies.deletionUndoCoordinator, theme: theme, typography: .system)
+                case .calendar:
+                    CalendarView(repository: dependencies.repository, theme: theme, typography: .system)
+                case .insights:
+                    InsightsView(repository: dependencies.repository, theme: theme, typography: .system, motion: motion)
+                case .settings:
+                    SettingsRootView(dependencies: dependencies)
+                case .aiAssistant:
+                    AILedgerAssistantView(dependencies: dependencies, theme: theme, typography: .system)
+                }
             }
+            .id(dependencies.selectedDestination)
+            .transition(.opacity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(theme.canvas.color)
+            .animation(animation(for: motion), value: dependencies.selectedDestination)
         }
         .tint(theme.primaryAccent.color)
         .environment(\.locale, preferences.language.locale)

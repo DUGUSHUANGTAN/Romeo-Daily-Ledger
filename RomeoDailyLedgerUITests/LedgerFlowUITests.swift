@@ -94,6 +94,7 @@ final class LedgerFlowUITests: XCTestCase {
         XCTAssertTrue(calendarEntry.label.contains("支出"))
         calendarEntry.click()
         XCTAssertTrue(app.textFields["editor-amount"].waitForExistence(timeout: 2))
+        XCTAssertEqual(app.staticTexts.matching(NSPredicate(format: "label == %@", "分类")).count, 1)
     }
 
     func testFailedInputKeepsContents() {
@@ -117,8 +118,8 @@ final class LedgerFlowUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["insights-month-summary"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.staticTexts["insights-monthly-empty-state"].exists)
         XCTAssertTrue(app.staticTexts["insights-category-empty-state"].exists)
-        XCTAssertTrue(app.buttons["insights-previous-month"].exists)
-        XCTAssertTrue(app.buttons["insights-next-month"].exists)
+        XCTAssertFalse(app.buttons["insights-previous-month"].exists)
+        XCTAssertFalse(app.buttons["insights-next-month"].exists)
     }
 
     func testAllEntriesReplacesOnlyDetailAndReturnsToLedger() {
@@ -144,14 +145,18 @@ final class LedgerFlowUITests: XCTestCase {
         XCTAssertTrue(app.textFields["editor-amount"].waitForExistence(timeout: 2))
     }
 
-    func testCalendarAndInsightsExposeBoundedMonthControls() {
+    func testCalendarAndInsightsUseTypedYearsWithoutAdjacentMonthButtons() {
         let app = launchApp()
         app.typeKey("2", modifierFlags: .command)
-        XCTAssertTrue(app.popUpButtons["calendar-year"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.textFields["calendar-year"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.popUpButtons["calendar-month"].exists)
+        XCTAssertFalse(app.buttons["calendar-previous-month"].exists)
+        XCTAssertFalse(app.buttons["calendar-next-month"].exists)
         app.typeKey("3", modifierFlags: .command)
-        XCTAssertTrue(app.popUpButtons["insights-year"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.textFields["insights-year"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.popUpButtons["insights-month"].exists)
+        XCTAssertFalse(app.buttons["insights-previous-month"].exists)
+        XCTAssertFalse(app.buttons["insights-next-month"].exists)
         XCTAssertTrue(app.buttons["insights-current-month"].exists)
     }
 

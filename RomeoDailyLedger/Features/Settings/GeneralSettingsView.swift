@@ -6,19 +6,12 @@ struct GeneralSettingsView: View {
     let storage: StorageCoordinator
     let repository: LedgerRepository
     @State private var showingUpdateCheck = false
-    @State private var showingEraseConfirmation = false
     @State private var storageMessage: String?
-    @State private var eraseMessage: String?
-    private let commonCurrencies = ["CNY", "USD", "EUR", "GBP", "JPY", "HKD"]
 
     var body: some View {
         Form {
             Section(AppLocalization.text("settings.general.regional", language: preferences.language)) {
-                Picker(AppLocalization.text("settings.general.currency", language: preferences.language), selection: $preferences.currencyCode) {
-                    ForEach(commonCurrencies, id: \.self) { Text($0).tag($0) }
-                    if !commonCurrencies.contains(preferences.currencyCode) { Text(preferences.currencyCode).tag(preferences.currencyCode) }
-                }.frame(maxWidth: 220)
-                TextField(AppLocalization.text("settings.general.customCurrency", language: preferences.language), text: $preferences.currencyCode).frame(maxWidth: 180).accessibilityIdentifier("settings-currency")
+                CurrencyInputField(preferences: preferences)
                 Picker(AppLocalization.text("settings.general.language", language: preferences.language), selection: $preferences.language) {
                     Text(AppLocalization.text("language.zhHans", language: preferences.language)).tag(AppLanguage.simplifiedChinese)
                     Text(AppLocalization.text("language.en", language: preferences.language)).tag(AppLanguage.english)
@@ -34,10 +27,6 @@ struct GeneralSettingsView: View {
                 }
                 if let storageMessage { Text(storageMessage).foregroundStyle(.red) }
             }
-            Section {
-                Button(AppLocalization.text("settings.storage.erase", language: preferences.language), role: .destructive) { showingEraseConfirmation = true }
-                if let eraseMessage { Text(eraseMessage).foregroundStyle(.red) }
-            }
             Section(AppLocalization.text("settings.update.section", language: preferences.language)) {
                 Button(AppLocalization.text("settings.update.check", language: preferences.language)) { showingUpdateCheck = true }
                     .accessibilityIdentifier("settings-check-for-updates")
@@ -46,23 +35,55 @@ struct GeneralSettingsView: View {
         .formStyle(.grouped).navigationTitle(AppLocalization.text("settings.general.title", language: preferences.language)).padding(24)
         .accessibilityIdentifier("settings-general")
         .sheet(isPresented: $showingUpdateCheck) { UpdateCheckView(language: preferences.language) }
-        .confirmationDialog(AppLocalization.text("settings.storage.eraseConfirm", language: preferences.language), isPresented: $showingEraseConfirmation, titleVisibility: .visible) {
-            Button(AppLocalization.text("settings.storage.erase", language: preferences.language), role: .destructive) {
-                Task {
-                    do {
-                        try await repository.deleteAllEntries()
-                        try storage.removeManagedMigrationStaging()
-                        eraseMessage = nil
-                    } catch { eraseMessage = error.localizedDescription }
-                }
-            }
-            Button(AppLocalization.text("button.cancel", language: preferences.language), role: .cancel) {}
-        }
     }
 
     private func chooseLocation() {
         let panel = NSOpenPanel(); panel.canChooseDirectories = true; panel.canChooseFiles = false; panel.canCreateDirectories = true; panel.allowsMultipleSelection = false
         guard panel.runModal() == .OK, let parent = panel.url else { return }
         do { try storage.schedule(parent: parent); storageMessage = nil } catch { storageMessage = error.localizedDescription }
+    }
+}
+
+private struct CurrencyInputField: View {
+    @Bindable var preferences: AppPreferences
+    @State private var draft = ""
+    private let commonCurrencies = ["CNY", "USD", "EUR", "GBP", "JPY", "HKD"]
+
+    var body: some View {
+        HStack(spacing: 4) {
+            TextField(AppLocalization.text("settings.general.currency", language: preferences.language), text: $draft)
+                .textFieldStyle(.plain)
+                .onSubmit(acceptDraft)
+                .accessibilityIdentifier("settings-currency")
+            Menu {
+                ForEach(commonCurrencies, id: \.self) { currency in
+                    Button(currency) { select(currency) }
+                }
+            } label: {
+                Image(systemName: "chevron.up.chevron.down")
+                    .foregroundStyle(.secondary)
+                    .frame(width: 22, height: 22)
+            }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .accessibilityLabel(AppLocalization.text("settings.general.currency", language: preferences.language))
+            .accessibilityIdentifier("settings-currency-options")
+        }
+        .padding(.horizontal, 7)
+        .frame(width: 180, height: 24)
+        .background(.background, in: RoundedRectangle(cornerRadius: 5))
+        .overlay(RoundedRectangle(cornerRadius: 5).stroke(.quaternary))
+        .onAppear { draft = preferences.currencyCode }
+        .onChange(of: preferences.currencyCode) { _, value in draft = value }
+    }
+
+    private func acceptDraft() {
+        preferences.currencyCode = draft
+        draft = preferences.currencyCode
+    }
+
+    private func select(_ currency: String) {
+        draft = currency
+        acceptDraft()
     }
 }
