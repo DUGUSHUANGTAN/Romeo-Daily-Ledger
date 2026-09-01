@@ -123,23 +123,52 @@ struct AIClientTests {
         let answer = try await client.analyze(
             question: "Largest category?",
             scope: scope,
-            configuration: AIConfiguration(baseURL: URL(string: "https://example.test/v1")!, model: "ledger", allowsLedgerData: true, apiKey: "key")
+            configuration: AIConfiguration(baseURL: URL(string: "https://example.test/v1")!, model: "ledger", apiKey: "key")
         )
 
         #expect(answer == "Food was the largest category.")
     }
 
-    @Test func analysisRequiresExplicitLedgerPermission() async {
-        let client = AIClient(session: Self.session(data: Data(), status: 200))
+    @Test func analysisAlwaysReadsTheSuppliedLedgerScopeAndRequestsAConversationalAnswer() async throws {
+        let body = Data(#"{"choices":[{"message":{"role":"assistant","content":"You spent more on food this month."}}]}"#.utf8)
+        let client = AIClient(session: Self.session(data: body, status: 200))
         let scope = AIAnalysisScope(interval: DateInterval(start: .now, duration: 1), currencyCode: "USD", entries: [], categoryNames: [:])
 
-        await #expect(throws: AIClientError.ledgerDataPermissionRequired) {
-            try await client.analyze(
-                question: "Summary",
-                scope: scope,
-                configuration: AIConfiguration(baseURL: URL(string: "https://example.test/v1")!, model: "ledger", apiKey: "key")
+        let answer = try await client.analyze(
+            question: "Summary",
+            scope: scope,
+            configuration: AIConfiguration(baseURL: URL(string: "https://example.test/v1")!, model: "ledger", apiKey: "key")
+        )
+
+        #expect(answer == "You spent more on food this month.")
+        let request = try client.makeAnalysisRequest(
+            question: "Summary",
+            scope: scope,
+            configuration: AIConfiguration(baseURL: URL(string: "https://example.test/v1")!, model: "ledger", apiKey: "key")
+        )
+        let requestBody = String(data: try #require(request.httpBody), encoding: .utf8) ?? ""
+        #expect(requestBody.localizedCaseInsensitiveContains("natural conversation"))
+        #expect(requestBody.localizedCaseInsensitiveContains("concise"))
+    }
+
+    @Test func analysisIncludesCustomInstructionsFromSettings() async throws {
+        let body = Data(#"{"choices":[{"message":{"role":"assistant","content":"Answer"}}]}"#.utf8)
+        let client = AIClient(session: Self.session(data: body, status: 200))
+        let scope = AIAnalysisScope(interval: DateInterval(start: .now, duration: 1), currencyCode: "USD", entries: [], categoryNames: [:])
+
+        let request = try client.makeAnalysisRequest(
+            question: "Summary",
+            scope: scope,
+            configuration: AIConfiguration(
+                baseURL: URL(string: "https://example.test/v1")!,
+                model: "ledger",
+                apiKey: "key",
+                customInstructions: "Use a calm and encouraging tone."
             )
-        }
+        )
+
+        let requestBody = String(data: try #require(request.httpBody), encoding: .utf8) ?? ""
+        #expect(requestBody.contains("Use a calm and encouraging tone."))
     }
 
     @Test func insecureRemoteBaseURLIsRejectedBeforeSendingKey() async {

@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 struct AILedgerAssistantView: View {
@@ -39,12 +40,11 @@ struct AILedgerAssistantView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
-                Text(AppLocalization.text("ai.title", language: language))
-                    .font(AppTypography.display(typography))
-                Text(AppLocalization.text("ai.subtitle", language: language))
-                    .foregroundStyle(theme.secondaryText.color)
+        VStack(alignment: .leading, spacing: 18) {
+            Text(AppLocalization.text("ai.title", language: language))
+                .font(AppTypography.display(typography))
+            Text(AppLocalization.text("ai.subtitle", language: language))
+                .foregroundStyle(theme.secondaryText.color)
 
             HStack {
                 Button(AppLocalization.text("ai.mode.entry", language: language)) { mode = .entry }
@@ -71,15 +71,13 @@ struct AILedgerAssistantView: View {
             }
             if requestState.isLoading {
                 HStack {
-                    ProgressView()
+                    TasteSpinner(reduceMotion: reduceMotion)
                     Text(AppLocalization.text("ai.loading", language: language))
                 }
                 .accessibilityElement(children: .combine)
-                .transaction { if reduceMotion { $0.animation = nil } }
                 .accessibilityIdentifier("ai-loading")
             }
-                Spacer()
-            }
+            Spacer(minLength: 0)
         }
         .padding(28)
         .foregroundStyle(theme.primaryText.color)
@@ -101,10 +99,15 @@ struct AILedgerAssistantView: View {
 
     private var entryForm: some View {
         VStack(alignment: .leading, spacing: 12) {
+            MultilineSubmitTextEditor(
+                text: $prompt,
+                prompt: AppLocalization.text("ai.prompt", language: language),
+                minHeight: 112,
+                onSubmit: generate
+            )
+            .accessibilityIdentifier("ai-prompt")
             HStack {
-                TextField(AppLocalization.text("ai.prompt", language: language), text: $prompt)
-                    .textFieldStyle(.roundedBorder)
-                    .accessibilityIdentifier("ai-prompt")
+                Spacer()
                 Button(AppLocalization.text("ai.generate", language: language)) { generate() }
                     .buttonStyle(.borderedProminent)
                     .disabled(prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || requestTask != nil)
@@ -118,9 +121,13 @@ struct AILedgerAssistantView: View {
 
     private var analysisForm: some View {
         VStack(alignment: .leading, spacing: 14) {
-            TextField(AppLocalization.text("ai.analysis.question", language: language), text: $question)
-                .textFieldStyle(.roundedBorder)
-                .accessibilityIdentifier("ai-analysis-question")
+            MultilineSubmitTextEditor(
+                text: $question,
+                prompt: AppLocalization.text("ai.analysis.question", language: language),
+                minHeight: 96,
+                onSubmit: analyze
+            )
+            .accessibilityIdentifier("ai-analysis-question")
 
             HStack {
                 DatePicker(
@@ -140,36 +147,30 @@ struct AILedgerAssistantView: View {
             .accessibilityLabel(AppLocalization.text("ai.analysis.scope", language: language))
             .accessibilityIdentifier("ai-analysis-scope")
 
-            if !dependencies.preferences.aiConfiguration.allowsLedgerData {
-                Text(AppLocalization.text("ai.analysis.permissionRequired", language: language))
-                    .foregroundStyle(theme.secondaryText.color)
-                    .accessibilityIdentifier("ai-permission-scope")
-            }
-
             Button(AppLocalization.text("ai.analysis.run", language: language)) { analyze() }
                 .buttonStyle(.borderedProminent)
                 .disabled(
                     question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                        || !dependencies.preferences.aiConfiguration.allowsLedgerData
                         || requestTask != nil
                 )
                 .accessibilityIdentifier("ai-analyze")
 
             if let analysisResult {
-                GroupBox(AppLocalization.text("ai.analysis.result", language: language)) {
-                    ScrollView {
-                        Text(analysisResult)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .textSelection(.enabled)
-                    }
-                    .frame(maxHeight: 320)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(AppLocalization.text("ai.analysis.result", language: language))
+                        .font(.headline)
+                    AdaptiveAnalysisResult(text: analysisResult, surface: theme.surface.color)
                 }
+                .frame(maxHeight: .infinity, alignment: .top)
                 .accessibilityIdentifier("ai-analysis-result")
             }
         }
+        .frame(maxHeight: .infinity, alignment: .top)
     }
 
     private func generate() {
+        guard requestTask == nil,
+              !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         error = nil
         requestTask = Task { @MainActor in
             defer { requestTask = nil }
@@ -191,6 +192,8 @@ struct AILedgerAssistantView: View {
     }
 
     private func analyze() {
+        guard requestTask == nil,
+              !question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         error = nil
         requestTask = Task { @MainActor in
             defer { requestTask = nil }
@@ -228,6 +231,143 @@ struct AILedgerAssistantView: View {
                 self.error = localizedAIError(error, language: language)
             }
         }
+    }
+}
+
+enum AIAnalysisResultLayout {
+    static func shouldScroll(contentHeight: CGFloat, availableHeight: CGFloat) -> Bool {
+        contentHeight > availableHeight
+    }
+
+    static func contentHeight(for text: String, width: CGFloat) -> CGFloat {
+        let contentWidth = max(width - 24, 1)
+        let bounds = (text as NSString).boundingRect(
+            with: CGSize(width: contentWidth, height: .greatestFiniteMagnitude),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: [.font: NSFont.preferredFont(forTextStyle: .body)]
+        )
+        return max(44, ceil(bounds.height) + 24)
+    }
+}
+
+private struct AdaptiveAnalysisResult: View {
+    let text: String
+    let surface: Color
+
+    var body: some View {
+        GeometryReader { proxy in
+            let contentHeight = AIAnalysisResultLayout.contentHeight(for: text, width: proxy.size.width)
+            let availableHeight = max(proxy.size.height, 70)
+            let shouldScroll = AIAnalysisResultLayout.shouldScroll(
+                contentHeight: contentHeight,
+                availableHeight: availableHeight
+            )
+
+            Group {
+                if shouldScroll {
+                    ScrollView {
+                        resultText
+                    }
+                } else {
+                    resultText
+                        .frame(height: contentHeight, alignment: .top)
+                }
+            }
+            .frame(
+                maxWidth: .infinity,
+                maxHeight: shouldScroll ? .infinity : contentHeight,
+                alignment: .top
+            )
+            .background(surface, in: RoundedRectangle(cornerRadius: 10))
+        }
+        .frame(minHeight: 70, maxHeight: .infinity)
+    }
+
+    private var resultText: some View {
+        Text(text)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .fixedSize(horizontal: false, vertical: true)
+            .textSelection(.enabled)
+            .padding(12)
+    }
+}
+
+struct MultilineSubmitTextEditor: View {
+    @Environment(\.appLanguage) private var language
+    @Binding var text: String
+    let prompt: String
+    let minHeight: CGFloat
+    let onSubmit: () -> Void
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            if text.isEmpty {
+                Text(prompt)
+                    .foregroundStyle(.tertiary)
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 8)
+                    .allowsHitTesting(false)
+            }
+            TextEditor(text: $text)
+                .font(.body)
+                .scrollContentBackground(.hidden)
+                .padding(4)
+                .onKeyPress(.return, phases: .down) { keyPress in
+                    if !MultilineSubmitBehavior.shouldSubmit(
+                        shiftPressed: keyPress.modifiers.contains(.shift)
+                    ) {
+                        return .ignored
+                    }
+                    onSubmit()
+                    return .handled
+                }
+        }
+        .frame(height: minHeight)
+        .background(.background.opacity(0.72), in: RoundedRectangle(cornerRadius: 9))
+        .overlay {
+            RoundedRectangle(cornerRadius: 9)
+                .stroke(.separator, lineWidth: 1)
+        }
+        .help(AppLocalization.text("ai.multiline.submitHint", language: language))
+    }
+}
+
+enum MultilineSubmitBehavior {
+    static func shouldSubmit(shiftPressed: Bool) -> Bool {
+        !shiftPressed
+    }
+}
+
+struct TasteSpinner: View {
+    let reduceMotion: Bool
+    @State private var animating = false
+
+    var body: some View {
+        HStack(spacing: 4) {
+            ForEach(0..<3, id: \.self) { index in
+                Capsule(style: .continuous)
+                    .fill(Color.accentColor)
+                    .frame(width: 4, height: 12)
+                    .scaleEffect(y: reduceMotion ? 0.72 : (animating ? 1 : 0.45))
+                    .opacity(reduceMotion ? 0.8 : (animating ? 1 : 0.45))
+                    .animation(
+                        reduceMotion
+                            ? nil
+                            : .easeInOut(duration: 0.52)
+                                .repeatForever(autoreverses: true)
+                                .delay(Double(index) * 0.11),
+                        value: animating
+                    )
+            }
+        }
+        .frame(width: 22, height: 16)
+        .onAppear {
+            if !reduceMotion { animating = true }
+        }
+        .onChange(of: reduceMotion) { _, isReduced in
+            animating = !isReduced
+        }
+        .accessibilityHidden(true)
     }
 }
 
@@ -304,6 +444,7 @@ private struct AILedgerPreviewView: View {
                 .frame(width: 130)
                 TextField("0", value: $drafts[index].amount, format: .number)
                     .frame(width: 110)
+                    .onSubmit { save() }
                 Text(LedgerFormatting.amount(drafts[index].amount, currencyCode: currencyCode))
                     .accessibilityIdentifier("ai-draft-formatted-amount-\(index)")
                 DatePicker("", selection: $drafts[index].date, displayedComponents: .date)
@@ -319,6 +460,7 @@ private struct AILedgerPreviewView: View {
                     }
                 }
                 TextField(AppLocalization.text("entry.note", language: language), text: $drafts[index].note)
+                    .onSubmit { save() }
             }
         }
         .padding(12)
@@ -333,6 +475,7 @@ private struct AILedgerPreviewView: View {
     }
 
     private func save() {
+        guard !isSaving else { return }
         isSaving = true
         error = nil
         Task { @MainActor in

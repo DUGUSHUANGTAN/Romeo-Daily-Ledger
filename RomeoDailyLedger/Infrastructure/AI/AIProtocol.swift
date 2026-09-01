@@ -16,25 +16,25 @@ struct AIConfiguration: Codable, Equatable, Sendable {
     var protocolType: AIProtocol
     var baseURL: URL
     var model: String
-    var allowsLedgerData: Bool
     var apiKey: String
+    var customInstructions: String
 
     init(
         protocolType: AIProtocol = .chatCompletions,
         baseURL: URL = URL(string: "https://api.openai.com/v1")!,
         model: String = "",
-        allowsLedgerData: Bool = false,
-        apiKey: String = ""
+        apiKey: String = "",
+        customInstructions: String = ""
     ) {
         self.protocolType = protocolType
         self.baseURL = baseURL
         self.model = model
-        self.allowsLedgerData = allowsLedgerData
         self.apiKey = apiKey
+        self.customInstructions = customInstructions
     }
 
     private enum CodingKeys: String, CodingKey {
-        case protocolType, baseURL, model, allowsLedgerData, apiKey
+        case protocolType, baseURL, model, apiKey, customInstructions
     }
 
     init(from decoder: Decoder) throws {
@@ -42,8 +42,8 @@ struct AIConfiguration: Codable, Equatable, Sendable {
         protocolType = try container.decode(AIProtocol.self, forKey: .protocolType)
         baseURL = try container.decode(URL.self, forKey: .baseURL)
         model = try container.decode(String.self, forKey: .model)
-        allowsLedgerData = try container.decode(Bool.self, forKey: .allowsLedgerData)
         apiKey = try container.decodeIfPresent(String.self, forKey: .apiKey) ?? ""
+        customInstructions = try container.decodeIfPresent(String.self, forKey: .customInstructions) ?? ""
     }
 }
 

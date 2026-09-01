@@ -45,7 +45,6 @@ struct AppPreferencesTests {
             protocolType: .chatCompletions,
             baseURL: URL(string: "https://example.com/v1")!,
             model: "compatible-model",
-            allowsLedgerData: true,
             apiKey: "secret-value"
         )
 
@@ -57,6 +56,17 @@ struct AppPreferencesTests {
         let data = Data(#"{"protocolType":"chatCompletions","baseURL":"https:\/\/example.com\/v1","model":"legacy","allowsLedgerData":true}"#.utf8)
         let configuration = try JSONDecoder().decode(AIConfiguration.self, from: data)
         #expect(configuration.apiKey.isEmpty)
+        #expect(configuration.customInstructions.isEmpty)
+    }
+
+    @Test func customAIInstructionsPersistImmediately() {
+        let defaults = isolatedDefaults()
+        let store = temporaryStore()
+        let preferences = AppPreferences(defaults: defaults, settingsStore: store)
+        preferences.aiConfiguration.customInstructions = "Keep answers practical."
+
+        let restored = AppPreferences(defaults: defaults, settingsStore: store)
+        #expect(restored.aiConfiguration.customInstructions == "Keep answers practical.")
     }
 
     @Test func systemClockAndTimeZoneProvidersExposeInjectedContracts() {

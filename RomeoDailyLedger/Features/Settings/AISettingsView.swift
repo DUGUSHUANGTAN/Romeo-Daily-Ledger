@@ -5,7 +5,6 @@ struct AISettingsView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Bindable var preferences: AppPreferences
     @State private var baseURLText: String
-    @State private var apiKey: String
     @State private var status: String?
     @State private var requestState = AIRequestState()
     @State private var requestTask: Task<Void, Never>?
@@ -18,7 +17,6 @@ struct AISettingsView: View {
         self.preferences = preferences
         self.client = client
         _baseURLText = State(initialValue: preferences.aiConfiguration.baseURL.absoluteString)
-        _apiKey = State(initialValue: preferences.aiConfiguration.apiKey)
     }
 
     var body: some View {
@@ -36,28 +34,32 @@ struct AISettingsView: View {
 
                 TextField(AppLocalization.text("settings.ai.baseURL", language: language), text: $baseURLText)
                     .accessibilityIdentifier("settings-ai-base-url")
-                TextField(AppLocalization.text("settings.ai.apiKey", language: language), text: $apiKey)
+                    .onSubmit { testConnection() }
+                TextField(AppLocalization.text("settings.ai.apiKey", language: language), text: $preferences.apiKey)
                     .accessibilityIdentifier("settings-ai-api-key")
+                    .onSubmit { testConnection() }
                 TextField(
                     AppLocalization.text("settings.ai.model", language: language),
                     text: configurationBinding(\.model)
                 )
                 .accessibilityIdentifier("settings-ai-model")
-                Toggle(
-                    AppLocalization.text("settings.ai.allowLedger", language: language),
-                    isOn: configurationBinding(\.allowsLedgerData)
+                .onSubmit { testConnection() }
+
+                MultilineSubmitTextEditor(
+                    text: configurationBinding(\.customInstructions),
+                    prompt: AppLocalization.text("settings.ai.customInstructions", language: language),
+                    minHeight: 88,
+                    onSubmit: testConnection
                 )
+                .accessibilityIdentifier("settings-ai-custom-instructions")
 
                 HStack {
-                    Button(AppLocalization.text("settings.ai.saveKey", language: language)) { save() }
-                        .accessibilityIdentifier("settings-ai-save")
                     Button(AppLocalization.text("settings.ai.test", language: language)) { testConnection() }
                     .disabled(requestTask != nil)
                     .accessibilityIdentifier("settings-ai-test")
                     if requestState.isLoading {
-                        ProgressView()
+                        TasteSpinner(reduceMotion: reduceMotion)
                             .accessibilityLabel(AppLocalization.text("settings.ai.testing", language: language))
-                            .transaction { if reduceMotion { $0.animation = nil } }
                         Text(AppLocalization.text("settings.ai.testing", language: language))
                     }
                     if let status {
@@ -92,18 +94,7 @@ struct AISettingsView: View {
         }
         var configuration = preferences.aiConfiguration
         configuration.baseURL = url
-        configuration.apiKey = apiKey
         return configuration
-    }
-
-    private func save() {
-        do {
-            let configuration = try validatedConfiguration()
-            preferences.aiConfiguration = configuration
-            status = AppLocalization.text("settings.ai.saved", language: language)
-        } catch {
-            status = localizedAIError(error, language: language)
-        }
     }
 
     private func testConnection() {

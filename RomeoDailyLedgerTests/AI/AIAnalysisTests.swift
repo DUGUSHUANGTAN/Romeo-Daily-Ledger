@@ -4,6 +4,24 @@ import Testing
 
 @Suite("AI analysis filtering")
 struct AIAnalysisTests {
+    @Test(arguments: [(shiftPressed: false, expected: true), (shiftPressed: true, expected: false)])
+    func multilineReturnSubmitsUnlessShiftIsPressed(shiftPressed: Bool, expected: Bool) {
+        #expect(MultilineSubmitBehavior.shouldSubmit(shiftPressed: shiftPressed) == expected)
+    }
+
+    @Test(arguments: [
+        (content: CGFloat(80), available: CGFloat(120), expected: false),
+        (content: CGFloat(120), available: CGFloat(120), expected: false),
+        (content: CGFloat(121), available: CGFloat(120), expected: true)
+    ])
+    func analysisResultScrollsOnlyWhenContentExceedsAvailableSpace(
+        content: CGFloat,
+        available: CGFloat,
+        expected: Bool
+    ) {
+        #expect(AIAnalysisResultLayout.shouldScroll(contentHeight: content, availableHeight: available) == expected)
+    }
+
     @Test func filtersEntriesToRequestedRange() throws {
         let start = Date(timeIntervalSince1970: 0)
         let inside = LedgerEntry(kind: .expense, amount: 10, categoryID: UUID(), note: "inside", occurredAt: start.addingTimeInterval(10))

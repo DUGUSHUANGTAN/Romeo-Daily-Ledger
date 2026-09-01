@@ -90,22 +90,37 @@ struct AIClient: AIRequesting, Sendable {
         scope: AIAnalysisScope,
         configuration: AIConfiguration
     ) async throws -> String {
-        guard configuration.allowsLedgerData else {
-            throw AIClientError.ledgerDataPermissionRequired
-        }
+        let request = try makeAnalysisRequest(question: question, scope: scope, configuration: configuration)
+        return try await send(request, protocolType: configuration.protocolType)
+    }
+
+    func makeAnalysisRequest(
+        question: String,
+        scope: AIAnalysisScope,
+        configuration: AIConfiguration
+    ) throws -> URLRequest {
         let prompt = """
         \(question)
 
         Authorized ledger scope JSON:
         \(try scope.jsonString())
         """
-        let request = try authorizedRequest(
+        let customInstructions = configuration.customInstructions.trimmingCharacters(in: .whitespacesAndNewlines)
+        let styleInstructions = "Respond as a natural conversation, not as a statistics-only list. Be concise, practical, and friendly."
+        let instructions = [
+            "Analyze only the supplied ledger scope. State totals, categories, income versus expenses, and trends when relevant. Do not invent missing data.",
+            styleInstructions,
+            customInstructions.isEmpty ? nil : "User preferences: \(customInstructions)",
+            localTimeContext
+        ]
+        .compactMap { $0 }
+        .joined(separator: " ")
+        return try authorizedRequest(
             prompt: prompt,
-            instructions: "Analyze only the supplied ledger scope. State totals, categories, income versus expenses, and trends when relevant. Do not invent missing data. \(localTimeContext)",
+            instructions: instructions,
             configuration: configuration,
             expectsJSON: false
         )
-        return try await send(request, protocolType: configuration.protocolType)
     }
 
     private func authorizedRequest(

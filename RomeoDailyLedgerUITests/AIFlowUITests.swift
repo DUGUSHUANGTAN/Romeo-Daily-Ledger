@@ -5,11 +5,11 @@ final class AIFlowUITests: XCTestCase {
     func testAIEntryShowsPreviewAndSavesOnlyAfterConfirmation() {
         let app = launchApp()
         app.descendants(matching: .any)["sidebar-aiAssistant"].click()
-        let prompt = app.textFields["ai-prompt"]
+        let prompt = app.textViews["ai-prompt"]
         XCTAssertTrue(prompt.waitForExistence(timeout: 2))
         prompt.click()
         prompt.typeText("Lunch $25")
-        app.buttons["ai-generate"].click()
+        prompt.typeKey(.return, modifierFlags: [])
 
         XCTAssertTrue(app.descendants(matching: .any)["ai-preview"].waitForExistence(timeout: 2))
         app.descendants(matching: .any)["ai-preview-cancel"].click()
@@ -17,7 +17,7 @@ final class AIFlowUITests: XCTestCase {
         XCTAssertFalse(app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "UI Test Lunch")).firstMatch.exists)
 
         app.descendants(matching: .any)["sidebar-aiAssistant"].click()
-        let secondPrompt = app.textFields["ai-prompt"]
+        let secondPrompt = app.textViews["ai-prompt"]
         secondPrompt.click()
         secondPrompt.typeText("Lunch $25")
         app.buttons["ai-generate"].click()
@@ -31,13 +31,20 @@ final class AIFlowUITests: XCTestCase {
         XCTAssertTrue(saved.waitForExistence(timeout: 2))
     }
 
-    func testAIAnalysisDisplaysTheAuthorizedRangeBeforeRequest() {
+    func testAIAnalysisUsesMultilineQuestionAndAdaptiveResultWithoutPermissionGate() {
         let app = launchApp()
         app.descendants(matching: .any)["sidebar-aiAssistant"].click()
         app.buttons["ai-mode-analysis"].click()
 
         XCTAssertTrue(app.descendants(matching: .any)["ai-analysis-scope"].waitForExistence(timeout: 2))
-        XCTAssertFalse(app.buttons["ai-analyze"].isEnabled)
+        XCTAssertFalse(app.descendants(matching: .any)["ai-permission-scope"].exists)
+        let question = app.textViews["ai-analysis-question"]
+        XCTAssertTrue(question.waitForExistence(timeout: 2))
+        question.click()
+        question.typeText("How am I doing this month?")
+        XCTAssertTrue(app.buttons["ai-analyze"].isEnabled)
+        app.buttons["ai-analyze"].click()
+        XCTAssertTrue(app.descendants(matching: .any)["ai-analysis-result"].waitForExistence(timeout: 5))
     }
 
     func testAISettingsRunsConnectionTest() {
@@ -46,6 +53,15 @@ final class AIFlowUITests: XCTestCase {
         app.descendants(matching: .any)["settings-page-ai"].click()
 
         XCTAssertTrue(app.descendants(matching: .any)["settings-ai"].waitForExistence(timeout: 2))
+        XCTAssertFalse(app.switches["settings-ai-allow-ledger"].exists)
+        XCTAssertFalse(app.buttons["settings-ai-save"].exists)
+        XCTAssertTrue(app.textViews["settings-ai-custom-instructions"].waitForExistence(timeout: 2))
+        let apiKey = app.textFields["settings-ai-api-key"]
+        apiKey.click()
+        apiKey.typeText("auto-saved-key")
+        app.descendants(matching: .any)["settings-page-general"].click()
+        app.descendants(matching: .any)["settings-page-ai"].click()
+        XCTAssertEqual(app.textFields["settings-ai-api-key"].value as? String, "auto-saved-key")
         app.textFields["settings-ai-model"].click()
         app.textFields["settings-ai-model"].typeText("ui-test-model")
         app.buttons["settings-ai-test"].click()
