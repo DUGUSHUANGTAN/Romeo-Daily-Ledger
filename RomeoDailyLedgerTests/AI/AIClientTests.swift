@@ -151,7 +151,7 @@ struct AIClientTests {
         #expect(requestBody.localizedCaseInsensitiveContains("concise"))
     }
 
-    @Test func analysisIncludesCustomInstructionsFromSettings() async throws {
+    @Test func analysisUsesOnlyTheFixedInAppInstructions() async throws {
         let body = Data(#"{"choices":[{"message":{"role":"assistant","content":"Answer"}}]}"#.utf8)
         let client = AIClient(session: Self.session(data: body, status: 200))
         let scope = AIAnalysisScope(interval: DateInterval(start: .now, duration: 1), currencyCode: "USD", entries: [], categoryNames: [:])
@@ -162,13 +162,13 @@ struct AIClientTests {
             configuration: AIConfiguration(
                 baseURL: URL(string: "https://example.test/v1")!,
                 model: "ledger",
-                apiKey: "key",
-                customInstructions: "Use a calm and encouraging tone."
+                apiKey: "key"
             )
         )
 
         let requestBody = String(data: try #require(request.httpBody), encoding: .utf8) ?? ""
-        #expect(requestBody.contains("Use a calm and encouraging tone."))
+        #expect(requestBody.localizedCaseInsensitiveContains("natural conversation"))
+        #expect(!requestBody.contains("User preferences:"))
     }
 
     @Test func insecureRemoteBaseURLIsRejectedBeforeSendingKey() async {

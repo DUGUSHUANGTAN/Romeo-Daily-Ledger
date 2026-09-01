@@ -52,7 +52,6 @@ struct CategoryManagementView: View {
             }
         }
         .navigationTitle(AppLocalization.text("settings.categories.title", language: language))
-        .accessibilityIdentifier("settings-categories")
         .overlay(alignment: .bottomTrailing) {
             if isManaging {
                 Button(AppLocalization.text("button.deleteSelected", language: language)) {
@@ -184,6 +183,8 @@ private struct CategoryEntriesView: View {
     @State private var entries: [LedgerEntry] = []
     @State private var editingEntry: LedgerEntry?
     @State private var errorMessage: String?
+    @State private var selectedEntryIDs: Set<UUID> = []
+    @State private var isDeleteConfirmationPresented = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -193,28 +194,44 @@ private struct CategoryEntriesView: View {
                 Text(LedgerFormatting.categoryName(category, language: language)).font(.title2.weight(.semibold))
                 Spacer()
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("category-entries-header")
             if errorMessage != nil {
                 Text(AppLocalization.text("error.loadEntries", language: language)).foregroundStyle(.red)
             } else if entries.isEmpty {
-                Text(AppLocalization.text("ledger.empty.message", language: language))
+                Text(AppLocalization.text("state.empty", language: language))
+                    .font(.caption)
                     .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, minHeight: 180)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                    .accessibilityIdentifier("category-entries-empty")
             } else {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 14) {
                         ForEach(LedgerEntryGrouping.groups(entries)) { group in
                             Section {
                                 ForEach(group.entries) { entry in
-                                    Button { editingEntry = entry } label: {
-                                        HStack(spacing: 12) {
-                                            Text(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note)
-                                            Spacer()
-                                            Text(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode)).fontWeight(.semibold)
-                                        }
-                                        .padding(12)
-                                        .background(theme.surface.color, in: RoundedRectangle(cornerRadius: 10))
+                                    HStack(spacing: 12) {
+                                        Text(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note)
+                                        Spacer()
+                                        Text(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode)).fontWeight(.semibold)
                                     }
-                                    .buttonStyle(.plain)
+                                    .padding(12)
+                                    .background(selectedEntryIDs.contains(entry.id) ? theme.primaryAccent.color.opacity(0.16) : theme.surface.color, in: RoundedRectangle(cornerRadius: 10))
+                                    .contentShape(Rectangle())
+                                    .gesture(
+                                        LongPressGesture(minimumDuration: 0.5)
+                                            .exclusively(before: TapGesture())
+                                            .onEnded { value in
+                                                switch value {
+                                                case .first: selectedEntryIDs.insert(entry.id)
+                                                case .second:
+                                                    if selectedEntryIDs.isEmpty { editingEntry = entry }
+                                                    else { toggleSelection(entry.id) }
+                                                }
+                                            }
+                                    )
+                                    .accessibilityAddTraits(.isButton)
+                                    .accessibilityAddTraits(selectedEntryIDs.contains(entry.id) ? .isSelected : [])
                                     .accessibilityIdentifier("category-entry-\(entry.id.uuidString.lowercased())")
                                 }
                             } header: {
@@ -225,9 +242,17 @@ private struct CategoryEntriesView: View {
                 }
                 .accessibilityIdentifier("category-entry-list")
             }
+            if !selectedEntryIDs.isEmpty {
+                SelectionSummaryBar(summary: selectionSummary, theme: theme, typography: .system) {
+                    isDeleteConfirmationPresented = true
+                } onCancel: {
+                    selectedEntryIDs.removeAll()
+                }
+                .accessibilityIdentifier("category-selection-summary")
+            }
         }
         .padding(28)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .foregroundStyle(theme.primaryText.color)
         .background(theme.canvas.color)
         .task { await loadEntries() }
@@ -236,13 +261,42 @@ private struct CategoryEntriesView: View {
                 await loadEntries()
             }
         }
+        .confirmationDialog(
+            AppLocalization.text("ledger.delete.confirmTitle", language: language),
+            isPresented: $isDeleteConfirmationPresented,
+            titleVisibility: .visible
+        ) {
+            Button(AppLocalization.text("button.confirmDelete", language: language), role: .destructive) {
+                Task { await deleteSelection() }
+            }
+            .accessibilityIdentifier("confirm-delete-selected")
+            Button(AppLocalization.text("button.cancel", language: language), role: .cancel) { }
+        }
     }
 
     private var theme: AppTheme { colorScheme == .dark ? .dark : .light }
 
+    private var selectionSummary: SelectionSummary {
+        SelectionSummary(entries: entries.filter { selectedEntryIDs.contains($0.id) })
+    }
+
+    private func toggleSelection(_ id: UUID) {
+        if selectedEntryIDs.contains(id) { selectedEntryIDs.remove(id) }
+        else { selectedEntryIDs.insert(id) }
+    }
+
+    private func deleteSelection() async {
+        do {
+            try await repository.delete(ids: selectedEntryIDs)
+            selectedEntryIDs.removeAll()
+            await loadEntries()
+        } catch { errorMessage = String(describing: error) }
+    }
+
     private func loadEntries() async {
         do {
             entries = try await repository.allEntries().filter { $0.categoryID == category.id }
+            selectedEntryIDs.formIntersection(Set(entries.map(\.id)))
             errorMessage = nil
         } catch { errorMessage = String(describing: error) }
     }

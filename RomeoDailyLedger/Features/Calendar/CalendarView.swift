@@ -16,7 +16,8 @@ struct CalendarView: View {
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 6), count: 7)
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
             VStack(alignment: .leading, spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(AppLocalization.text("nav.calendar.title", language: language)).font(AppTypography.display(typography))
@@ -89,37 +90,37 @@ struct CalendarView: View {
                     .foregroundStyle(theme.secondaryText.color)
                     .accessibilityIdentifier("calendar-empty-state")
             } else {
-                ScrollView {
-                    LazyVStack(spacing: 8) {
-                        ForEach(entries) { entry in
-                            Button {
-                                editingEntry = entry
-                            } label: {
-                                HStack(spacing: 12) {
-                                    Text(AppLocalization.text(entry.kind == .income ? "entry.income" : "entry.expense", language: language))
-                                        .font(AppTypography.caption(typography))
-                                        .foregroundStyle(theme.secondaryText.color)
-                                    Text(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note)
-                                    Spacer()
-                                    Text(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode))
-                                }
-                                .padding(12)
-                                .background(theme.surface.color, in: RoundedRectangle(cornerRadius: 10))
+                LazyVStack(spacing: 8) {
+                    ForEach(entries) { entry in
+                        Button {
+                            editingEntry = entry
+                        } label: {
+                            HStack(spacing: 12) {
+                                Text(AppLocalization.text(entry.kind == .income ? "entry.income" : "entry.expense", language: language))
+                                    .font(AppTypography.caption(typography))
+                                    .foregroundStyle(theme.secondaryText.color)
+                                Text(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note)
+                                Spacer()
+                                Text(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode))
                             }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel("\(AppLocalization.text(entry.kind == .income ? "entry.income" : "entry.expense", language: language)) \(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note) \(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode))")
-                            .accessibilityIdentifier("calendar-entry-\(entry.id.uuidString.lowercased())")
-                            .contextMenu {
-                                Button(AppLocalization.text("button.editEntry", language: language)) { editingEntry = entry }
-                            }
+                            .padding(12)
+                            .background(theme.surface.color, in: RoundedRectangle(cornerRadius: 10))
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("\(AppLocalization.text(entry.kind == .income ? "entry.income" : "entry.expense", language: language)) \(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note) \(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode))")
+                        .accessibilityIdentifier("calendar-entry-\(entry.id.uuidString.lowercased())")
+                        .contextMenu {
+                            Button(AppLocalization.text("button.editEntry", language: language)) { editingEntry = entry }
                         }
                     }
                 }
                 .accessibilityIdentifier("calendar-entry-list")
             }
-            Spacer(minLength: 0)
+            }
+            .padding(28)
+            .frame(maxWidth: 980, alignment: .leading)
         }
-        .padding(28)
+        .accessibilityIdentifier("calendar-page-scroll")
         .foregroundStyle(theme.primaryText.color)
         .background(theme.canvas.color)
         .task {

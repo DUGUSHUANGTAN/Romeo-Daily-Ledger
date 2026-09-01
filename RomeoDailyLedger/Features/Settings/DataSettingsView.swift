@@ -41,7 +41,8 @@ struct DataSettingsView: View {
                 Button(AppLocalization.text("settings.storage.erase", language: language), role: .destructive) {
                     showingEraseConfirmation = true
                 }
-                .foregroundStyle(.red)
+                .buttonStyle(.borderedProminent)
+                .tint(.red)
                 .accessibilityValue("destructive")
                 .accessibilityIdentifier("settings-erase-all")
                 if let eraseMessage { Text(eraseMessage).foregroundStyle(.red) }
@@ -49,6 +50,7 @@ struct DataSettingsView: View {
         }
         .formStyle(.grouped)
         .navigationTitle(AppLocalization.text("settings.data.title", language: language))
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("settings-data")
         .fileExporter(isPresented: $showExporter, document: TransferDocument(data: exportData ?? Data()), contentType: exportType, defaultFilename: exportType == .json ? "ledger.json" : "ledger.csv") { result in
             if case .failure(let error) = result,

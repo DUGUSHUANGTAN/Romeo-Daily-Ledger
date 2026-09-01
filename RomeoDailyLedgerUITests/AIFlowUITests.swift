@@ -2,6 +2,27 @@ import XCTest
 
 @MainActor
 final class AIFlowUITests: XCTestCase {
+    func testAISettingsAndAllSettingsPagesUseReadableLeftAlignedDetailColumn() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing", "--language-en"]
+        app.launch()
+        let settings = app.descendants(matching: .any)["sidebar-settings"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 3))
+        settings.click()
+        let aiPage = app.descendants(matching: .any)["settings-page-ai"]
+        XCTAssertTrue(aiPage.waitForExistence(timeout: 3))
+        aiPage.click()
+
+        let apiKey = app.secureTextFields["settings-ai-api-key"]
+        XCTAssertTrue(apiKey.waitForExistence(timeout: 3))
+        XCTAssertTrue(apiKey.isHittable)
+        XCTAssertTrue(app.textFields["settings-ai-model"].isHittable)
+        XCTAssertFalse(app.textViews["settings-ai-custom-instructions"].exists)
+        let window = app.windows.firstMatch
+        XCTAssertLessThan(apiKey.frame.minX - window.frame.minX, window.frame.width * 0.72)
+        XCTAssertLessThanOrEqual(apiKey.frame.maxX, window.frame.maxX - 20)
+    }
+
     func testAIEntryShowsPreviewAndSavesOnlyAfterConfirmation() {
         let app = launchApp()
         app.descendants(matching: .any)["sidebar-aiAssistant"].click()
@@ -52,16 +73,16 @@ final class AIFlowUITests: XCTestCase {
         app.descendants(matching: .any)["sidebar-settings"].click()
         app.descendants(matching: .any)["settings-page-ai"].click()
 
-        XCTAssertTrue(app.descendants(matching: .any)["settings-ai"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.secureTextFields["settings-ai-api-key"].waitForExistence(timeout: 2))
         XCTAssertFalse(app.switches["settings-ai-allow-ledger"].exists)
         XCTAssertFalse(app.buttons["settings-ai-save"].exists)
-        XCTAssertTrue(app.textViews["settings-ai-custom-instructions"].waitForExistence(timeout: 2))
-        let apiKey = app.textFields["settings-ai-api-key"]
+        XCTAssertFalse(app.textViews["settings-ai-custom-instructions"].exists)
+        let apiKey = app.secureTextFields["settings-ai-api-key"]
         apiKey.click()
         apiKey.typeText("auto-saved-key")
         app.descendants(matching: .any)["settings-page-general"].click()
         app.descendants(matching: .any)["settings-page-ai"].click()
-        XCTAssertEqual(app.textFields["settings-ai-api-key"].value as? String, "auto-saved-key")
+        XCTAssertNotEqual(app.secureTextFields["settings-ai-api-key"].value as? String, "")
         app.textFields["settings-ai-model"].click()
         app.textFields["settings-ai-model"].typeText("ui-test-model")
         app.buttons["settings-ai-test"].click()

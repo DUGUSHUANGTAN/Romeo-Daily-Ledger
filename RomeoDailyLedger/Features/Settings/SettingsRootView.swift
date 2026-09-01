@@ -34,7 +34,7 @@ private struct SettingsContentView: View {
         let theme = resolved == .dark ? AppTheme.dark : AppTheme.light
         let motion = MotionPolicy.navigation(systemReduceMotion: systemReduceMotion)
 
-        NavigationSplitView {
+        HStack(spacing: 0) {
             List(Page.allCases, selection: $selectedPage) { page in
                 Text(title(for: page, language: preferences.language))
                     .tag(page)
@@ -45,33 +45,42 @@ private struct SettingsContentView: View {
             .listStyle(.sidebar)
             .scrollContentBackground(.hidden)
             .background(theme.chrome.color)
-            .navigationSplitViewColumnWidth(min: 160, ideal: 190, max: 220)
-        } detail: {
-            Group {
-                switch selectedPage {
-                case .general:
-                    GeneralSettingsView(preferences: preferences, storage: dependencies.storage, repository: dependencies.repository)
-                case .appearance:
-                    AppearanceSettingsView(preferences: preferences, systemReduceMotion: systemReduceMotion)
-                case .categories:
-                    CategoryManagementView(repository: dependencies.repository, language: preferences.language)
-                case .ai:
-                    AISettingsView(preferences: preferences, client: dependencies.aiClient)
-                case .data:
-                    DataSettingsView(repository: dependencies.repository, storage: dependencies.storage, language: preferences.language, currencyCode: preferences.currencyCode)
+            .frame(width: 190)
+
+            Divider()
+
+            NavigationStack {
+                Group {
+                    switch selectedPage {
+                    case .general:
+                        GeneralSettingsView(preferences: preferences, storage: dependencies.storage, repository: dependencies.repository)
+                    case .appearance:
+                        AppearanceSettingsView(preferences: preferences, systemReduceMotion: systemReduceMotion)
+                    case .categories:
+                        CategoryManagementView(repository: dependencies.repository, language: preferences.language)
+                    case .ai:
+                        AISettingsView(preferences: preferences, client: dependencies.aiClient)
+                    case .data:
+                        DataSettingsView(repository: dependencies.repository, storage: dependencies.storage, language: preferences.language, currencyCode: preferences.currencyCode)
+                    }
                 }
+                .id(selectedPage)
+                .transition(.opacity)
+                .animation(pageAnimation(motion), value: selectedPage)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .background(theme.canvas.color)
             }
-            .id(selectedPage)
-            .transition(.opacity)
-            .animation(pageAnimation(motion), value: selectedPage)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(theme.canvas.color)
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("settings-detail-left-aligned")
         }
         .tint(theme.primaryAccent.color)
         .environment(\.locale, preferences.language.locale)
         .environment(\.appLanguage, preferences.language)
         .environment(\.appCurrencyCode, preferences.currencyCode)
-        .frame(minWidth: 720, minHeight: 480)
+        .frame(minWidth: 640, minHeight: 480)
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("settings-root")
     }
 

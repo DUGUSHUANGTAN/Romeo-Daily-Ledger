@@ -135,11 +135,13 @@ struct AILedgerAssistantView: View {
                     selection: $analysisStart,
                     displayedComponents: .date
                 )
+                .environment(\.locale, language.datePickerLocale)
                 DatePicker(
                     AppLocalization.text("ai.analysis.end", language: language),
                     selection: $analysisEnd,
                     displayedComponents: .date
                 )
+                .environment(\.locale, language.datePickerLocale)
             }
             .padding(12)
             .background(theme.surface.color, in: RoundedRectangle(cornerRadius: 10))
@@ -448,6 +450,7 @@ private struct AILedgerPreviewView: View {
                 Text(LedgerFormatting.amount(drafts[index].amount, currencyCode: currencyCode))
                     .accessibilityIdentifier("ai-draft-formatted-amount-\(index)")
                 DatePicker("", selection: $drafts[index].date, displayedComponents: .date)
+                    .environment(\.locale, language.datePickerLocale)
                 Spacer()
                 Button(AppLocalization.text("ai.preview.remove", language: language)) {
                     drafts.remove(at: index)

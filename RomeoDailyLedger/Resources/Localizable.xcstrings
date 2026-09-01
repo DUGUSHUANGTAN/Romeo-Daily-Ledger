@@ -1,221 +1,4868 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "button.close" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Close" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "关闭" } } } },
-    "storage.recovery.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Ledger recovery required" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "需要恢复账本" } } } },
-    "storage.recovery.message" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The data migration could not be verified. Your original data is preserved and the ledger has not been opened." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "数据迁移未能通过验证。原始数据已保留，账本尚未打开。" } } } },
-    "storage.recovery.source" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Current data location" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "当前数据位置" } } } },
-    "storage.recovery.target" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Pending destination" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "待迁移位置" } } } },
-    "button.cancel" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "取消" } } } },
-    "button.back" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Back" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "返回" } } } },
-    "settings.general.customCurrency" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom 3-letter code" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "自定义三位币种代码" } } } },
-    "settings.storage.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Data & Storage" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "数据与存储" } } } },
-    "settings.storage.pending" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Quit and migrate on next launch" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "退出并在下次启动时迁移" } } } },
-    "settings.storage.change" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Change…" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "更改…" } } } },
-    "settings.storage.showFinder" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Show in Finder" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "在访达中显示" } } } },
-    "settings.storage.restore" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Restore Default Location" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "恢复默认位置" } } } },
-    "settings.storage.erase" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Erase All Entries" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "一键抹除" } } } },
-    "settings.storage.eraseConfirm" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Permanently erase every ledger entry? Categories, settings, and exports will be kept." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "永久删除所有账目？分类、设置和已导出文件将保留。" } } } },
-    "settings.categories.hidden" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Hidden" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "隐藏" } } } },
-    "calendar.year" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Year" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "年份" } } } },
-    "calendar.month" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Month" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "月份" } } } },
-    "insights.thisMonth" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "This Month" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "这个月" } } } },
-    "ledger.all" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "All" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "全部" } } } },
-    "ledger.allEntries" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "All Entries" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "全部账目" } } } },
-    "settings.update.section" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Software Update" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "软件更新" } } } },
-    "settings.update.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Check for Updates" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "检查更新" } } } },
-    "settings.update.current" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Current Version" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "当前版本" } } } },
-    "settings.update.latest" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Latest Version" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "最新版本" } } } },
-    "settings.update.check" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Check for Updates" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "检查更新" } } } },
-    "settings.update.checking" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Checking..." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在检查…" } } } },
-    "settings.update.available" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "A newer version is available." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "发现新版本。" } } } },
-    "settings.update.upToDate" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "You are using the latest version." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "当前已是最新版本。" } } } },
-    "settings.update.openRelease" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Latest Release" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "打开最新 Release" } } } },
-    "settings.update.releasePage" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "GitHub Releases" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "GitHub Release 页面" } } } },
-    "settings.update.error.noRelease" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No release has been published yet." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "仓库尚未发布 Release。" } } } },
-    "settings.update.error.notFound" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The release repository could not be found." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "未找到更新仓库。" } } } },
-    "settings.update.error.rateLimited" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "GitHub API rate limit reached. Try again later." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "GitHub API 请求已达限额，请稍后重试。" } } } },
-    "settings.update.error.invalidResponse" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "GitHub returned an invalid response." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "GitHub 返回了无效响应。" } } } },
-    "settings.update.error.network" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to reach GitHub. Check your network connection." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法连接 GitHub，请检查网络连接。" } } } },
-    "settings.data.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Data" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "数据" } } } },
-    "settings.data.export.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Export" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "导出" } } } },
-    "settings.data.export.help" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Export every ledger entry. API keys and settings are never included." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "导出全部账目，不包含 API Key 或设置。" } } } },
-    "settings.data.export.json" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Export JSON" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "导出 JSON" } } } },
-    "settings.data.export.csv" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Export CSV" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "导出 CSV" } } } },
-    "settings.data.import.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Import" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "导入" } } } },
-    "settings.data.import.help" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Review a JSON or CSV file before adding entries." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "导入 JSON 或 CSV 前先预览账目。" } } } },
-    "settings.data.import.button" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose File…" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "选择文件…" } } } },
-    "settings.data.import.preview.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Import Preview" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "导入预览" } } } },
-    "settings.data.import.preview.total" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Total Records" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "记录总数" } } } },
-    "settings.data.import.preview.income" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Income Records" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "收入数量" } } } },
-    "settings.data.import.preview.expense" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Expense Records" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "支出数量" } } } },
-    "settings.data.import.preview.dateRange" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Date Range" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "日期范围" } } } },
-    "settings.data.import.preview.categories" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Categories" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "分类统计" } } } },
-    "settings.data.import.strategy" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Duplicates" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重复记录" } } } },
-    "settings.data.import.skipDuplicates" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Skip Duplicates" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "跳过重复" } } } },
-    "settings.data.import.keepBoth" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Keep Both" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "保留两条" } } } },
-    "settings.data.import.confirm" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Import Entries" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "确认导入" } } } },
-    "settings.data.error.invalidData" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The file is not a valid ledger export." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "该文件不是有效的账目导出文件。" } } } },
-    "settings.data.error.export" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to export the ledger." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "账目导出失败。" } } } },
-    "settings.data.error.import" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to import this file." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法导入该文件。" } } } },
-    "settings.data.error.currencyMismatch" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The file uses %@, but this ledger uses %@." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "文件币种为 %@，但当前账本币种为 %@。" } } } },
-    "settings.data.error.missingField" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Required field '%@' is missing." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "缺少必填字段“%@”。" } } } },
-    "settings.data.error.invalidAmount" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "An amount is invalid; use a positive number." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "金额无效，请使用正数。" } } } },
-    "settings.data.error.invalidDate" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "A date is invalid; use ISO-8601 format." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "日期无效，请使用 ISO-8601 格式。" } } } },
-    "settings.data.error.invalidKind" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Entry type must be income or expense." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "账目类型必须为收入或支出。" } } } },
-    "settings.data.error.malformedCSV" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The CSV header or quoting is malformed." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "CSV 表头或引号格式无效。" } } } },
-    "category.bonus" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Bonus" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "奖金" } } } },
-    "category.clothing" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Clothing" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "衣" } } } },
-    "category.entertainment" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Entertainment" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "娱乐" } } } },
-    "category.food" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Food" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "食" } } } },
-    "category.housing" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Housing" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "住" } } } },
-    "category.investment" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Investment" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "投资" } } } },
-    "category.other" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Other" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "其他" } } } },
-    "category.refund" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Refund" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "退款" } } } },
-    "category.salary" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Salary" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "工资" } } } },
-    "category.transport" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Transport" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "行" } } } },
-    "nav.aiAssistant.subtitle" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Natural-language entry and analysis" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "自然语言记账与分析" } } } },
-    "nav.aiAssistant.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "AI Assistant" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "AI 助手" } } } },
-    "nav.calendar.subtitle" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Review entries by date" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "按日期回看账目" } } } },
-    "nav.calendar.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Calendar" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "日历" } } } },
-    "nav.insights.subtitle" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Income, expenses, and trends" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "收支与趋势概览" } } } },
-    "nav.insights.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Insights" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "统计" } } } },
-    "nav.ledger.subtitle" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Quick entry and today's activity" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "快速记录与今日流水" } } } },
-    "nav.ledger.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Ledger" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "记账" } } } },
-    "nav.settings.subtitle" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Theme, fonts, and preferences" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "主题、字体与偏好" } } } },
-    "nav.settings.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "设置" } } } },
-    "settings.appearance.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Appearance" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "外观" } } } },
-    "settings.categories.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Categories" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "分类管理" } } } },
-    "settings.general.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "General" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "通用" } } } },
-    "app.name" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Romeo Daily Ledger" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "罗密欧每日记账" } } } },
-    "command.openLedger" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Ledger" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "打开记账" } } } },
-    "command.openCalendar" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Calendar" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "打开日历" } } } },
-    "command.openInsights" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Insights" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "打开统计" } } } },
-    "command.openSettings" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Settings" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "打开设置" } } } },
-    "placeholder.futureFeature" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "This area is reserved for a later milestone." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "此区域将在后续任务中接入完整功能。" } } } },
-    "settings.general.regional" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Regional Preferences" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "地区偏好" } } } },
-    "settings.general.currency" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Default Currency" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "默认币种" } } } },
-    "settings.general.language" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Language" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "语言" } } } },
-    "settings.general.manageCategories" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Manage Categories" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "管理分类" } } } },
-    "language.zhHans" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Simplified Chinese" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "简体中文" } } } },
-    "language.en" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "English" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "英文" } } } },
-    "settings.appearance.theme" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Theme" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "主题" } } } },
-    "settings.appearance.typography" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Font" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "字体" } } } },
-    "settings.appearance.motion" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "UI Motion Intensity" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "UI 动效强度" } } } },
-    "settings.appearance.motionHelp" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose an intensity from 0 to 100." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "可在 0 到 100 之间调整。" } } } },
-    "settings.appearance.reduceMotionActive" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Reduce Motion is enabled in macOS. App motion is disabled." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "macOS 已开启“减少动态效果”，应用动效已停用。" } } } },
-    "theme.system" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "System" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "跟随系统" } } } },
-    "theme.light" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Light" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "浅色" } } } },
-    "theme.dark" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Dark" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "深色" } } } },
-    "font.system" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "System Font" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "系统字体" } } } },
-    "font.editorial" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Editorial Font" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "编辑字体" } } } },
-    "font.rounded" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Rounded Font" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "圆角字体" } } } },
-    "entry.expense" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Expense" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "支出" } } } },
-    "entry.income" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Income" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "收入" } } } },
-    "entry.category" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Category" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "分类" } } } },
-    "entry.note" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Note" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "备注" } } } },
-    "settings.categories.custom" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "自定义" } } } },
-    "settings.categories.loadError" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to load categories: %@" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "分类加载失败：%@" } } } },
-    "ledger.quickEntry" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Quick Entry" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "快速记一笔" } } } },
-    "ledger.subtitle" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Record every item of today's income and expenses" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "快速记录今天的每一笔收支" } } } },
-    "field.amount" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Amount" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "金额" } } } },
-    "field.category" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Category" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "分类" } } } },
-    "field.note" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Note" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "备注" } } } },
-    "field.date" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Date" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "日期" } } } },
-    "category.unselectedFallback" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Not selected (uses Other)" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "未选择（归入其他）" } } } },
-    "button.save" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Save" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "保存" } } } },
-    "button.saveEntry" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Save Entry" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "保存账目" } } } },
-    "button.cancel" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "取消" } } } },
-    "button.editEntry" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit Entry" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "编辑账目" } } } },
-    "button.undoDelete" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Undo Delete" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "撤销删除" } } } },
-    "button.confirmDelete" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "确认删除" } } } },
-    "button.deleteSelected" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete Selected" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "删除所选" } } } },
-    "button.previousMonth" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Previous Month" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "上个月" } } } },
-    "button.nextMonth" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Next Month" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "下个月" } } } },
-    "button.today" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Today" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "今天" } } } },
-    "error.saveEntry" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to save this entry. Check the amount and try again." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法保存这笔账目，请检查金额后重试。" } } } },
-    "error.updateEntry" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to update this entry. Check the details and try again." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法更新这笔账目，请检查内容后重试。" } } } },
-    "error.loadEntries" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to load entries. Please try again." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "账目加载失败，请重试。" } } } },
-    "error.loadInsights" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to load insights. Please try again." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "统计加载失败，请重试。" } } } },
-    "error.loadCategories" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to load categories. Please try again." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "分类加载失败，请重试。" } } } },
-    "accessibility.selected" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Selected" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已选择" } } } },
-    "accessibility.notSelected" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Not selected" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "未选择" } } } },
-    "accessibility.entryList" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Entry list" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "账目列表" } } } },
-    "accessibility.selectionSummary" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Selection summary" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "多选汇总" } } } },
-    "accessibility.monthCalendar" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Monthly calendar" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "月历" } } } },
-    "accessibility.previousInsights" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "View previous month's insights" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "查看上个月统计" } } } },
-    "accessibility.nextInsights" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "View next month's insights" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "查看下个月统计" } } } },
-    "accessibility.monthlyChart" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Monthly income and expense bar chart" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "月度收入与支出柱状图" } } } },
-    "accessibility.categoryChart" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Category amount and share bar chart" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "分类金额与占比条形图" } } } },
-    "editor.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit Entry" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "编辑账目" } } } },
-    "ledger.empty.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No entries today" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "今天还没有账目" } } } },
-    "ledger.empty.message" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Use Quick Entry above to record your first item." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "在上方快速记录第一笔收支。" } } } },
-    "entry.income.short" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "In" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "收" } } } },
-    "entry.expense.short" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Out" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "支" } } } },
-    "entry.noNote" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No note" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无备注" } } } },
-    "ledger.delete.confirmTitle" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete selected entries?" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "确认删除所选账目？" } } } },
-    "ledger.delete.undoHelp" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "You can undo this action for 5 seconds." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "删除后可在 5 秒内撤销。" } } } },
-    "summary.income" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Income %@" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "收入 %@" } } } },
-    "summary.expense" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Expense %@" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "支出 %@" } } } },
-    "summary.net" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Net %@" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "净额 %@" } } } },
-    "summary.net.label" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Net" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "净额" } } } },
-    "calendar.dayIncome" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Day income %@" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "当日收入 %@" } } } },
-    "calendar.dayExpense" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Day expense %@" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "当日支出 %@" } } } },
-    "calendar.empty" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No entries on this day" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "当天没有账目" } } } },
-    "insights.loadError" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to load insights: %@" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "统计加载失败：%@" } } } },
-    "insights.monthOverview" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Monthly Overview" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "本月概览" } } } },
-    "insights.monthlyChart.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Monthly Income and Expenses" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "月度收支" } } } },
-    "insights.monthlyChart.empty" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "There are no entries this month, so the monthly chart has no data." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "这个月还没有账目，月度图表暂无数据。" } } } },
-    "insights.categoryChart.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Category Breakdown" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "分类构成" } } } },
-    "insights.categoryChart.empty" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "There is no category data this month." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "这个月还没有分类数据，分类图表暂无内容。" } } } },
-    "insights.category.share" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@, %@" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%@，占%@" } } } },
-    "insights.monthSummary" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "This month: income %@, expenses %@, net %@." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "本月收入 %@，支出 %@，净额 %@。" } } } },
-    "insights.categorySummary.empty" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No category insights this month." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "本月暂无分类统计。" } } } },
-    "insights.categorySummary.item" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ %@, %@" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%@ %@，占%@" } } } },
-    "insights.categoryAxis" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%@: %@" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%@ · %@" } } } },
-    "chart.type" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Type" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "类型" } } } },
-    "list.separator" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "; " } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "；" } } } },
-    "sentence.period" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "。" } } } },
-    "settings.ai.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "AI" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "AI 设置" } } } },
-    "settings.ai.connection" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Connection" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "连接" } } } },
-    "settings.ai.protocol" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Protocol" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "协议" } } } },
-    "settings.ai.baseURL" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "API Base URL" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "API Base URL" } } } },
-    "settings.ai.apiKey" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "API Key" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "API Key" } } } },
-    "settings.ai.model" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Model name" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "模型名称" } } } },
-    "settings.ai.allowLedger" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Allow AI to read ledger data" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "允许 AI 读取账目数据" } } } },
-    "settings.ai.saveKey" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Save API Key" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "保存 API Key" } } } },
-    "settings.ai.test" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Test Connection" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "测试连接" } } } },
-    "settings.ai.testing" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Testing…" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在测试…" } } } },
-    "settings.ai.ready" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Ready" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已就绪" } } } },
-    "settings.ai.saved" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Saved" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已保存" } } } },
-    "settings.ai.keychainError" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Could not access Keychain" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法访问钥匙串" } } } },
-    "ai.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "AI Assistant" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "AI助手" } } } },
-    "ai.subtitle" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter a ledger or analysis request." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "请输入账本或分析需求" } } } },
-    "ai.loading" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "AI is analyzing…" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "AI 正在分析…" } } } },
-    "ai.prompt" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "For example: Lunch cost 25 USD" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "例如：午餐花了 25 美元" } } } },
-    "ai.generate" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Generate draft" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "生成草稿" } } } },
-    "ai.permissionRequired" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Ledger data access is disabled. Enable it in AI settings before analysis." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "账目数据读取已关闭。分析前请在 AI 设置中开启。" } } } },
-    "ai.preview.title" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Review AI draft" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "确认 AI 草稿" } } } },
-    "ai.preview.range" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Only the described entries will be saved after confirmation." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "确认后才会保存以下草稿。" } } } },
-    "ai.preview.confirm" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Confirm and save" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "确认并保存" } } } }
-    ,"ai.preview.remove" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "移除" } } } }
-    ,"ai.mode.entry" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Create entries" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "智能记账" } } } }
-    ,"ai.mode.analysis" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Analyze ledger" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "账目分析" } } } }
-    ,"ai.analysis.question" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "What would you like to know?" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "你想了解哪些账目？" } } } }
-    ,"ai.analysis.start" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Start" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "开始日期" } } } }
-    ,"ai.analysis.end" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "End" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "结束日期" } } } }
-    ,"ai.analysis.scope" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Authorized date range" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已授权的日期范围" } } } }
-    ,"ai.analysis.run" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Analyze" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "开始分析" } } } }
-    ,"ai.analysis.result" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Analysis" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "分析结果" } } } }
-    ,"ai.analysis.permissionRequired" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Enable ledger access in AI settings before analysis." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "分析前请在 AI 设置中允许读取账目。" } } } }
-    ,"ai.error.apiKey" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Save an API key in AI settings first." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "请先在 AI 设置中保存 API Key。" } } } }
-    ,"ai.error.baseURL" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter a valid HTTPS API base URL." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "请输入有效的 HTTPS API Base URL。" } } } }
-    ,"ai.error.model" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter a model name." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "请输入模型名称。" } } } }
-    ,"ai.error.network" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to reach the AI service." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法连接 AI 服务。" } } } }
-    ,"ai.error.http" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The AI service rejected the request." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "AI 服务拒绝了请求。" } } } }
-    ,"ai.error.decoding" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The AI response could not be read." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法读取 AI 返回内容。" } } } }
-    ,"ai.error.invalidResult" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The AI returned an invalid ledger draft." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "AI 返回的记账草稿无效。" } } } }
-    ,"ai.error.currency" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "The draft currency does not match the app currency." } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "草稿币种与应用当前币种不一致。" } } } }
+    "accessibility.categoryChart" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Category amount and share bar chart"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分类金额与占比条形图"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分類金額與佔比條形圖"
+          }
+        }
+      }
+    },
+    "accessibility.entryList" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entry list"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "账目列表"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "賬目列表"
+          }
+        }
+      }
+    },
+    "accessibility.monthCalendar" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly calendar"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月历"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月曆"
+          }
+        }
+      }
+    },
+    "accessibility.monthlyChart" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly income and expense bar chart"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月度收入与支出柱状图"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月度收入與支出柱狀圖"
+          }
+        }
+      }
+    },
+    "accessibility.nextInsights" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View next month's insights"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看下个月统计"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看下個月統計"
+          }
+        }
+      }
+    },
+    "accessibility.notSelected" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not selected"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未选择"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未選擇"
+          }
+        }
+      }
+    },
+    "accessibility.previousInsights" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View previous month's insights"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看上个月统计"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看上個月統計"
+          }
+        }
+      }
+    },
+    "accessibility.selected" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selected"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已选择"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已選擇"
+          }
+        }
+      }
+    },
+    "accessibility.selectionSummary" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selection summary"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "多选汇总"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "多選匯總"
+          }
+        }
+      }
+    },
+    "ai.analysis.end" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "End"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "结束日期"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "結束日期"
+          }
+        }
+      }
+    },
+    "ai.analysis.permissionRequired" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable ledger access in AI settings before analysis."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分析前请在 AI 设置中允许读取账目。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分析前請在 AI 設置中允許讀取賬目。"
+          }
+        }
+      }
+    },
+    "ai.analysis.question" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What would you like to know?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你想了解哪些账目？"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你想瞭解哪些賬目？"
+          }
+        }
+      }
+    },
+    "ai.analysis.result" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analysis"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分析结果"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分析結果"
+          }
+        }
+      }
+    },
+    "ai.analysis.run" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analyze"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开始分析"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開始分析"
+          }
+        }
+      }
+    },
+    "ai.analysis.scope" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Authorized date range"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已授权的日期范围"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已授權的日期範圍"
+          }
+        }
+      }
+    },
+    "ai.analysis.start" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开始日期"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開始日期"
+          }
+        }
+      }
+    },
+    "ai.error.apiKey" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save an API key in AI settings first."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请先在 AI 设置中保存 API Key。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請先在 AI 設置中保存 API Key。"
+          }
+        }
+      }
+    },
+    "ai.error.baseURL" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter a valid HTTPS API base URL."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请输入有效的 HTTPS API Base URL。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請輸入有效的 HTTPS API Base URL。"
+          }
+        }
+      }
+    },
+    "ai.error.currency" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The draft currency does not match the app currency."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "草稿币种与应用当前币种不一致。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "草稿幣種與應用當前幣種不一致。"
+          }
+        }
+      }
+    },
+    "ai.error.decoding" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The AI response could not be read."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法读取 AI 返回内容。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法讀取 AI 返回內容。"
+          }
+        }
+      }
+    },
+    "ai.error.http" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The AI service rejected the request."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 服务拒绝了请求。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 服務拒絕了請求。"
+          }
+        }
+      }
+    },
+    "ai.error.invalidResult" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The AI returned an invalid ledger draft."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 返回的记账草稿无效。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 返回的記賬草稿無效。"
+          }
+        }
+      }
+    },
+    "ai.error.model" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter a model name."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请输入模型名称。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請輸入模型名稱。"
+          }
+        }
+      }
+    },
+    "ai.error.network" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to reach the AI service."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法连接 AI 服务。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法連接 AI 服務。"
+          }
+        }
+      }
+    },
+    "ai.generate" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generate draft"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生成草稿"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生成草稿"
+          }
+        }
+      }
+    },
+    "ai.loading" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI is analyzing…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 正在分析…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 正在分析…"
+          }
+        }
+      }
+    },
+    "ai.mode.analysis" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analyze ledger"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "账目分析"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "賬目分析"
+          }
+        }
+      }
+    },
+    "ai.mode.entry" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create entries"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "智能记账"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "智能記賬"
+          }
+        }
+      }
+    },
+    "ai.permissionRequired" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ledger data access is disabled. Enable it in AI settings before analysis."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "账目数据读取已关闭。分析前请在 AI 设置中开启。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "賬目數據讀取已關閉。分析前請在 AI 設置中開啓。"
+          }
+        }
+      }
+    },
+    "ai.preview.confirm" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm and save"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "确认并保存"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "確認並保存"
+          }
+        }
+      }
+    },
+    "ai.preview.range" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only the described entries will be saved after confirmation."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "确认后才会保存以下草稿。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "確認後才會保存以下草稿。"
+          }
+        }
+      }
+    },
+    "ai.preview.remove" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移除"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移除"
+          }
+        }
+      }
+    },
+    "ai.preview.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review AI draft"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "确认 AI 草稿"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "確認 AI 草稿"
+          }
+        }
+      }
+    },
+    "ai.prompt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For example: Lunch cost 25 USD"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "例如：午餐花了 25 美元"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "例如：午餐花了 25 美元"
+          }
+        }
+      }
+    },
+    "ai.subtitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter a ledger or analysis request."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请输入账本或分析需求"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請輸入賬本或分析需求"
+          }
+        }
+      }
+    },
+    "ai.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI Assistant"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI助手"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI助手"
+          }
+        }
+      }
+    },
+    "app.name" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Romeo Daily Ledger"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "罗密欧每日记账"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "羅密歐每日記賬"
+          }
+        }
+      }
+    },
+    "button.back" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "返回"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "返回"
+          }
+        }
+      }
+    },
+    "button.cancel" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消"
+          }
+        }
+      }
+    },
+    "button.cancelSelection" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel Selection"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消选择"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消選擇"
+          }
+        }
+      }
+    },
+    "button.close" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "關閉"
+          }
+        }
+      }
+    },
+    "button.confirmDelete" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "确认删除"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "確認刪除"
+          }
+        }
+      }
+    },
+    "button.deleteSelected" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Selected"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除所选"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刪除所選"
+          }
+        }
+      }
+    },
+    "button.done" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完成"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完成"
+          }
+        }
+      }
+    },
+    "button.editEntry" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Entry"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编辑账目"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編輯賬目"
+          }
+        }
+      }
+    },
+    "button.manage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "管理"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "管理"
+          }
+        }
+      }
+    },
+    "button.nextMonth" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next Month"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下个月"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下個月"
+          }
+        }
+      }
+    },
+    "button.previousMonth" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Previous Month"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上个月"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上個月"
+          }
+        }
+      }
+    },
+    "button.save" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存"
+          }
+        }
+      }
+    },
+    "button.saveEntry" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save Entry"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存账目"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存賬目"
+          }
+        }
+      }
+    },
+    "button.today" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天"
+          }
+        }
+      }
+    },
+    "button.undoDelete" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Undo Delete"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "撤销删除"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "撤銷刪除"
+          }
+        }
+      }
+    },
+    "calendar.dayExpense" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day expense %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当日支出 %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "當日支出 %@"
+          }
+        }
+      }
+    },
+    "calendar.dayIncome" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day income %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当日收入 %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "當日收入 %@"
+          }
+        }
+      }
+    },
+    "calendar.empty" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No entries on this day"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当天没有账目"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "當天沒有賬目"
+          }
+        }
+      }
+    },
+    "calendar.month" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Month"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月份"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月份"
+          }
+        }
+      }
+    },
+    "calendar.year" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Year"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "年份"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "年份"
+          }
+        }
+      }
+    },
+    "category.bonus" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bonus"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "奖金"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "獎金"
+          }
+        }
+      }
+    },
+    "category.clothing" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clothing"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "衣物"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "衣物"
+          }
+        }
+      }
+    },
+    "category.entertainment" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entertainment"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "娱乐"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "娛樂"
+          }
+        }
+      }
+    },
+    "category.food" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Food"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "食物"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "食物"
+          }
+        }
+      }
+    },
+    "category.housing" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Housing"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "住宿"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "住宿"
+          }
+        }
+      }
+    },
+    "category.investment" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Investment"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "投资"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "投資"
+          }
+        }
+      }
+    },
+    "category.other" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Other"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "其他"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "其他"
+          }
+        }
+      }
+    },
+    "category.refund" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refund"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "退款"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "退款"
+          }
+        }
+      }
+    },
+    "category.salary" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salary"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工资"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工資"
+          }
+        }
+      }
+    },
+    "category.transport" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transport"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "行程"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "行程"
+          }
+        }
+      }
+    },
+    "category.unselectedFallback" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not selected (uses Other)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未选择（归入其他）"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未選擇（歸入其他）"
+          }
+        }
+      }
+    },
+    "chart.type" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Type"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "类型"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "類型"
+          }
+        }
+      }
+    },
+    "command.openCalendar" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Calendar"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开日历"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打開日曆"
+          }
+        }
+      }
+    },
+    "command.openInsights" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Insights"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开统计"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打開統計"
+          }
+        }
+      }
+    },
+    "command.openLedger" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Ledger"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开记账"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打開記賬"
+          }
+        }
+      }
+    },
+    "command.openSettings" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Settings"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开设置"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打開設置"
+          }
+        }
+      }
+    },
+    "editor.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Entry"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编辑账目"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編輯賬目"
+          }
+        }
+      }
+    },
+    "entry.category" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Category"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分类"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分類"
+          }
+        }
+      }
+    },
+    "entry.expense" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expense"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支出"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支出"
+          }
+        }
+      }
+    },
+    "entry.expense.short" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Out"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支"
+          }
+        }
+      }
+    },
+    "entry.income" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Income"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收入"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收入"
+          }
+        }
+      }
+    },
+    "entry.income.short" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收"
+          }
+        }
+      }
+    },
+    "entry.noNote" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No note"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无备注"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無備注"
+          }
+        }
+      }
+    },
+    "entry.note" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Note"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "备注"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "備注"
+          }
+        }
+      }
+    },
+    "error.loadCategories" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to load categories. Please try again."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分类加载失败，请重试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分類加載失敗，請重試。"
+          }
+        }
+      }
+    },
+    "error.loadEntries" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to load entries. Please try again."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "账目加载失败，请重试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "賬目加載失敗，請重試。"
+          }
+        }
+      }
+    },
+    "error.loadInsights" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to load insights. Please try again."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "统计加载失败，请重试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "統計加載失敗，請重試。"
+          }
+        }
+      }
+    },
+    "error.saveEntry" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to save this entry. Check the amount and try again."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法保存这笔账目，请检查金额后重试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法保存這筆賬目，請檢查金額後重試。"
+          }
+        }
+      }
+    },
+    "error.updateEntry" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to update this entry. Check the details and try again."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法更新这笔账目，请检查内容后重试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法更新這筆賬目，請檢查內容後重試。"
+          }
+        }
+      }
+    },
+    "field.amount" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Amount"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "金额"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "金額"
+          }
+        }
+      }
+    },
+    "field.category" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Category"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分类"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分類"
+          }
+        }
+      }
+    },
+    "field.date" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日期"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日期"
+          }
+        }
+      }
+    },
+    "field.note" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Note"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "备注"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "備注"
+          }
+        }
+      }
+    },
+    "font.editorial" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editorial Font"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编辑字体"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編輯字體"
+          }
+        }
+      }
+    },
+    "font.rounded" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rounded Font"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "圆角字体"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "圓角字體"
+          }
+        }
+      }
+    },
+    "font.system" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System Font"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "系统字体"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "系統字體"
+          }
+        }
+      }
+    },
+    "insights.category.share" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@，占%@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@，佔%@"
+          }
+        }
+      }
+    },
+    "insights.categoryAxis" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %@"
+          }
+        }
+      }
+    },
+    "insights.categoryChart.empty" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There is no category data this month."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这个月还没有分类数据，分类图表暂无内容。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "這個月還沒有分類數據，分類圖表暫無內容。"
+          }
+        }
+      }
+    },
+    "insights.categoryChart.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Category Breakdown"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分类构成"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分類構成"
+          }
+        }
+      }
+    },
+    "insights.categorySummary.empty" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No category insights this month."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本月暂无分类统计。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本月暫無分類統計。"
+          }
+        }
+      }
+    },
+    "insights.categorySummary.item" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ %@, %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ %@，占%@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ %@，佔%@"
+          }
+        }
+      }
+    },
+    "insights.loadError" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to load insights: %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "统计加载失败：%@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "統計加載失敗：%@"
+          }
+        }
+      }
+    },
+    "insights.monthlyChart.empty" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There are no entries this month, so the monthly chart has no data."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这个月还没有账目，月度图表暂无数据。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "這個月還沒有賬目，月度圖表暫無數據。"
+          }
+        }
+      }
+    },
+    "insights.monthlyChart.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly Income and Expenses"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月度收支"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月度收支"
+          }
+        }
+      }
+    },
+    "insights.monthOverview" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly Overview"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本月概览"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本月概覽"
+          }
+        }
+      }
+    },
+    "insights.monthSummary" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This month: income %@, expenses %@, net %@."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本月收入 %@，支出 %@，净额 %@。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本月收入 %@，支出 %@，淨額 %@。"
+          }
+        }
+      }
+    },
+    "insights.thisMonth" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This Month"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这个月"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "這個月"
+          }
+        }
+      }
+    },
+    "language.en" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "English"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "英文"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "英文"
+          }
+        }
+      }
+    },
+    "language.zhHans" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simplified Chinese"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "简体中文"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "簡體中文"
+          }
+        }
+      }
+    },
+    "language.zhHant" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Traditional Chinese"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "繁体中文"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "繁體中文"
+          }
+        }
+      }
+    },
+    "ledger.all" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部"
+          }
+        }
+      }
+    },
+    "ledger.allEntries" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All Entries"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部账目"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部賬目"
+          }
+        }
+      }
+    },
+    "ledger.delete.confirmTitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete selected entries?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "确认删除所选账目？"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "確認刪除所選賬目？"
+          }
+        }
+      }
+    },
+    "ledger.delete.undoHelp" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can undo this action for 5 seconds."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除后可在 5 秒内撤销。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刪除後可在 5 秒內撤銷。"
+          }
+        }
+      }
+    },
+    "ledger.empty.message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use Quick Entry above to record your first item."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在上方快速记录第一笔收支。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在上方快速記錄第一筆收支。"
+          }
+        }
+      }
+    },
+    "ledger.empty.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No entries today"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天还没有账目"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天還沒有賬目"
+          }
+        }
+      }
+    },
+    "ledger.quickEntry" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick Entry"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "快速记一笔"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "快速記一筆"
+          }
+        }
+      }
+    },
+    "ledger.subtitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Record every item of today's income and expenses"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "快速记录今天的每一笔收支"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "快速記錄今天的每一筆收支"
+          }
+        }
+      }
+    },
+    "list.separator" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "; "
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "；"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "；"
+          }
+        }
+      }
+    },
+    "nav.aiAssistant.subtitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Natural-language entry and analysis"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自然语言记账与分析"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自然語言記賬與分析"
+          }
+        }
+      }
+    },
+    "nav.aiAssistant.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI Assistant"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 助手"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 助手"
+          }
+        }
+      }
+    },
+    "nav.calendar.subtitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review entries by date"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按日期回看账目"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按日期回看賬目"
+          }
+        }
+      }
+    },
+    "nav.calendar.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendar"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日历"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日曆"
+          }
+        }
+      }
+    },
+    "nav.insights.subtitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Income, expenses, and trends"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收支与趋势概览"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收支與趨勢概覽"
+          }
+        }
+      }
+    },
+    "nav.insights.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Insights"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "统计"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "統計"
+          }
+        }
+      }
+    },
+    "nav.ledger.subtitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick entry and today's activity"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "快速记录与今日流水"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "快速記錄與今日流水"
+          }
+        }
+      }
+    },
+    "nav.ledger.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ledger"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "记账"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記賬"
+          }
+        }
+      }
+    },
+    "nav.settings.subtitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Theme, fonts, and preferences"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主题、字体与偏好"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主題、字體與偏好"
+          }
+        }
+      }
+    },
+    "nav.settings.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設置"
+          }
+        }
+      }
+    },
+    "placeholder.futureFeature" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This area is reserved for a later milestone."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此区域将在后续任务中接入完整功能。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此區域將在後續任務中接入完整功能。"
+          }
+        }
+      }
+    },
+    "sentence.period" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "。"
+          }
+        }
+      }
+    },
+    "settings.ai.allowLedger" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow AI to read ledger data"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "允许 AI 读取账目数据"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "允許 AI 讀取賬目數據"
+          }
+        }
+      }
+    },
+    "settings.ai.apiKey" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API Key"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API Key"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API Key"
+          }
+        }
+      }
+    },
+    "settings.ai.baseURL" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API Base URL"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API Base URL"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API Base URL"
+          }
+        }
+      }
+    },
+    "settings.ai.connection" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "連接"
+          }
+        }
+      }
+    },
+    "settings.ai.keychainError" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not access Keychain"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法访问钥匙串"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法訪問鑰匙串"
+          }
+        }
+      }
+    },
+    "settings.ai.model" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Model name"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "模型名称"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "模型名稱"
+          }
+        }
+      }
+    },
+    "settings.ai.protocol" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protocol"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "协议"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "協議"
+          }
+        }
+      }
+    },
+    "settings.ai.ready" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ready"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已就绪"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已就緒"
+          }
+        }
+      }
+    },
+    "settings.ai.saved" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已保存"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已保存"
+          }
+        }
+      }
+    },
+    "settings.ai.saveKey" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save API Key"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存 API Key"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存 API Key"
+          }
+        }
+      }
+    },
+    "settings.ai.test" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Test Connection"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "测试连接"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "測試連接"
+          }
+        }
+      }
+    },
+    "settings.ai.testing" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Testing…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在测试…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在測試…"
+          }
+        }
+      }
+    },
+    "settings.ai.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 设置"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 設置"
+          }
+        }
+      }
+    },
+    "settings.appearance.motion" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UI Motion Intensity"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UI 动效强度"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UI 動效強度"
+          }
+        }
+      }
+    },
+    "settings.appearance.motionHelp" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose an intensity from 0 to 100."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可在 0 到 100 之间调整。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可在 0 到 100 之間調整。"
+          }
+        }
+      }
+    },
+    "settings.appearance.reduceMotionActive" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reduce Motion is enabled in macOS. App motion is disabled."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 已开启“减少动态效果”，应用动效已停用。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 已開啓“減少動態效果”，應用動效已停用。"
+          }
+        }
+      }
+    },
+    "settings.appearance.theme" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Theme"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主题"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主題"
+          }
+        }
+      }
+    },
+    "settings.appearance.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appearance"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外观"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外觀"
+          }
+        }
+      }
+    },
+    "settings.appearance.typography" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Font"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "字体"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "字體"
+          }
+        }
+      }
+    },
+    "settings.categories.custom" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Custom"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自定义"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自定義"
+          }
+        }
+      }
+    },
+    "settings.categories.editName" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit category name"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "修改分类名称"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "修改分類名稱"
+          }
+        }
+      }
+    },
+    "settings.categories.hidden" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hidden"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隐藏"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隱藏"
+          }
+        }
+      }
+    },
+    "settings.categories.hint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click to view entries, press and hold to rename; use Manage to delete multiple categories."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "单击查看账目，长按修改名称；点击“管理”可批量删除。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "單擊查看賬目，長按修改名稱；點擊「管理」可批量刪除。"
+          }
+        }
+      }
+    },
+    "settings.categories.loadError" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to load categories: %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分类加载失败：%@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分類加載失敗：%@"
+          }
+        }
+      }
+    },
+    "settings.categories.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Categories"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分类管理"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分類管理"
+          }
+        }
+      }
+    },
+    "settings.data.error.currencyMismatch" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file uses %@, but this ledger uses %@."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件币种为 %@，但当前账本币种为 %@。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件幣種為 %@，但當前賬本幣種為 %@。"
+          }
+        }
+      }
+    },
+    "settings.data.error.export" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to export the ledger."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "账目导出失败。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "賬目導出失敗。"
+          }
+        }
+      }
+    },
+    "settings.data.error.import" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to import this file."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法导入该文件。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法導入該文件。"
+          }
+        }
+      }
+    },
+    "settings.data.error.invalidAmount" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An amount is invalid; use a positive number."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "金额无效，请使用正数。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "金額無效，請使用正數。"
+          }
+        }
+      }
+    },
+    "settings.data.error.invalidData" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file is not a valid ledger export."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "该文件不是有效的账目导出文件。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "該文件不是有效的賬目導出文件。"
+          }
+        }
+      }
+    },
+    "settings.data.error.invalidDate" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A date is invalid; use ISO-8601 format."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日期无效，请使用 ISO-8601 格式。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日期無效，請使用 ISO-8601 格式。"
+          }
+        }
+      }
+    },
+    "settings.data.error.invalidKind" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entry type must be income or expense."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "账目类型必须为收入或支出。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "賬目類型必須為收入或支出。"
+          }
+        }
+      }
+    },
+    "settings.data.error.malformedCSV" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The CSV header or quoting is malformed."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CSV 表头或引号格式无效。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CSV 表頭或引號格式無效。"
+          }
+        }
+      }
+    },
+    "settings.data.error.missingField" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Required field '%@' is missing."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "缺少必填字段“%@”。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "缺少必填字段“%@”。"
+          }
+        }
+      }
+    },
+    "settings.data.export.csv" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export CSV"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出 CSV"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "導出 CSV"
+          }
+        }
+      }
+    },
+    "settings.data.export.help" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export every ledger entry. API keys and settings are never included."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出全部账目，不包含 API Key 或设置。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "導出全部賬目，不包含 API Key 或設置。"
+          }
+        }
+      }
+    },
+    "settings.data.export.json" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export JSON"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出 JSON"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "導出 JSON"
+          }
+        }
+      }
+    },
+    "settings.data.export.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "導出"
+          }
+        }
+      }
+    },
+    "settings.data.import.button" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose File…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择文件…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇文件…"
+          }
+        }
+      }
+    },
+    "settings.data.import.confirm" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import Entries"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "确认导入"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "確認導入"
+          }
+        }
+      }
+    },
+    "settings.data.import.help" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review a JSON or CSV file before adding entries."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导入 JSON 或 CSV 前先预览账目。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "導入 JSON 或 CSV 前先預覽賬目。"
+          }
+        }
+      }
+    },
+    "settings.data.import.keepBoth" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep Both"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保留两条"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保留兩條"
+          }
+        }
+      }
+    },
+    "settings.data.import.preview.categories" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Categories"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分类统计"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分類統計"
+          }
+        }
+      }
+    },
+    "settings.data.import.preview.dateRange" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date Range"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日期范围"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日期範圍"
+          }
+        }
+      }
+    },
+    "settings.data.import.preview.expense" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expense Records"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支出数量"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支出數量"
+          }
+        }
+      }
+    },
+    "settings.data.import.preview.income" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Income Records"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收入数量"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收入數量"
+          }
+        }
+      }
+    },
+    "settings.data.import.preview.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import Preview"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导入预览"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "導入預覽"
+          }
+        }
+      }
+    },
+    "settings.data.import.preview.total" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total Records"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "记录总数"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記錄總數"
+          }
+        }
+      }
+    },
+    "settings.data.import.skipDuplicates" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip Duplicates"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跳过重复"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跳過重復"
+          }
+        }
+      }
+    },
+    "settings.data.import.strategy" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duplicates"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重复记录"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重復記錄"
+          }
+        }
+      }
+    },
+    "settings.data.import.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导入"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "導入"
+          }
+        }
+      }
+    },
+    "settings.data.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "数据"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "數據"
+          }
+        }
+      }
+    },
+    "settings.general.currency" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Default Currency"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "默认币种"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "默認幣種"
+          }
+        }
+      }
+    },
+    "settings.general.customCurrency" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Custom 3-letter code"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自定义三位币种代码"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自定義三位幣種代碼"
+          }
+        }
+      }
+    },
+    "settings.general.language" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "语言"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "語言"
+          }
+        }
+      }
+    },
+    "settings.general.manageCategories" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage Categories"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "管理分类"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "管理分類"
+          }
+        }
+      }
+    },
+    "settings.general.regional" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regional Preferences"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "地区偏好"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "地區偏好"
+          }
+        }
+      }
+    },
+    "settings.general.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "General"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通用"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通用"
+          }
+        }
+      }
+    },
+    "settings.storage.change" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更改…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更改…"
+          }
+        }
+      }
+    },
+    "settings.storage.erase" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erase All Entries"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一键抹除"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一鍵抹除"
+          }
+        }
+      }
+    },
+    "settings.storage.eraseConfirm" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permanently erase every ledger entry? Categories, settings, and exports will be kept."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "永久删除所有账目？分类、设置和已导出文件将保留。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "永久刪除所有賬目？分類、設置和已導出文件將保留。"
+          }
+        }
+      }
+    },
+    "settings.storage.pending" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quit and migrate on next launch"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "退出并在下次启动时迁移"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "退出並在下次啓動時遷移"
+          }
+        }
+      }
+    },
+    "settings.storage.restore" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore Default Location"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "恢复默认位置"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "恢復默認位置"
+          }
+        }
+      }
+    },
+    "settings.storage.showFinder" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show in Finder"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在访达中显示"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在訪達中顯示"
+          }
+        }
+      }
+    },
+    "settings.storage.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data & Storage"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "数据与存储"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "數據與存儲"
+          }
+        }
+      }
+    },
+    "settings.update.available" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A newer version is available."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "发现新版本。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "發現新版本。"
+          }
+        }
+      }
+    },
+    "settings.update.check" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check for Updates"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "检查更新"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "檢查更新"
+          }
+        }
+      }
+    },
+    "settings.update.checking" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Checking..."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在检查…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在檢查…"
+          }
+        }
+      }
+    },
+    "settings.update.current" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current Version"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当前版本"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "當前版本"
+          }
+        }
+      }
+    },
+    "settings.update.error.invalidResponse" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub returned an invalid response."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub 返回了无效响应。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub 返回了無效響應。"
+          }
+        }
+      }
+    },
+    "settings.update.error.network" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to reach GitHub. Check your network connection."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法连接 GitHub，请检查网络连接。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法連接 GitHub，請檢查網絡連接。"
+          }
+        }
+      }
+    },
+    "settings.update.error.noRelease" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No release has been published yet."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仓库尚未发布 Release。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "倉庫尚未發佈 Release。"
+          }
+        }
+      }
+    },
+    "settings.update.error.notFound" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The release repository could not be found."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未找到更新仓库。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未找到更新倉庫。"
+          }
+        }
+      }
+    },
+    "settings.update.error.rateLimited" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub API rate limit reached. Try again later."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub API 请求已达限额，请稍后重试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub API 請求已達限額，請稍後重試。"
+          }
+        }
+      }
+    },
+    "settings.update.latest" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Latest Version"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最新版本"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最新版本"
+          }
+        }
+      }
+    },
+    "settings.update.openRelease" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Latest Release"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开最新 Release"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打開最新 Release"
+          }
+        }
+      }
+    },
+    "settings.update.releasePage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub Releases"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub Release 页面"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub Release 頁面"
+          }
+        }
+      }
+    },
+    "settings.update.section" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Software Update"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "软件更新"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "軟件更新"
+          }
+        }
+      }
+    },
+    "settings.update.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check for Updates"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "检查更新"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "檢查更新"
+          }
+        }
+      }
+    },
+    "settings.update.upToDate" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You are using the latest version."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当前已是最新版本。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "當前已是最新版本。"
+          }
+        }
+      }
+    },
+    "storage.recovery.message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The data migration could not be verified. Your original data is preserved and the ledger has not been opened."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "数据迁移未能通过验证。原始数据已保留，账本尚未打开。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "數據遷移未能通過驗證。原始數據已保留，賬本尚未打開。"
+          }
+        }
+      }
+    },
+    "storage.recovery.source" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current data location"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当前数据位置"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "當前數據位置"
+          }
+        }
+      }
+    },
+    "storage.recovery.target" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pending destination"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "待迁移位置"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "待遷移位置"
+          }
+        }
+      }
+    },
+    "storage.recovery.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ledger recovery required"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要恢复账本"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要恢復賬本"
+          }
+        }
+      }
+    },
+    "summary.expense" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expense %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支出 %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支出 %@"
+          }
+        }
+      }
+    },
+    "summary.income" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Income %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收入 %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收入 %@"
+          }
+        }
+      }
+    },
+    "summary.net" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Net %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "净额 %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "淨額 %@"
+          }
+        }
+      }
+    },
+    "summary.net.label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Net"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "净额"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "淨額"
+          }
+        }
+      }
+    },
+    "state.empty" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empty"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "空"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "空"
+          }
+        }
+      }
+    },
+    "theme.dark" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dark"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "深色"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "深色"
+          }
+        }
+      }
+    },
+    "theme.light" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Light"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "浅色"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "淺色"
+          }
+        }
+      }
+    },
+    "theme.system" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跟随系统"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跟隨系統"
+          }
+        }
+      }
+    }
   },
   "version" : "1.0"
 }

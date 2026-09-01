@@ -3,10 +3,18 @@ import Observation
 
 enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
     case simplifiedChinese = "zh-Hans"
+    case traditionalChinese = "zh-Hant"
     case english = "en"
 
     var id: Self { self }
     var locale: Locale { Locale(identifier: rawValue) }
+    var datePickerLocale: Locale {
+        switch self {
+        case .simplifiedChinese: Locale(identifier: "zh_CN")
+        case .traditionalChinese: Locale(identifier: "zh_TW")
+        case .english: Locale(identifier: "en_SE")
+        }
+    }
 }
 
 @MainActor @Observable

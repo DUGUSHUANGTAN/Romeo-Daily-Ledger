@@ -101,6 +101,22 @@ final class LedgerViewModel {
         }
     }
 
+    func activate(_ entry: LedgerEntry) {
+        if selectedEntryIDs.isEmpty {
+            editingEntry = entry
+        } else {
+            toggleSelection(entry)
+        }
+    }
+
+    func beginSelection(with entry: LedgerEntry) {
+        selectedEntryIDs.insert(entry.id)
+    }
+
+    func clearSelection() {
+        selectedEntryIDs.removeAll()
+    }
+
     func deleteSelection() async {
         guard let deletionUndoCoordinator else { return }
         let selected = entries.filter { selectedEntryIDs.contains($0.id) }

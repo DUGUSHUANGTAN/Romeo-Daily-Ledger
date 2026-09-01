@@ -60,6 +60,8 @@ final class AppDependencies {
         }
         if ProcessInfo.processInfo.arguments.contains("--language-en") {
             resolvedPreferences.language = .english
+        } else if ProcessInfo.processInfo.arguments.contains("--language-zh-Hant") {
+            resolvedPreferences.language = .traditionalChinese
         } else if ProcessInfo.processInfo.arguments.contains("--language-zh-Hans") {
             resolvedPreferences.language = .simplifiedChinese
         }

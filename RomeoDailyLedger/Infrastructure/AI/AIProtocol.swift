@@ -17,24 +17,21 @@ struct AIConfiguration: Codable, Equatable, Sendable {
     var baseURL: URL
     var model: String
     var apiKey: String
-    var customInstructions: String
 
     init(
         protocolType: AIProtocol = .chatCompletions,
         baseURL: URL = URL(string: "https://api.openai.com/v1")!,
         model: String = "",
-        apiKey: String = "",
-        customInstructions: String = ""
+        apiKey: String = ""
     ) {
         self.protocolType = protocolType
         self.baseURL = baseURL
         self.model = model
         self.apiKey = apiKey
-        self.customInstructions = customInstructions
     }
 
     private enum CodingKeys: String, CodingKey {
-        case protocolType, baseURL, model, apiKey, customInstructions
+        case protocolType, baseURL, model, apiKey
     }
 
     init(from decoder: Decoder) throws {
@@ -43,7 +40,6 @@ struct AIConfiguration: Codable, Equatable, Sendable {
         baseURL = try container.decode(URL.self, forKey: .baseURL)
         model = try container.decode(String.self, forKey: .model)
         apiKey = try container.decodeIfPresent(String.self, forKey: .apiKey) ?? ""
-        customInstructions = try container.decodeIfPresent(String.self, forKey: .customInstructions) ?? ""
     }
 }
 

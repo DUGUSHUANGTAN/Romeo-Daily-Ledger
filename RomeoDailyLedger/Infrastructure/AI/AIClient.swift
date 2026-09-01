@@ -105,12 +105,10 @@ struct AIClient: AIRequesting, Sendable {
         Authorized ledger scope JSON:
         \(try scope.jsonString())
         """
-        let customInstructions = configuration.customInstructions.trimmingCharacters(in: .whitespacesAndNewlines)
         let styleInstructions = "Respond as a natural conversation, not as a statistics-only list. Be concise, practical, and friendly."
         let instructions = [
             "Analyze only the supplied ledger scope. State totals, categories, income versus expenses, and trends when relevant. Do not invent missing data.",
             styleInstructions,
-            customInstructions.isEmpty ? nil : "User preferences: \(customInstructions)",
             localTimeContext
         ]
         .compactMap { $0 }

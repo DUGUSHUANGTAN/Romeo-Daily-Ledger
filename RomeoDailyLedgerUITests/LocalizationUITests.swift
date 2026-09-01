@@ -45,24 +45,36 @@ final class LocalizationUITests: XCTestCase {
         XCTAssertFalse(app.buttons["settings-open-categories"].exists)
         XCTAssertFalse(app.staticTexts["⌘,"].exists)
         app.descendants(matching: .any)["settings-page-categories"].click()
-        XCTAssertTrue(app.descendants(matching: .any)["settings-categories"].waitForExistence(timeout: 2))
         let rows = app.descendants(matching: .any).matching(
             NSPredicate(format: "identifier BEGINSWITH %@", "category-")
         )
         XCTAssertEqual(rows.count, 11)
         XCTAssertFalse(app.switches.matching(NSPredicate(format: "identifier BEGINSWITH %@", "category-hidden-")).firstMatch.exists)
 
-        rows.firstMatch.click()
-        XCTAssertTrue(app.buttons["category-entries-back"].waitForExistence(timeout: 2))
-        app.buttons["category-entries-back"].click()
+        rows.firstMatch.press(forDuration: 0.6)
+        XCTAssertTrue(app.staticTexts["修改分类名称"].waitForExistence(timeout: 2))
+        app.sheets.buttons["取消"].click()
 
-        app.buttons["categories-manage"].click()
+        let manage = app.descendants(matching: .any)["categories-manage"]
+        XCTAssertTrue(manage.waitForExistence(timeout: 2))
+        XCTAssertEqual(manage.label, "管理")
+        manage.click()
+        XCTAssertEqual(app.descendants(matching: .any)["categories-manage"].label, "完成")
         let delete = app.buttons["categories-delete-selected"]
         XCTAssertTrue(delete.waitForExistence(timeout: 2))
         XCTAssertFalse(delete.isEnabled)
         rows.firstMatch.click()
         XCTAssertTrue(rows.firstMatch.isSelected)
         XCTAssertTrue(delete.isEnabled)
+        app.descendants(matching: .any)["categories-manage"].click()
+
+        rows.firstMatch.click()
+        XCTAssertTrue(app.buttons["category-entries-back"].waitForExistence(timeout: 2))
+        let header = app.descendants(matching: .any)["category-entries-header"]
+        XCTAssertTrue(header.waitForExistence(timeout: 2))
+        XCTAssertLessThan(header.frame.minY - app.windows.firstMatch.frame.minY, 120)
+        XCTAssertTrue(app.staticTexts["空"].exists)
+        app.buttons["category-entries-back"].click()
     }
 
     private func launch(languageArgument: String) -> XCUIApplication {

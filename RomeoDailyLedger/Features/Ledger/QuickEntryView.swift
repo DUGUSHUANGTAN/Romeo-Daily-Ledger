@@ -9,36 +9,45 @@ struct QuickEntryView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text(AppLocalization.text("ledger.quickEntry", language: language)).font(AppTypography.title(typography))
-            HStack(spacing: 8) {
-                kindButton(.expense, title: AppLocalization.text("entry.expense", language: language))
-                kindButton(.income, title: AppLocalization.text("entry.income", language: language))
-                TextField(AppLocalization.text("field.amount", language: language), text: $model.draft.amountText)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 130)
-                    .accessibilityLabel(AppLocalization.text("field.amount", language: language))
-                    .accessibilityIdentifier("quick-entry-amount")
-                Picker(AppLocalization.text("field.category", language: language), selection: $model.draft.categoryID) {
-                    ForEach(model.categories) { category in
-                        Text(LedgerFormatting.categoryName(category, language: language)).tag(Optional(category.id))
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 8) {
+                    kindButton(.expense, title: AppLocalization.text("entry.expense", language: language))
+                    kindButton(.income, title: AppLocalization.text("entry.income", language: language))
+                    TextField(AppLocalization.text("field.amount", language: language), text: $model.draft.amountText)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 130)
+                        .accessibilityLabel(AppLocalization.text("field.amount", language: language))
+                        .accessibilityIdentifier("quick-entry-amount")
+                    Picker(AppLocalization.text("field.category", language: language), selection: $model.draft.categoryID) {
+                        ForEach(model.categories) { category in
+                            Text(LedgerFormatting.categoryName(category, language: language)).tag(Optional(category.id))
+                        }
                     }
+                    .frame(width: 190)
+                    .accessibilityIdentifier("quick-entry-category")
+                    DatePicker(
+                        AppLocalization.text("field.date", language: language),
+                        selection: $model.draft.occurredAt,
+                        displayedComponents: .date
+                    )
+                    .environment(\.locale, language.datePickerLocale)
+                    .labelsHidden()
+                    .accessibilityIdentifier("quick-entry-date")
+                    Spacer(minLength: 8)
+                    Button(AppLocalization.text("button.save", language: language)) { Task { try? await model.saveQuickEntry() } }
+                        .buttonStyle(.borderedProminent)
+                        .accessibilityLabel(AppLocalization.text("button.saveEntry", language: language))
+                        .accessibilityIdentifier("quick-entry-save")
                 }
-                .frame(width: 190)
-                .accessibilityIdentifier("quick-entry-category")
-                DatePicker(
-                    AppLocalization.text("field.date", language: language),
-                    selection: $model.draft.occurredAt,
-                    displayedComponents: .date
+
+                MultilineSubmitTextEditor(
+                    text: $model.draft.note,
+                    prompt: AppLocalization.text("field.note", language: language),
+                    minHeight: 82,
+                    onSubmit: { Task { try? await model.saveQuickEntry() } }
                 )
-                .labelsHidden()
-                .accessibilityIdentifier("quick-entry-date")
-                TextField(AppLocalization.text("field.note", language: language), text: $model.draft.note)
-                    .textFieldStyle(.roundedBorder)
-                    .accessibilityLabel(AppLocalization.text("field.note", language: language))
-                    .accessibilityIdentifier("quick-entry-note")
-                Button(AppLocalization.text("button.save", language: language)) { Task { try? await model.saveQuickEntry() } }
-                    .buttonStyle(.borderedProminent)
-                    .accessibilityLabel(AppLocalization.text("button.saveEntry", language: language))
-                    .accessibilityIdentifier("quick-entry-save")
+                .accessibilityLabel(AppLocalization.text("field.note", language: language))
+                .accessibilityIdentifier("quick-entry-note")
             }
             if model.errorMessage != nil {
                 Text(AppLocalization.text("error.saveEntry", language: language))

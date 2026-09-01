@@ -3,6 +3,17 @@ import Testing
 
 @MainActor @Suite("Localization")
 struct LocalizationTests {
+    @Test func traditionalChineseIsAvailableAndFullyLocalized() {
+        #expect(Set(AppLanguage.allCases.map(\.rawValue)) == ["zh-Hans", "zh-Hant", "en"])
+        guard let traditional = AppLanguage(rawValue: "zh-Hant") else {
+            Issue.record("缺少繁体中文语言选项")
+            return
+        }
+        for key in ["app.name", "nav.ledger.title", "settings.general.title", "language.zhHant", "category.clothing"] {
+            #expect(AppLocalization.text(key, language: traditional) != key)
+        }
+    }
+
     @Test func navigationDoesNotMixLanguages() {
         let chinese = SidebarDestination.allCases.map { $0.localizedTitle(language: .simplifiedChinese) }
         let english = SidebarDestination.allCases.map { $0.localizedTitle(language: .english) }
@@ -33,6 +44,18 @@ struct LocalizationTests {
                 #expect(AppLocalization.categoryName(systemKey: key, language: language) != key)
             }
         }
+    }
+
+    @Test func categoryManagementActionsFollowTheSelectedLanguage() {
+        #expect(AppLocalization.text("button.manage", language: .simplifiedChinese) == "管理")
+        #expect(AppLocalization.text("button.done", language: .simplifiedChinese) == "完成")
+        #expect(AppLocalization.text("button.manage", language: .traditionalChinese) == "管理")
+        #expect(AppLocalization.text("button.done", language: .traditionalChinese) == "完成")
+        #expect(AppLocalization.text("button.cancelSelection", language: .simplifiedChinese) == "取消选择")
+        #expect(AppLocalization.text("settings.categories.hint", language: .simplifiedChinese).contains("长按"))
+        #expect(AppLocalization.text("settings.categories.editName", language: .simplifiedChinese) == "修改分类名称")
+        #expect(AppLocalization.text("state.empty", language: .simplifiedChinese) == "空")
+        #expect(AppLanguage.english.datePickerLocale.identifier == "en_SE")
     }
 
     @Test func updateCheckCopyIsCompleteInBothLanguages() {

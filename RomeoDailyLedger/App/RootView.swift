@@ -88,19 +88,30 @@ private struct RootContentView: View {
         let resolved = preferences.themeMode.resolve(systemIsDark: colorScheme == .dark)
         let theme = resolved == .dark ? AppTheme.dark : AppTheme.light
         let motion = MotionPolicy.navigation(systemReduceMotion: systemReduceMotion)
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.2"
 
         NavigationSplitView {
-            List(SidebarDestination.allCases, selection: $dependencies.selectedDestination) { destination in
-                NavigationLink(value: destination) {
-                    Label {
-                        Text(destination.localizedTitle(language: preferences.language))
-                    } icon: {
-                        LucideIconView(icon: destination.icon)
+            VStack(spacing: 0) {
+                List(SidebarDestination.allCases, selection: $dependencies.selectedDestination) { destination in
+                    NavigationLink(value: destination) {
+                        Label {
+                            Text(destination.localizedTitle(language: preferences.language))
+                        } icon: {
+                            LucideIconView(icon: destination.icon)
+                        }
+                        .accessibilityLabel(destination.localizedTitle(language: preferences.language))
                     }
-                    .accessibilityLabel(destination.localizedTitle(language: preferences.language))
+                    .frame(minHeight: 34)
+                    .accessibilityIdentifier("sidebar-\(destination.rawValue)")
                 }
-                .frame(minHeight: 34)
-                .accessibilityIdentifier("sidebar-\(destination.rawValue)")
+                Text("V\(version)")
+                    .font(.caption2)
+                    .foregroundStyle(theme.secondaryText.color.opacity(0.55))
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityLabel("V\(version)")
+                    .accessibilityIdentifier("app-version")
             }
             .navigationTitle(AppLocalization.text("app.name", language: preferences.language))
             .scrollContentBackground(.hidden)

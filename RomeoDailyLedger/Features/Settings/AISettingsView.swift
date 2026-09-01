@@ -32,26 +32,24 @@ struct AISettingsView: View {
                 }
                 .accessibilityIdentifier("settings-ai-protocol")
 
-                TextField(AppLocalization.text("settings.ai.baseURL", language: language), text: $baseURLText)
-                    .accessibilityIdentifier("settings-ai-base-url")
-                    .onSubmit { testConnection() }
-                TextField(AppLocalization.text("settings.ai.apiKey", language: language), text: $preferences.apiKey)
-                    .accessibilityIdentifier("settings-ai-api-key")
-                    .onSubmit { testConnection() }
-                TextField(
-                    AppLocalization.text("settings.ai.model", language: language),
-                    text: configurationBinding(\.model)
-                )
-                .accessibilityIdentifier("settings-ai-model")
-                .onSubmit { testConnection() }
-
-                MultilineSubmitTextEditor(
-                    text: configurationBinding(\.customInstructions),
-                    prompt: AppLocalization.text("settings.ai.customInstructions", language: language),
-                    minHeight: 88,
-                    onSubmit: testConnection
-                )
-                .accessibilityIdentifier("settings-ai-custom-instructions")
+                LabeledContent(AppLocalization.text("settings.ai.baseURL", language: language)) {
+                    TextField("", text: $baseURLText)
+                        .textFieldStyle(.roundedBorder)
+                        .accessibilityIdentifier("settings-ai-base-url")
+                        .onSubmit { testConnection() }
+                }
+                LabeledContent(AppLocalization.text("settings.ai.apiKey", language: language)) {
+                    SecureField("", text: $preferences.apiKey)
+                        .textFieldStyle(.roundedBorder)
+                        .accessibilityIdentifier("settings-ai-api-key")
+                        .onSubmit { testConnection() }
+                }
+                LabeledContent(AppLocalization.text("settings.ai.model", language: language)) {
+                    TextField("", text: configurationBinding(\.model))
+                        .textFieldStyle(.roundedBorder)
+                        .accessibilityIdentifier("settings-ai-model")
+                        .onSubmit { testConnection() }
+                }
 
                 HStack {
                     Button(AppLocalization.text("settings.ai.test", language: language)) { testConnection() }
@@ -72,7 +70,10 @@ struct AISettingsView: View {
         }
         .formStyle(.grouped)
         .navigationTitle(AppLocalization.text("settings.ai.title", language: language))
-        .padding(24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .padding(.leading, 16)
+        .padding(.trailing, 24)
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("settings-ai")
         .onDisappear { requestTask?.cancel() }
     }

@@ -14,8 +14,9 @@ struct GeneralSettingsView: View {
                 CurrencyInputField(preferences: preferences)
                 Picker(AppLocalization.text("settings.general.language", language: preferences.language), selection: $preferences.language) {
                     Text(AppLocalization.text("language.zhHans", language: preferences.language)).tag(AppLanguage.simplifiedChinese)
+                    Text(AppLocalization.text("language.zhHant", language: preferences.language)).tag(AppLanguage.traditionalChinese)
                     Text(AppLocalization.text("language.en", language: preferences.language)).tag(AppLanguage.english)
-                }.pickerStyle(.segmented).frame(maxWidth: 300).accessibilityIdentifier("settings-language")
+                }.pickerStyle(.segmented).frame(maxWidth: 360).accessibilityIdentifier("settings-language")
             }
             Section(AppLocalization.text("settings.storage.title", language: preferences.language)) {
                 Text(storage.activeDirectory.path).textSelection(.enabled)

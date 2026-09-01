@@ -65,7 +65,7 @@ final class DataTransferUITests: XCTestCase {
         let dataPage = app.descendants(matching: .any)["settings-page-data"]
         XCTAssertTrue(dataPage.waitForExistence(timeout: 3))
         dataPage.click()
-        XCTAssertTrue(app.descendants(matching: .any)["settings-data"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["data-import-button"].waitForExistence(timeout: 3))
         app.buttons["data-import-button"].click()
         app.typeKey(.escape, modifierFlags: [])
         XCTAssertTrue(app.buttons["data-import-button"].waitForExistence(timeout: 2))
@@ -85,6 +85,6 @@ final class DataTransferUITests: XCTestCase {
         app.buttons["data-export-json"].click()
         sleep(1)
         app.typeKey(.escape, modifierFlags: [])
-        XCTAssertTrue(app.descendants(matching: .any)["settings-data"].exists)
+        XCTAssertTrue(app.buttons["data-export-json"].exists)
     }
 }

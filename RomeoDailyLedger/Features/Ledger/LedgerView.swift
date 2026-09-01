@@ -44,6 +44,8 @@ struct LedgerView: View {
             if !model.selectedEntryIDs.isEmpty {
                 SelectionSummaryBar(summary: model.selectionSummary, theme: theme, typography: typography) {
                     isDeleteConfirmationPresented = true
+                } onCancel: {
+                    model.clearSelection()
                 }
             }
             HStack {
@@ -56,6 +58,7 @@ struct LedgerView: View {
         .foregroundStyle(theme.primaryText.color)
         .background(theme.canvas.color)
         .task { await model.start() }
+        .onDisappear { model.clearSelection() }
         .sheet(item: $model.editingEntry) { entry in
             EntryEditorView(entry: entry, repository: repository, theme: theme, typography: typography) {
                 try? await model.reload()
@@ -83,6 +86,8 @@ private struct AllEntriesView: View {
     @State private var entries: [LedgerEntry] = []
     @State private var editingEntry: LedgerEntry?
     @State private var errorMessage: String?
+    @State private var selectedEntryIDs: Set<UUID> = []
+    @State private var isDeleteConfirmationPresented = false
     let repository: LedgerRepository
     let theme: AppTheme
     let typography: AppTypography.Style
@@ -102,15 +107,28 @@ private struct AllEntriesView: View {
                     ForEach(groupedEntries) { group in
                         Section {
                             ForEach(group.entries) { entry in
-                                Button { editingEntry = entry } label: {
-                                    HStack {
-                                        Text(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note)
-                                        Spacer()
-                                        Text(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode))
-                                    }
-                                    .padding(12).background(theme.surface.color, in: RoundedRectangle(cornerRadius: 8))
+                                HStack {
+                                    Text(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note)
+                                    Spacer()
+                                    Text(LedgerFormatting.amount(entry.amount, currencyCode: currencyCode))
                                 }
-                                .buttonStyle(.plain)
+                                .padding(12)
+                                .background(selectedEntryIDs.contains(entry.id) ? theme.primaryAccent.color.opacity(0.16) : theme.surface.color, in: RoundedRectangle(cornerRadius: 8))
+                                .contentShape(Rectangle())
+                                .gesture(
+                                    LongPressGesture(minimumDuration: 0.5)
+                                        .exclusively(before: TapGesture())
+                                        .onEnded { value in
+                                            switch value {
+                                            case .first: selectedEntryIDs.insert(entry.id)
+                                            case .second:
+                                                if selectedEntryIDs.isEmpty { editingEntry = entry }
+                                                else { toggleSelection(entry.id) }
+                                            }
+                                        }
+                                )
+                                .accessibilityAddTraits(.isButton)
+                                .accessibilityAddTraits(selectedEntryIDs.contains(entry.id) ? .isSelected : [])
                                 .accessibilityIdentifier("ledger-all-entry-\(entry.id.uuidString.lowercased())")
                             }
                         } header: {
@@ -119,6 +137,14 @@ private struct AllEntriesView: View {
                     }
                 }
             }.accessibilityIdentifier("ledger-all-list")
+            if !selectedEntryIDs.isEmpty {
+                SelectionSummaryBar(summary: selectionSummary, theme: theme, typography: typography) {
+                    isDeleteConfirmationPresented = true
+                } onCancel: {
+                    selectedEntryIDs.removeAll()
+                }
+                .accessibilityIdentifier("ledger-all-selection-summary")
+            }
         }
         .padding(28).foregroundStyle(theme.primaryText.color).background(theme.canvas.color)
         .task { await load() }
@@ -127,14 +153,46 @@ private struct AllEntriesView: View {
                 await load()
             }
         }
+        .confirmationDialog(
+            AppLocalization.text("ledger.delete.confirmTitle", language: language),
+            isPresented: $isDeleteConfirmationPresented,
+            titleVisibility: .visible
+        ) {
+            Button(AppLocalization.text("button.confirmDelete", language: language), role: .destructive) {
+                Task { await deleteSelection() }
+            }
+            .accessibilityIdentifier("confirm-delete-selected")
+            Button(AppLocalization.text("button.cancel", language: language), role: .cancel) { }
+        }
     }
 
     private var groupedEntries: [LedgerEntryGrouping.Group] {
         LedgerEntryGrouping.groups(entries)
     }
 
+    private var selectionSummary: SelectionSummary {
+        SelectionSummary(entries: entries.filter { selectedEntryIDs.contains($0.id) })
+    }
+
+    private func toggleSelection(_ id: UUID) {
+        if selectedEntryIDs.contains(id) { selectedEntryIDs.remove(id) }
+        else { selectedEntryIDs.insert(id) }
+    }
+
+    private func deleteSelection() async {
+        do {
+            try await repository.delete(ids: selectedEntryIDs)
+            selectedEntryIDs.removeAll()
+            await load()
+        } catch { errorMessage = String(describing: error) }
+    }
+
     private func load() async {
-        do { entries = try await repository.allEntries(); errorMessage = nil }
+        do {
+            entries = try await repository.allEntries()
+            selectedEntryIDs.formIntersection(Set(entries.map(\.id)))
+            errorMessage = nil
+        }
         catch { errorMessage = String(describing: error) }
     }
 }
