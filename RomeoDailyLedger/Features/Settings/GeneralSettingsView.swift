@@ -33,7 +33,10 @@ struct GeneralSettingsView: View {
                     .accessibilityIdentifier("settings-check-for-updates")
             }
         }
-        .formStyle(.grouped).navigationTitle(AppLocalization.text("settings.general.title", language: preferences.language)).padding(24)
+        .formStyle(.grouped)
+        .padding(SettingsPageLayout.contentInset)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .navigationTitle(AppLocalization.text("settings.general.title", language: preferences.language))
         .accessibilityIdentifier("settings-general")
         .sheet(isPresented: $showingUpdateCheck) { UpdateCheckView(language: preferences.language) }
     }

@@ -49,6 +49,8 @@ struct DataSettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .padding(SettingsPageLayout.contentInset)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .navigationTitle(AppLocalization.text("settings.data.title", language: language))
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("settings-data")

@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import RomeoDailyLedger
 
@@ -76,5 +77,33 @@ struct DesignSystemTests {
             #expect(source.contains("stroke=\"currentColor\""))
         }
         #expect(LucideIcon.version == "0.468.0")
+    }
+
+    @Test func settingsPagesShareTheEstablishedInsetAndSidebarSelectionFallback() throws {
+        let root = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let pageFiles = [
+            "GeneralSettingsView.swift",
+            "AppearanceSettingsView.swift",
+            "DataSettingsView.swift"
+        ]
+
+        for file in pageFiles {
+            let source = try String(
+                contentsOf: root.appendingPathComponent("RomeoDailyLedger/Features/Settings/\(file)"),
+                encoding: .utf8
+            )
+            #expect(source.contains(".padding(SettingsPageLayout.contentInset)"), "\(file) should use the shared settings inset")
+        }
+
+        let settingsRoot = try String(
+            contentsOf: root.appendingPathComponent("RomeoDailyLedger/Features/Settings/SettingsRootView.swift"),
+            encoding: .utf8
+        )
+        #expect(settingsRoot.contains("if #available(macOS 26.0, *)"))
+        #expect(settingsRoot.contains(".glassEffect("))
+        #expect(settingsRoot.contains("RoundedRectangle(cornerRadius: SettingsPageLayout.sidebarSelectionCornerRadius)"))
     }
 }

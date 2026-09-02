@@ -1,6 +1,12 @@
 import AppKit
 import SwiftUI
 
+enum SettingsPageLayout {
+    static let contentInset: CGFloat = 24
+    static let sidebarSelectionCornerRadius: CGFloat = 8
+    static let sidebarSelectionVerticalInset: CGFloat = 2
+}
+
 struct SettingsRootView: View {
     enum Page: String, CaseIterable, Identifiable {
         case general, appearance, ai, data
@@ -47,6 +53,13 @@ private struct SettingsContentView: View {
                     .tag(page)
                     .accessibilityIdentifier("settings-page-\(page.rawValue)")
                     .frame(minHeight: 34)
+                    .foregroundStyle(selectedPage == page ? theme.selectionForeground.color : theme.primaryText.color)
+                    .listRowBackground(
+                        SettingsSidebarSelectionBackground(
+                            isSelected: selectedPage == page,
+                            theme: theme
+                        )
+                    )
             }
             .navigationTitle(AppLocalization.text("nav.settings.title", language: preferences.language))
             .listStyle(.sidebar)
@@ -98,6 +111,31 @@ private struct SettingsContentView: View {
         motion.effectiveIntensity == 0 ? nil : .easeOut(duration: motion.duration)
     }
 
+}
+
+private struct SettingsSidebarSelectionBackground: View {
+    let isSelected: Bool
+    let theme: AppTheme
+
+    var body: some View {
+        if isSelected {
+            if #available(macOS 26.0, *) {
+                RoundedRectangle(cornerRadius: SettingsPageLayout.sidebarSelectionCornerRadius)
+                    .fill(.clear)
+                    .glassEffect(
+                        .regular.tint(theme.primaryAccent.color.opacity(0.72)),
+                        in: .rect(cornerRadius: SettingsPageLayout.sidebarSelectionCornerRadius)
+                    )
+                    .padding(.vertical, SettingsPageLayout.sidebarSelectionVerticalInset)
+            } else {
+                RoundedRectangle(cornerRadius: SettingsPageLayout.sidebarSelectionCornerRadius)
+                    .fill(theme.primaryAccent.color)
+                    .padding(.vertical, SettingsPageLayout.sidebarSelectionVerticalInset)
+            }
+        } else {
+            Color.clear
+        }
+    }
 }
 
 private struct WindowAppearanceBridge: NSViewRepresentable {

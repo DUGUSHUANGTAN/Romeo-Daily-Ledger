@@ -44,9 +44,9 @@ struct AppearanceSettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .padding(SettingsPageLayout.contentInset)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .navigationTitle(AppLocalization.text("settings.appearance.title", language: preferences.language))
-        .padding(24)
         .accessibilityIdentifier("settings-appearance")
     }
 }
