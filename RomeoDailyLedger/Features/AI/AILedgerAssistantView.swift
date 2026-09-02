@@ -219,6 +219,10 @@ struct AILedgerAssistantView: View {
 }
 
 enum AIAnalysisResultLayout {
+    static func containerHeight(contentHeight: CGFloat, availableHeight: CGFloat) -> CGFloat {
+        min(max(contentHeight, 70), max(availableHeight, 70))
+    }
+
     static func shouldScroll(contentHeight: CGFloat, availableHeight: CGFloat) -> Bool {
         contentHeight > availableHeight
     }
@@ -241,10 +245,14 @@ private struct AdaptiveAnalysisResult: View {
     var body: some View {
         GeometryReader { proxy in
             let contentHeight = AIAnalysisResultLayout.contentHeight(for: text, width: proxy.size.width)
-            let availableHeight = max(proxy.size.height, 70)
-            let shouldScroll = AIAnalysisResultLayout.shouldScroll(
+            let availableHeight = min(max(proxy.size.height, 70), 360)
+            let containerHeight = AIAnalysisResultLayout.containerHeight(
                 contentHeight: contentHeight,
                 availableHeight: availableHeight
+            )
+            let shouldScroll = AIAnalysisResultLayout.shouldScroll(
+                contentHeight: contentHeight,
+                availableHeight: containerHeight
             )
 
             Group {
@@ -257,14 +265,11 @@ private struct AdaptiveAnalysisResult: View {
                         .frame(height: contentHeight, alignment: .top)
                 }
             }
-            .frame(
-                maxWidth: .infinity,
-                maxHeight: shouldScroll ? .infinity : contentHeight,
-                alignment: .top
-            )
+            .frame(maxWidth: .infinity)
+            .frame(height: containerHeight, alignment: .top)
             .background(surface, in: RoundedRectangle(cornerRadius: 10))
         }
-        .frame(minHeight: 70, maxHeight: .infinity)
+        .frame(minHeight: 70, idealHeight: 240, maxHeight: 360)
     }
 
     private var resultText: some View {
@@ -308,6 +313,11 @@ struct MultilineSubmitTextEditor: View {
 enum MultilineSubmitBehavior {
     static func shouldSubmit(shiftPressed: Bool, hasMarkedText: Bool) -> Bool {
         !shiftPressed && !hasMarkedText
+    }
+
+    static func shouldSubmit(command: String, shiftPressed: Bool, hasMarkedText: Bool) -> Bool {
+        guard command == "insertNewline:" || command == "insertNewlineIgnoringFieldEditor:" else { return false }
+        return shouldSubmit(shiftPressed: shiftPressed, hasMarkedText: hasMarkedText)
     }
 }
 
@@ -362,17 +372,14 @@ private struct ComposingTextView: NSViewRepresentable {
 private final class SubmitAwareTextView: NSTextView {
     var onSubmit: (() -> Void)?
 
-    override func keyDown(with event: NSEvent) {
-        guard event.keyCode == 36 || event.keyCode == 76 else {
-            super.keyDown(with: event)
-            return
-        }
-        let shiftPressed = event.modifierFlags.contains(.shift)
+    override func doCommand(by selector: Selector) {
+        let shiftPressed = NSApp.currentEvent?.modifierFlags.contains(.shift) == true
         guard MultilineSubmitBehavior.shouldSubmit(
+            command: NSStringFromSelector(selector),
             shiftPressed: shiftPressed,
             hasMarkedText: hasMarkedText()
         ) else {
-            super.keyDown(with: event)
+            super.doCommand(by: selector)
             return
         }
         onSubmit?()

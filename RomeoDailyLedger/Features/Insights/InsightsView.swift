@@ -6,6 +6,7 @@ struct InsightsView: View {
     @Environment(\.appCurrencyCode) private var currencyCode
     @State private var model: InsightsViewModel
     @State private var yearText = ""
+    @FocusState private var isYearFieldFocused: Bool
     let theme: AppTheme
     let typography: AppTypography.Style
     let motion: MotionPolicy
@@ -46,6 +47,11 @@ struct InsightsView: View {
             await model.load()
         }
         .onChange(of: model.displayedMonth) { _, _ in synchronizeYearText() }
+        .onChange(of: isYearFieldFocused) { wasFocused, isFocused in
+            if YearInputCommitBehavior.shouldCommit(previouslyFocused: wasFocused, currentlyFocused: isFocused) {
+                commitYear()
+            }
+        }
         .animation(monthAnimation, value: model.displayedMonth)
     }
 
@@ -63,6 +69,7 @@ struct InsightsView: View {
                     .labelsHidden()
                     .frame(width: 72)
                     .accessibilityIdentifier("insights-year")
+                    .focused($isYearFieldFocused)
                     .onSubmit { commitYear() }
                 Picker(AppLocalization.text("calendar.month", language: language), selection: monthBinding) {
                     ForEach(1...12, id: \.self) { Text(model.calendar.monthSymbols[$0 - 1]).tag($0) }

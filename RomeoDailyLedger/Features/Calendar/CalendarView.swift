@@ -11,6 +11,7 @@ struct CalendarView: View {
     @State private var isDeleteConfirmationPresented = false
     @State private var yearText = ""
     @State private var categoryNames: [UUID: String] = [:]
+    @FocusState private var isYearFieldFocused: Bool
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
     let repository: LedgerRepository
     let theme: AppTheme
@@ -33,6 +34,7 @@ struct CalendarView: View {
                         .labelsHidden()
                         .frame(width: 72)
                         .accessibilityIdentifier("calendar-year")
+                        .focused($isYearFieldFocused)
                         .onSubmit { commitYear() }
                     Picker(AppLocalization.text("calendar.month", language: language), selection: monthBinding) {
                         ForEach(1...12, id: \.self) { Text(model.calendar.monthSymbols[$0 - 1]).tag($0) }
@@ -152,6 +154,11 @@ struct CalendarView: View {
             await loadEntries()
         }
         .onChange(of: model.displayedMonth) { _, _ in synchronizeYearText() }
+        .onChange(of: isYearFieldFocused) { wasFocused, isFocused in
+            if YearInputCommitBehavior.shouldCommit(previouslyFocused: wasFocused, currentlyFocused: isFocused) {
+                commitYear()
+            }
+        }
         .sheet(item: $editingEntry) { entry in
             EntryEditorView(entry: entry, repository: repository, theme: theme, typography: typography) {
                 await loadEntries()

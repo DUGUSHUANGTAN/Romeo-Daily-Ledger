@@ -14,6 +14,21 @@ struct AIAnalysisTests {
     }
 
     @Test(arguments: [
+        (command: "insertNewline:", shiftPressed: false, hasMarkedText: false, expected: true),
+        (command: "insertNewline:", shiftPressed: true, hasMarkedText: false, expected: false),
+        (command: "insertNewline:", shiftPressed: false, hasMarkedText: true, expected: false),
+        (command: "insertTab:", shiftPressed: false, hasMarkedText: false, expected: false)
+    ])
+    func multilineReturnOnlySubmitsAfterInputMethodCommandRouting(
+        command: String,
+        shiftPressed: Bool,
+        hasMarkedText: Bool,
+        expected: Bool
+    ) {
+        #expect(MultilineSubmitBehavior.shouldSubmit(command: command, shiftPressed: shiftPressed, hasMarkedText: hasMarkedText) == expected)
+    }
+
+    @Test(arguments: [
         (content: CGFloat(80), available: CGFloat(120), expected: false),
         (content: CGFloat(120), available: CGFloat(120), expected: false),
         (content: CGFloat(121), available: CGFloat(120), expected: true)
@@ -24,6 +39,11 @@ struct AIAnalysisTests {
         expected: Bool
     ) {
         #expect(AIAnalysisResultLayout.shouldScroll(contentHeight: content, availableHeight: available) == expected)
+    }
+
+    @Test func analysisResultHeightNeverExceedsItsFiniteContainer() {
+        #expect(AIAnalysisResultLayout.containerHeight(contentHeight: 1_200, availableHeight: 500) == 500)
+        #expect(AIAnalysisResultLayout.containerHeight(contentHeight: 120, availableHeight: 500) == 120)
     }
 
     @Test func filtersEntriesToRequestedRange() throws {

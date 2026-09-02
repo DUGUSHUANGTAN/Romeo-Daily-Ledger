@@ -5,6 +5,7 @@ struct AISettingsView: View {
     @Bindable var preferences: AppPreferences
     @State private var editor: ModelEditorContext?
     @State private var pendingDeletion: AIModelPreset?
+    @State private var isClearAnalysisHistoryConfirmationPresented = false
     @State private var testingModelIDs: Set<UUID> = []
     @State private var draggingModelID: UUID?
     @State private var modelDragTranslation: CGSize = .zero
@@ -33,9 +34,11 @@ struct AISettingsView: View {
             }
             Section {
                 Button(AppLocalization.text("settings.ai.clearAnalysisHistory", language: language), role: .destructive) {
-                    preferences.aiAnalysisHistory.removeAll()
+                    isClearAnalysisHistoryConfirmationPresented = true
                 }
+                .foregroundStyle(.red)
                 .disabled(preferences.aiAnalysisHistory.isEmpty)
+                .accessibilityIdentifier("settings-ai-clear-analysis-history")
             }
         }
         .formStyle(.grouped)
@@ -61,6 +64,16 @@ struct AISettingsView: View {
             Button(AppLocalization.text("button.cancel", language: language), role: .cancel) {}
             Button(AppLocalization.text("button.delete", language: language), role: .destructive) { delete(preset) }
         } message: { _ in Text(AppLocalization.text("settings.ai.deleteModel.message", language: language)) }
+        .confirmationDialog(
+            AppLocalization.text("ledger.delete.confirmTitle", language: language),
+            isPresented: $isClearAnalysisHistoryConfirmationPresented,
+            titleVisibility: .visible
+        ) {
+            Button(AppLocalization.text("button.confirmDelete", language: language), role: .destructive) {
+                preferences.aiAnalysisHistory.removeAll()
+            }
+            Button(AppLocalization.text("button.cancel", language: language), role: .cancel) { }
+        }
     }
 
     private func modelRow(_ preset: AIModelPreset) -> some View {

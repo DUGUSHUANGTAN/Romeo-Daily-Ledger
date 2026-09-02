@@ -81,6 +81,12 @@ final class CalendarViewModel {
     }
 }
 
+enum YearInputCommitBehavior {
+    static func shouldCommit(previouslyFocused: Bool, currentlyFocused: Bool) -> Bool {
+        previouslyFocused && !currentlyFocused
+    }
+}
+
 struct HistorySearchIndex {
     let entries: [LedgerEntry]
     let categoryNames: [UUID: String]

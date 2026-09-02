@@ -5,6 +5,20 @@ import Testing
 @Suite("CalendarViewModel")
 @MainActor
 struct CalendarViewModelTests {
+    @Test(arguments: [
+        (wasFocused: true, isFocused: false, expected: true),
+        (wasFocused: true, isFocused: true, expected: false),
+        (wasFocused: false, isFocused: false, expected: false),
+        (wasFocused: false, isFocused: true, expected: false)
+    ])
+    func yearInputCommitsWhenFocusLeaves(
+        wasFocused: Bool,
+        isFocused: Bool,
+        expected: Bool
+    ) {
+        #expect(YearInputCommitBehavior.shouldCommit(previouslyFocused: wasFocused, currentlyFocused: isFocused) == expected)
+    }
+
     @Test func manuallyEnteredYearAcceptsValidTextAndRejectsInvalidText() {
         #expect(CalendarViewModel.validatedYear(from: "2026") == 2026)
         #expect(CalendarViewModel.validatedYear(from: " 2001 ") == 2001)
