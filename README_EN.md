@@ -16,11 +16,7 @@ Romeo Daily Ledger is a native, local-first personal ledger app for macOS. It re
 
 Download the DMG from [GitHub Releases](https://github.com/DUGUSHUANGTAN/Romeo-Daily-Ledger/releases), open it, and drag Romeo Daily Ledger to Applications.
 
-V1.0.1 currently provides an unsigned build for personal use. On first launch, you may need to right-click the app in Finder and choose **Open**. Verify the download from its directory with:
-
-```bash
-shasum -a 256 -c Romeo-Daily-Ledger-1.0.1.dmg.sha256
-```
+V1.0.3 provides an Apple Silicon build. Without a Developer ID, the first launch may require right-clicking the app in Finder and choosing **Open**.
 
 ## Data storage
 
@@ -38,7 +34,7 @@ xcodebuild test -project RomeoDailyLedger.xcodeproj -scheme RomeoDailyLedger -de
 ./scripts/create_dmg.sh
 ```
 
-Signing and notarization are optional through `SIGNING_IDENTITY` and `NOTARY_PROFILE`.
+Signing and notarization are optional through `SIGNING_IDENTITY` and `NOTARY_PROFILE`. Without a Developer ID, the release script applies a complete ad-hoc signature; a downloaded build may require one first launch via Finder's “Open” action.
 
 ## License
 

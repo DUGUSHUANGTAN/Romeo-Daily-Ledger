@@ -16,11 +16,7 @@
 
 从 [GitHub Releases](https://github.com/DUGUSHUANGTAN/Romeo-Daily-Ledger/releases) 下载 DMG，打开后将 “Romeo Daily Ledger” 拖入 Applications。
 
-V1.0.1 当前提供未签名的自用构建，首次打开时可能需要在 Finder 中右键应用并选择“打开”。可在下载目录校验安装包：
-
-```bash
-shasum -a 256 -c Romeo-Daily-Ledger-1.0.1.dmg.sha256
-```
+V1.0.3 提供 Apple Silicon（M 系列芯片）构建。没有 Developer ID 时，首次打开可能需要在 Finder 中右键应用并选择“打开”。
 
 ## 数据保存
 
@@ -38,7 +34,7 @@ xcodebuild test -project RomeoDailyLedger.xcodeproj -scheme RomeoDailyLedger -de
 ./scripts/create_dmg.sh
 ```
 
-签名与公证为可选项，分别通过 `SIGNING_IDENTITY` 和 `NOTARY_PROFILE` 提供。
+签名与公证为可选项，分别通过 `SIGNING_IDENTITY` 和 `NOTARY_PROFILE` 提供。没有 Developer ID 时，构建脚本会对 App 做完整 ad-hoc 签名；从网络下载后首次打开可能需要在 Finder 中右键选择“打开”。
 
 ## 许可证
 
