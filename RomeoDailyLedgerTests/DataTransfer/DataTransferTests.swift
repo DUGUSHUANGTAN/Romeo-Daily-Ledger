@@ -16,15 +16,59 @@ struct DataTransferTests {
     @Test func jsonRoundTripPreservesFields() throws {
         let data = try LedgerTransferCodec.json.encode(records)
         let decoded = try LedgerTransferCodec.json.decode([LedgerTransferRecord].self, from: data)
-        #expect(decoded == records)
+        #expect(decoded == records.map(normalizedForCurrentTimeZone))
         #expect(String(data: data, encoding: .utf8)?.contains("apiKey") == false)
     }
 
     @Test func csvRoundTripPreservesFieldsAndQuotesNotes() throws {
         let data = try LedgerTransferCodec.csv.encode(records)
         let decoded = try LedgerTransferCodec.csv.decode([LedgerTransferRecord].self, from: data)
-        #expect(decoded == records)
+        #expect(decoded == records.map(normalizedForCurrentTimeZone))
         #expect(String(data: data, encoding: .utf8)?.contains("\"工资\"") == false) // UTF-8 is unquoted here
+    }
+
+    private func normalizedForCurrentTimeZone(_ record: LedgerTransferRecord) -> LedgerTransferRecord {
+        var normalized = record
+        normalized.occurredAt = AppDateNormalizer().normalize(record.occurredAt)
+        return normalized
+    }
+
+    @MainActor
+    @Test func exportUsesInjectedLocalDateForJSONAndCSV() async throws {
+        let zone = try #require(TimeZone(identifier: "Asia/Shanghai"))
+        let localMidnight = try #require(ISO8601DateFormatter().date(from: "2024-01-22T16:00:00Z"))
+        let entry = LedgerEntry(kind: .expense, amount: 88, categoryID: UUID(), note: "23日", occurredAt: localMidnight)
+        let service = LedgerTransferService(
+            repository: TransferRepositoryStub(entries: [entry], categories: []),
+            timeZoneProvider: FixedAppTimeZoneProvider(timeZone: zone)
+        )
+
+        for format in [LedgerTransferService.Format.json, .csv] {
+            let data = try await service.exportData(format: format, currencyCode: "CNY")
+            let text = try #require(String(data: data, encoding: .utf8))
+            #expect(text.contains("2024-01-23"))
+            #expect(text.contains("2024-01-22T16:00:00") == false)
+        }
+    }
+
+    @MainActor
+    @Test func importsDateOnlyAndLegacyISOAsInjectedLocalMidnight() throws {
+        let zone = try #require(TimeZone(identifier: "Asia/Shanghai"))
+        let expected = try #require(ISO8601DateFormatter().date(from: "2024-01-22T16:00:00Z"))
+        let service = LedgerTransferService(
+            repository: TransferRepositoryStub(entries: [], categories: []),
+            timeZoneProvider: FixedAppTimeZoneProvider(timeZone: zone)
+        )
+        let id = "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA"
+        let jsonDateOnly = "[{\"id\":\"\(id)\",\"kind\":\"expense\",\"amount\":\"1.00\",\"occurredAt\":\"2024-01-23\"}]".data(using: .utf8)!
+        let legacyJSON = "[{\"id\":\"\(id)\",\"kind\":\"expense\",\"amount\":\"1.00\",\"occurredAt\":\"2024-01-22T16:00:00Z\"}]".data(using: .utf8)!
+        let csvDateOnly = "id,kind,amount,currencyCode,categoryID,categoryKey,note,occurredAt\n\(id),expense,1,CNY,,,,2024-01-23".data(using: .utf8)!
+        let legacyCSV = "id,kind,amount,currencyCode,categoryID,categoryKey,note,occurredAt\n\(id),expense,1,CNY,,,,2024-01-22T16:00:00Z".data(using: .utf8)!
+
+        #expect(try service.decode(data: jsonDateOnly, format: .json).first?.occurredAt == expected)
+        #expect(try service.decode(data: legacyJSON, format: .json).first?.occurredAt == expected)
+        #expect(try service.decode(data: csvDateOnly, format: .csv).first?.occurredAt == expected)
+        #expect(try service.decode(data: legacyCSV, format: .csv).first?.occurredAt == expected)
     }
 
     @Test func previewSummarizesRecords() throws {
