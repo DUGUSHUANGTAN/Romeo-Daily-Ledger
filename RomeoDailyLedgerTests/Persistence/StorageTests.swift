@@ -17,14 +17,15 @@ final class StorageTests: XCTestCase {
         let defaults = UserDefaults(suiteName: UUID().uuidString)!
         defer { defaults.removePersistentDomain(forName: defaults.volatileDomainNames.first ?? "") }
         let store = SettingsStore(directory: directory)
-        let keychain = FakeKeychain(value: nil)
-        let preferences = AppPreferences(defaults: defaults, settingsStore: store, keychain: keychain)
+        let preferences = AppPreferences(defaults: defaults, settingsStore: store)
         preferences.currencyCode = "eur"
         preferences.language = .english
         preferences.apiKey = "TEST-KEY-NOT-REAL"
-        let loaded = AppPreferences(defaults: defaults, settingsStore: store, keychain: keychain)
+        let loaded = AppPreferences(defaults: defaults, settingsStore: store)
         XCTAssertEqual(loaded.currencyCode, "EUR")
         XCTAssertEqual(loaded.apiKey, "TEST-KEY-NOT-REAL")
+        let permissions = try FileManager.default.attributesOfItem(atPath: store.url.path)[.posixPermissions] as? NSNumber
+        XCTAssertEqual(permissions?.intValue, 0o600)
         XCTAssertNil(defaults.string(forKey: "preferences.currencyCode"))
     }
 
@@ -114,30 +115,19 @@ final class StorageTests: XCTestCase {
         let support = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
         try FileManager.default.createDirectory(at: support, withIntermediateDirectories: true)
         let defaults = UserDefaults(suiteName: UUID().uuidString)!
-        let coordinator = StorageCoordinator(defaults: defaults, applicationSupport: support, keychain: FakeKeychain(value: nil))
+        let coordinator = StorageCoordinator(defaults: defaults, applicationSupport: support)
         try coordinator.schedule(parent: support)
         XCTAssertNotNil(defaults.data(forKey: StorageCoordinator.pendingDirectoryKey))
         XCTAssertEqual(coordinator.pendingDirectory?.lastPathComponent, "Romeo Daily Ledger Data")
     }
 
-    @MainActor func testLegacyKeyMovesToActiveKeychainAccountWithoutEnteringJSON() throws {
+    @MainActor func testLegacyKeyRemainsInSettingsJSON() throws {
         let support = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
         let defaults = UserDefaults(suiteName: UUID().uuidString)!
-        let keychain = FakeKeychain(value: "TEST-MIGRATION-KEY-NOT-REAL")
-        let coordinator = StorageCoordinator(defaults: defaults, applicationSupport: support, keychain: keychain)
+        defaults.set(try JSONEncoder().encode(AIConfiguration(apiKey: "TEST-MIGRATION-KEY-NOT-REAL")), forKey: "preferences.aiConfiguration")
+        let coordinator = StorageCoordinator(defaults: defaults, applicationSupport: support)
         try coordinator.prepareBeforeOpeningContainer()
         let settings = try XCTUnwrap(SettingsStore(directory: coordinator.activeDirectory).load())
-        XCTAssertTrue(settings.aiConfiguration.apiKey.isEmpty)
-        XCTAssertEqual(keychain.values["active"], "TEST-MIGRATION-KEY-NOT-REAL")
-        XCTAssertTrue(keychain.wasDeleted)
+        XCTAssertEqual(settings.aiConfiguration.apiKey, "TEST-MIGRATION-KEY-NOT-REAL")
     }
-}
-
-private final class FakeKeychain: AIKeychainStoring, @unchecked Sendable {
-    var values: [String: String] = [:]
-    var wasDeleted = false
-    init(value: String?) { values["apiKey"] = value }
-    func read(service: String, account: String) throws -> String? { values[account] }
-    func save(_ value: String, service: String, account: String) throws { values[account] = value }
-    func delete(service: String, account: String) throws { wasDeleted = true; values[account] = nil }
 }

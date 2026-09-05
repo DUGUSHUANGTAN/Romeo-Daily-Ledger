@@ -24,7 +24,6 @@
 		2243EDC717704617B2CF6883 /* InsightsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5D546B0BE55B957477E627 /* InsightsViewModelTests.swift */; };
 		2568C94510F9B7C59EF3FDE8 /* SettingsRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8253AE6BB7FB3EF28BC155DE /* SettingsRootView.swift */; };
 		26F1496B690C20128478F058 /* EntryEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B2DD37BFB3EC461A995BB0 /* EntryEditorView.swift */; };
-		28C23CF7A444251CCFFAAC37 /* AIKeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FB1897B80ADBFA37A1B3FF2 /* AIKeychainStore.swift */; };
 		2E2870569D23E41B733FDFFB /* AppSmokeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B42970BD82248CFCC9F339B /* AppSmokeUITests.swift */; };
 		300E6D5A6F56F937E39227E2 /* LedgerRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DFE762FFCA72A30EBA4B055 /* LedgerRepository.swift */; };
 		34A745A6FB05CE8564E53E60 /* LedgerFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04ED95803D67504259A80C68 /* LedgerFlowUITests.swift */; };
@@ -134,7 +133,6 @@
 		2B42970BD82248CFCC9F339B /* AppSmokeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSmokeUITests.swift; sourceTree = "<group>"; };
 		2D4C059999A1C91C66518790 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		2EF6AF603A9AB92209141350 /* chart-no-axes-column-increasing.svg */ = {isa = PBXFileReference; path = "chart-no-axes-column-increasing.svg"; sourceTree = "<group>"; };
-		2FB1897B80ADBFA37A1B3FF2 /* AIKeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIKeychainStore.swift; sourceTree = "<group>"; };
 		30460A7035A3ECB53367E397 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		30F00DA6AD2A46896549DE3D /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		33B4113230441C97FE52D658 /* SelectionSummaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionSummaryTests.swift; sourceTree = "<group>"; };
@@ -438,7 +436,6 @@
 			children = (
 				0516E0B05AA1246B66B672CD /* AIAnalysisScope.swift */,
 				9810A04F5F87E31DCD07F55C /* AIClient.swift */,
-				2FB1897B80ADBFA37A1B3FF2 /* AIKeychainStore.swift */,
 				7172A46A07B273EB8B22FB46 /* AIProtocol.swift */,
 				ADBB99E3985DC73C800785B0 /* AIRequestState.swift */,
 			);
@@ -740,7 +737,6 @@
 			files = (
 				0163903817FF883CB8B2029D /* AIAnalysisScope.swift in Sources */,
 				47ADEE0A15267A045E6F802B /* AIClient.swift in Sources */,
-				28C23CF7A444251CCFFAAC37 /* AIKeychainStore.swift in Sources */,
 				84E2A880A3DD9E8A6A509403 /* AILedgerAssistantView.swift in Sources */,
 				DE17AEE489268E3913A54FF7 /* AIProtocol.swift in Sources */,
 				3B092D28FE67A88431E23F33 /* AIRequestState.swift in Sources */,

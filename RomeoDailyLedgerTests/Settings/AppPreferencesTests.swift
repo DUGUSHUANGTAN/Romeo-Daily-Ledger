@@ -69,7 +69,7 @@ struct AppPreferencesTests {
     }
     @Test func defaultsMatchSpecification() {
         let defaults = isolatedDefaults()
-        let preferences = AppPreferences(defaults: defaults, settingsStore: temporaryStore(), keychain: PreferencesKeychain())
+        let preferences = AppPreferences(defaults: defaults, settingsStore: temporaryStore())
 
         #expect(preferences.currencyCode == "USD")
         #expect(preferences.themeMode == .system)
@@ -80,14 +80,13 @@ struct AppPreferencesTests {
     @Test func preferencesPersistThroughInjectedUserDefaults() {
         let defaults = isolatedDefaults()
         let store = temporaryStore()
-        let keychain = PreferencesKeychain()
-        let first = AppPreferences(defaults: defaults, settingsStore: store, keychain: keychain)
+        let first = AppPreferences(defaults: defaults, settingsStore: store)
         first.currencyCode = "EUR"
         first.themeMode = .dark
         first.language = .english
         first.fontScalePercent = 125
 
-        let restored = AppPreferences(defaults: defaults, settingsStore: store, keychain: keychain)
+        let restored = AppPreferences(defaults: defaults, settingsStore: store)
         #expect(restored.currencyCode == "EUR")
         #expect(restored.themeMode == .dark)
         #expect(restored.language == .english)
@@ -95,7 +94,7 @@ struct AppPreferencesTests {
     }
 
     @Test func fontScaleIsClampedAndRoundedToFivePercentSteps() {
-        let preferences = AppPreferences(defaults: isolatedDefaults(), settingsStore: temporaryStore(), keychain: PreferencesKeychain())
+        let preferences = AppPreferences(defaults: isolatedDefaults(), settingsStore: temporaryStore())
 
         preferences.fontScalePercent = 143
         #expect(preferences.fontScalePercent == 140)
@@ -110,7 +109,7 @@ struct AppPreferencesTests {
     @Test func settingsJSONDoesNotPersistRemovedTypographyOrMotionControls() throws {
         let directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
         let store = SettingsStore(directory: directory)
-        _ = AppPreferences(defaults: isolatedDefaults(), settingsStore: store, keychain: PreferencesKeychain())
+        _ = AppPreferences(defaults: isolatedDefaults(), settingsStore: store)
         let text = try String(contentsOf: store.url, encoding: .utf8)
         #expect(!text.contains("typographyStyle"))
         #expect(!text.contains("motionIntensity"))
@@ -120,8 +119,7 @@ struct AppPreferencesTests {
         let defaults = isolatedDefaults()
         let directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
         let store = SettingsStore(directory: directory)
-        let keychain = PreferencesKeychain()
-        let preferences = AppPreferences(defaults: defaults, settingsStore: store, keychain: keychain)
+        let preferences = AppPreferences(defaults: defaults, settingsStore: store)
         preferences.aiConfiguration = AIConfiguration(
             protocolType: .chatCompletions,
             baseURL: URL(string: "https://example.com/v1")!,
@@ -130,17 +128,16 @@ struct AppPreferencesTests {
         )
         let json = try String(contentsOf: store.url, encoding: .utf8)
 
-        let restored = AppPreferences(defaults: defaults, settingsStore: store, keychain: keychain)
-        #expect(!json.contains("secret-value"))
+        let restored = AppPreferences(defaults: defaults, settingsStore: store)
+        #expect(json.contains("secret-value"))
         #expect(restored.aiConfiguration.apiKey == "secret-value")
     }
 
-    @Test func modelPresetKeysRoundTripThroughKeychainWithoutEnteringJSON() throws {
+    @Test func modelPresetKeysRoundTripThroughSettingsJSON() throws {
         let defaults = isolatedDefaults()
         let store = temporaryStore()
-        let keychain = PreferencesKeychain()
         let id = UUID()
-        let preferences = AppPreferences(defaults: defaults, settingsStore: store, keychain: keychain)
+        let preferences = AppPreferences(defaults: defaults, settingsStore: store)
         preferences.aiModelPresets = [AIModelPreset(
             id: id,
             name: "Local",
@@ -148,21 +145,10 @@ struct AppPreferencesTests {
         )]
 
         let json = try String(contentsOf: store.url, encoding: .utf8)
-        let restored = AppPreferences(defaults: defaults, settingsStore: store, keychain: keychain)
+        let restored = AppPreferences(defaults: defaults, settingsStore: store)
 
-        #expect(!json.contains("preset-secret"))
+        #expect(json.contains("preset-secret"))
         #expect(restored.aiModelPresets.first?.configuration.apiKey == "preset-secret")
-    }
-
-    @Test func deletingModelPresetDeletesItsKeychainKey() throws {
-        let keychain = PreferencesKeychain()
-        let id = UUID()
-        let preferences = AppPreferences(defaults: isolatedDefaults(), settingsStore: temporaryStore(), keychain: keychain)
-        preferences.aiModelPresets = [AIModelPreset(id: id, name: "Local", configuration: AIConfiguration(model: "model", apiKey: "secret"))]
-
-        preferences.aiModelPresets.removeAll()
-
-        #expect(try keychain.read(service: KeychainAIKeyStore.service, account: "preset.\(id.uuidString.lowercased())") == nil)
     }
 
     @Test func legacyAIConfigurationDecodesWithEmptyAPIKey() throws {
@@ -197,11 +183,4 @@ struct AppPreferencesTests {
     private func temporaryStore() -> SettingsStore {
         SettingsStore(directory: FileManager.default.temporaryDirectory.appending(path: UUID().uuidString))
     }
-}
-
-private final class PreferencesKeychain: AIKeychainStoring, @unchecked Sendable {
-    private var values: [String: String] = [:]
-    func read(service: String, account: String) throws -> String? { values[account] }
-    func save(_ value: String, service: String, account: String) throws { values[account] = value }
-    func delete(service: String, account: String) throws { values[account] = nil }
 }

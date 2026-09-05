@@ -73,11 +73,9 @@ struct SettingsStore: Sendable {
     }
     func save(_ settings: StoredSettings) throws {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        var safe = settings
-        safe.aiConfiguration.apiKey = ""
-        for index in safe.aiModelPresets.indices { safe.aiModelPresets[index].configuration.apiKey = "" }
-        let data = try JSONEncoder.pretty.encode(safe)
+        let data = try JSONEncoder.pretty.encode(settings)
         try data.write(to: url, options: .atomic)
+        try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
     }
 }
 
@@ -189,11 +187,9 @@ struct StorageMigrator: Sendable {
     let defaults: UserDefaults
     let defaultDirectory: URL
     private let migrator = StorageMigrator()
-    private let keychain: any AIKeychainStoring
 
-    init(defaults: UserDefaults = .standard, applicationSupport: URL? = nil, keychain: any AIKeychainStoring = KeychainAIKeyStore()) {
+    init(defaults: UserDefaults = .standard, applicationSupport: URL? = nil) {
         self.defaults = defaults
-        self.keychain = keychain
         let support = applicationSupport ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         defaultDirectory = StorageLayout(applicationSupport: support).activeDirectory
     }
@@ -226,7 +222,7 @@ struct StorageMigrator: Sendable {
         if !FileManager.default.fileExists(atPath: StorageLayout(directory: target).formatVersionURL.path) {
             try Data("{\"version\":1}".utf8).write(to: StorageLayout(directory: target).formatVersionURL, options: .atomic)
         }
-        try migrateLegacyPreferencesAndKeyIfNeeded(in: target)
+        try migrateLegacyPreferencesIfNeeded(in: target)
     }
 
     private func migrateLegacyStoreIfNeeded(to target: URL) throws {
@@ -240,7 +236,7 @@ struct StorageMigrator: Sendable {
         }
     }
 
-    private func migrateLegacyPreferencesAndKeyIfNeeded(in directory: URL) throws {
+    private func migrateLegacyPreferencesIfNeeded(in directory: URL) throws {
         let store = SettingsStore(directory: directory)
         if try store.load() != nil { return }
         var settings = StoredSettings()
@@ -248,14 +244,8 @@ struct StorageMigrator: Sendable {
         settings.language = defaults.string(forKey: "preferences.language") ?? settings.language
         settings.themeMode = defaults.string(forKey: "preferences.themeMode") ?? settings.themeMode
         if let data = defaults.data(forKey: "preferences.aiConfiguration"), let configuration = try? JSONDecoder().decode(AIConfiguration.self, from: data) { settings.aiConfiguration = configuration }
-        let legacyKey = try keychain.read(service: KeychainAIKeyStore.service, account: "apiKey")
-        if let key = legacyKey ?? (settings.aiConfiguration.apiKey.isEmpty ? nil : settings.aiConfiguration.apiKey) {
-            try keychain.save(key, service: KeychainAIKeyStore.service, account: "active")
-        }
-        settings.aiConfiguration.apiKey = ""
         try store.save(settings)
         guard try store.load() == settings else { throw CocoaError(.fileWriteUnknown) }
-        if legacyKey != nil { try keychain.delete(service: KeychainAIKeyStore.service, account: "apiKey") }
     }
 
     private func databaseCounts(at directory: URL) throws -> (Int, Int) {

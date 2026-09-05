@@ -29,7 +29,6 @@ final class AppPreferences {
 
     private let defaults: UserDefaults
     private let settingsStore: SettingsStore
-    private let keychain: any AIKeychainStoring
     private var isLoading = true
 
     static func persistedLanguage(defaults: UserDefaults = .standard) -> AppLanguage {
@@ -77,9 +76,6 @@ final class AppPreferences {
 
     var aiModelPresets: [AIModelPreset] {
         didSet {
-            for preset in oldValue where !aiModelPresets.contains(where: { $0.id == preset.id }) {
-                try? keychain.delete(service: KeychainAIKeyStore.service, account: Self.keyAccount(for: preset.id))
-            }
             if let selectedAIModelID,
                let selected = aiModelPresets.first(where: { $0.id == selectedAIModelID }) {
                 aiConfiguration = selected.configuration
@@ -107,11 +103,9 @@ final class AppPreferences {
 
     init(
         defaults: UserDefaults = .standard,
-        settingsStore: SettingsStore? = nil,
-        keychain: any AIKeychainStoring = KeychainAIKeyStore()
+        settingsStore: SettingsStore? = nil
     ) {
         self.defaults = defaults
-        self.keychain = keychain
         let directory = StorageCoordinator(defaults: defaults).activeDirectory
         self.settingsStore = settingsStore ?? SettingsStore(directory: directory)
         let stored = try? self.settingsStore.load()
@@ -128,13 +122,8 @@ final class AppPreferences {
         } else {
             configuration = AIConfiguration()
         }
-        Self.restoreKey(in: &configuration, account: "active", keychain: keychain)
         aiConfiguration = configuration
-        var presets = stored?.aiModelPresets ?? []
-        for index in presets.indices {
-            Self.restoreKey(in: &presets[index].configuration, account: Self.keyAccount(for: presets[index].id), keychain: keychain)
-        }
-        aiModelPresets = presets
+        aiModelPresets = stored?.aiModelPresets ?? []
         selectedAIModelID = stored?.selectedAIModelID
         aiAnalysisHistory = stored?.aiAnalysisHistory ?? []
         isLoading = false
@@ -146,10 +135,6 @@ final class AppPreferences {
     private func persist() {
         guard !isLoading else { return }
         do {
-            try storeKey(aiConfiguration.apiKey, account: "active")
-            for preset in aiModelPresets {
-                try storeKey(preset.configuration.apiKey, account: Self.keyAccount(for: preset.id))
-            }
             try settingsStore.save(StoredSettings(
                 currencyCode: currencyCode,
                 language: language.rawValue,
@@ -161,28 +146,6 @@ final class AppPreferences {
                 aiAnalysisHistory: aiAnalysisHistory
             ))
         } catch { return }
-    }
-
-    private static func keyAccount(for id: UUID) -> String { "preset.\(id.uuidString.lowercased())" }
-
-    private static func restoreKey(
-        in configuration: inout AIConfiguration,
-        account: String,
-        keychain: any AIKeychainStoring
-    ) {
-        if configuration.apiKey.isEmpty {
-            configuration.apiKey = (try? keychain.read(service: KeychainAIKeyStore.service, account: account)) ?? ""
-        } else {
-            try? keychain.save(configuration.apiKey, service: KeychainAIKeyStore.service, account: account)
-        }
-    }
-
-    private func storeKey(_ value: String, account: String) throws {
-        if value.isEmpty {
-            try keychain.delete(service: KeychainAIKeyStore.service, account: account)
-        } else {
-            try keychain.save(value, service: KeychainAIKeyStore.service, account: account)
-        }
     }
 
     private static func normalizedCurrencyCode(_ value: String) -> String {
