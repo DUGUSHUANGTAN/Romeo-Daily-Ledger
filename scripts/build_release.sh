@@ -28,13 +28,14 @@ xcodebuild "${archive_args[@]}"
 
 APP_PATH="$ARCHIVE_PATH/Products/Applications/$APP_NAME"
 [[ -d "$APP_PATH" ]] || { echo "error: archived app not found at $APP_PATH" >&2; exit 1; }
-ditto "$APP_PATH" "$BUILD_DIR/$APP_NAME"
 if [[ -n "$SIGNING_IDENTITY" ]]; then
-  codesign --verify --deep --strict --verbose=2 "$BUILD_DIR/$APP_NAME"
+  codesign --deep --force --verbose=2 --sign "$SIGNING_IDENTITY" "$APP_PATH"
 else
-  # Ad-hoc sign the copied bundle so its resources are sealed. Without this,
+  # Ad-hoc sign the archived bundle so its resources are sealed. Without this,
   # Gatekeeper can report the downloaded app as damaged.
-  codesign --deep --force --verbose=2 --sign - "$BUILD_DIR/$APP_NAME"
-  codesign --verify --deep --strict --verbose=2 "$BUILD_DIR/$APP_NAME"
+  codesign --deep --force --verbose=2 --sign - "$APP_PATH"
 fi
+codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+ditto "$APP_PATH" "$BUILD_DIR/$APP_NAME"
+codesign --verify --deep --strict --verbose=2 "$BUILD_DIR/$APP_NAME"
 echo "$BUILD_DIR/$APP_NAME"
