@@ -197,7 +197,9 @@ struct CSVCodec {
     func decode(_ type: [LedgerTransferRecord].Type, from data: Data) throws -> [LedgerTransferRecord] {
         guard let text = String(data: data, encoding: .utf8) else { throw LedgerTransferError.invalidData }
         let rows = try parse(text)
-        guard let first = rows.first, header.allSatisfy({ first.contains($0) }) else { throw LedgerTransferError.malformedCSV }
+        guard let first = rows.first,
+              Set(first).count == first.count,
+              header.allSatisfy({ first.contains($0) }) else { throw LedgerTransferError.malformedCSV }
         let indexes = Dictionary(uniqueKeysWithValues: first.enumerated().map { ($1, $0) })
         var result: [LedgerTransferRecord] = []
         for row in rows.dropFirst() where !row.allSatisfy(\.isEmpty) {
@@ -251,8 +253,10 @@ private struct LedgerTransferDateCoder {
 
         let fractional = ISO8601DateFormatter()
         fractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        fractional.timeZone = timeZone
         let standard = ISO8601DateFormatter()
         standard.formatOptions = [.withInternetDateTime]
+        standard.timeZone = timeZone
         guard let instant = fractional.date(from: text) ?? standard.date(from: text) else { return nil }
 
         var calendar = Calendar(identifier: .gregorian)

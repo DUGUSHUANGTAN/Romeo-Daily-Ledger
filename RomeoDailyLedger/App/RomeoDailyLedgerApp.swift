@@ -16,21 +16,37 @@ struct RomeoDailyLedgerApp: App {
             RootView(dependencies: dependencies)
         }
         .defaultSize(width: 1_100, height: 700)
+        .windowToolbarStyle(.unified(showsTitle: true))
         .commands {
             CommandGroup(replacing: .appSettings) {
-                SettingsLink {
-                    Text(AppLocalization.text("command.openSettings", language: dependencies.preferences.language))
+                Button(Bundle.main.localizedString(forKey: "command.openSettings", value: "Open Settings", table: "Localizable")) {
+                    dependencies.selectedDestination = .settings
+                    NSApp.activate(ignoringOtherApps: true)
+                    NSApp.windows.first(where: \.canBecomeMain)?.makeKeyAndOrderFront(nil)
                 }
                 .keyboardShortcut(AppCommands.settingsShortcutKey, modifiers: .command)
             }
+            CommandGroup(replacing: .appInfo) {
+                Button(Bundle.main.localizedString(forKey: "command.about", value: "About \(AppIdentity.englishName)", table: "Localizable")) {
+                    let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.1.0"
+                    NSApp.orderFrontStandardAboutPanel(options: [
+                        .applicationName: AppLocalization.text("app.name", language: dependencies.preferences.language),
+                        .version: AppLocalization.format("app.version", language: dependencies.preferences.language, version)
+                    ])
+                }
+            }
         }
 
-        Settings {
-            SettingsRootView(dependencies: dependencies, standalone: true)
-        }
     }
 }
 
 final class AppLifecycleDelegate: NSObject, NSApplicationDelegate {
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        AppLocalization.updateApplicationMenuTitle(
+            in: NSApp.mainMenu,
+            language: AppPreferences.persistedLanguage()
+        )
+    }
+
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
 }

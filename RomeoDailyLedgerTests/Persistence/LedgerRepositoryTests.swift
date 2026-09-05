@@ -15,10 +15,8 @@ struct LedgerRepositoryTests {
         context: context,
         timeZoneProvider: FixedAppTimeZoneProvider(timeZone: zone)
     )
-    try await repository.seedDefaultsIfNeeded()
-    let category = try #require(try await repository.categories(kind: .expense).first)
     let original = ISO8601DateFormatter().date(from: "2024-02-29T18:45:00Z")!
-    let entry = LedgerEntry(kind: .expense, amount: 1, categoryID: category.id, note: "legacy", occurredAt: original)
+    let entry = LedgerEntry(kind: .expense, amount: 1, categoryID: UUID(), note: "legacy", occurredAt: original)
     context.insert(entry)
     try context.save()
 
@@ -28,6 +26,23 @@ struct LedgerRepositoryTests {
 
     #expect(once == ISO8601DateFormatter().date(from: "2024-02-29T16:00:00Z"))
     #expect(entry.occurredAt == once)
+}
+
+@Test func repeatedSeedDoesNotRescanEntries() async throws {
+    let container = try ModelContainerFactory.inMemory()
+    let context = ModelContext(container)
+    let zone = TimeZone(identifier: "Asia/Shanghai")!
+    let repository = SwiftDataLedgerRepository(context: context, timeZoneProvider: FixedAppTimeZoneProvider(timeZone: zone))
+    try await repository.seedDefaultsIfNeeded()
+    let category = try #require(try await repository.categories(kind: .expense).first)
+    let original = ISO8601DateFormatter().date(from: "2024-02-29T18:45:00Z")!
+    let entry = LedgerEntry(kind: .expense, amount: 1, categoryID: category.id, note: "new", occurredAt: original)
+    context.insert(entry)
+    try context.save()
+
+    try await repository.seedDefaultsIfNeeded()
+
+    #expect(entry.occurredAt == original)
 }
 
 @MainActor
@@ -214,7 +229,7 @@ private func expectFallbackToOther(kind: EntryKind) async throws {
 @Test func categoryNamesMustBeUniqueWithinTheSameKind() async throws {
     let repository = try TestRepository.make()
     try await repository.seedDefaultsIfNeeded()
-    let food = try await repository.ensureCustomCategory(named: "Meals", kind: .expense)
+    _ = try await repository.ensureCustomCategory(named: "Meals", kind: .expense)
     let clothing = try await repository.ensureCustomCategory(named: "Clothing", kind: .expense)
 
     await #expect(throws: (any Error).self) {
@@ -313,17 +328,11 @@ private func draft(at date: Date, note: String) -> LedgerDraft {
     )
 }
 
-@Suite("Category management policy")
-struct CategoryManagementPolicyTests {
+@Suite("Category name policy")
+struct CategoryNamePolicyTests {
     @Test func rejectsLocalizedDisplayNameDuplicateWithinKind() {
         #expect(CategoryNamePolicy.isDuplicate(" 餐饮 ", existingDisplayNames: ["餐饮", "交通"]))
         #expect(!CategoryNamePolicy.isDuplicate("餐饮", existingDisplayNames: ["工资", "奖金"]))
-    }
-
-    @Test func otherCannotBeEditedOrSelectedForDeletion() {
-        #expect(!CategoryManagementPolicy.canEdit(systemKey: "other"))
-        #expect(!CategoryManagementPolicy.canDelete(systemKey: "other"))
-        #expect(CategoryManagementPolicy.canEdit(systemKey: nil))
     }
 }
 

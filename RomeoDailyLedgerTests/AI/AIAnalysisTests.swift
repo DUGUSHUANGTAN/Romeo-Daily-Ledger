@@ -28,24 +28,6 @@ struct AIAnalysisTests {
         #expect(MultilineSubmitBehavior.shouldSubmit(command: command, shiftPressed: shiftPressed, hasMarkedText: hasMarkedText) == expected)
     }
 
-    @Test(arguments: [
-        (content: CGFloat(80), available: CGFloat(120), expected: false),
-        (content: CGFloat(120), available: CGFloat(120), expected: false),
-        (content: CGFloat(121), available: CGFloat(120), expected: true)
-    ])
-    func analysisResultScrollsOnlyWhenContentExceedsAvailableSpace(
-        content: CGFloat,
-        available: CGFloat,
-        expected: Bool
-    ) {
-        #expect(AIAnalysisResultLayout.shouldScroll(contentHeight: content, availableHeight: available) == expected)
-    }
-
-    @Test func analysisResultHeightNeverExceedsItsFiniteContainer() {
-        #expect(AIAnalysisResultLayout.containerHeight(contentHeight: 1_200, availableHeight: 500) == 500)
-        #expect(AIAnalysisResultLayout.containerHeight(contentHeight: 120, availableHeight: 500) == 120)
-    }
-
     @Test func filtersEntriesToRequestedRange() throws {
         let start = Date(timeIntervalSince1970: 0)
         let inside = LedgerEntry(kind: .expense, amount: 10, categoryID: UUID(), note: "inside", occurredAt: start.addingTimeInterval(10))

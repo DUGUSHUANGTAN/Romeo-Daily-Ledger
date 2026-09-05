@@ -17,8 +17,8 @@
 - 修改：`RomeoDailyLedger/Features/Ledger/LedgerView.swift`
 - 测试：`RomeoDailyLedgerTests/Calendar/CalendarViewModelTests.swift`
 
-- [ ] 在 HistoryLedgerTests 增加三语收入/支出搜索失败测试。
-- [ ] 运行 HistoryLedgerTests，确认当前实现无法按类型筛选。
-- [ ] 为 `HistorySearchIndex` 增加收入、支出显示名称并参与现有包含匹配；由 `HistoryView` 传入当前语言文案。
-- [ ] 运行 HistoryLedgerTests 和完整单元测试。
-- [ ] 构建并打开 V1.1.0 Debug App；不打包、不上传。
+- [x] 在 HistoryLedgerTests 增加三语收入/支出搜索失败测试。
+- [x] 运行 HistoryLedgerTests，确认当前实现无法按类型筛选。
+- [x] 为 `HistorySearchIndex` 增加收入、支出显示名称并参与现有包含匹配；由 `HistoryView` 传入当前语言文案。
+- [x] 运行 HistoryLedgerTests 和完整单元测试。
+- [x] 构建并打开 V1.1.0 Debug App；不打包、不上传。

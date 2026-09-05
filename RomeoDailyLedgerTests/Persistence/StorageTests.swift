@@ -17,11 +17,12 @@ final class StorageTests: XCTestCase {
         let defaults = UserDefaults(suiteName: UUID().uuidString)!
         defer { defaults.removePersistentDomain(forName: defaults.volatileDomainNames.first ?? "") }
         let store = SettingsStore(directory: directory)
-        let preferences = AppPreferences(defaults: defaults, settingsStore: store)
+        let keychain = FakeKeychain(value: nil)
+        let preferences = AppPreferences(defaults: defaults, settingsStore: store, keychain: keychain)
         preferences.currencyCode = "eur"
         preferences.language = .english
         preferences.apiKey = "TEST-KEY-NOT-REAL"
-        let loaded = AppPreferences(defaults: defaults, settingsStore: store)
+        let loaded = AppPreferences(defaults: defaults, settingsStore: store, keychain: keychain)
         XCTAssertEqual(loaded.currencyCode, "EUR")
         XCTAssertEqual(loaded.apiKey, "TEST-KEY-NOT-REAL")
         XCTAssertNil(defaults.string(forKey: "preferences.currencyCode"))
@@ -89,6 +90,19 @@ final class StorageTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: source.path))
     }
 
+    func testMigrationCanPreserveSourceUntilLocationCommit() throws {
+        let base = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        let source = base.appending(path: "old"), target = base.appending(path: "new")
+        try FileManager.default.createDirectory(at: source, withIntermediateDirectories: true)
+        try Data("db".utf8).write(to: source.appending(path: "default.store"))
+
+        try StorageMigrator().migrate(from: source, to: target, preserveSource: true) {}
+
+        XCTAssertTrue(FileManager.default.fileExists(atPath: source.appending(path: "default.store").path))
+        let state = try JSONDecoder().decode(MigrationState.self, from: Data(contentsOf: target.appending(path: "migration-state.json")))
+        XCTAssertEqual(state.status, .complete)
+    }
+
     func testCorruptSettingsFailsDecoding() throws {
         let directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -106,23 +120,24 @@ final class StorageTests: XCTestCase {
         XCTAssertEqual(coordinator.pendingDirectory?.lastPathComponent, "Romeo Daily Ledger Data")
     }
 
-    @MainActor func testLegacyKeyIsPersistedThenDeleted() throws {
+    @MainActor func testLegacyKeyMovesToActiveKeychainAccountWithoutEnteringJSON() throws {
         let support = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
         let defaults = UserDefaults(suiteName: UUID().uuidString)!
         let keychain = FakeKeychain(value: "TEST-MIGRATION-KEY-NOT-REAL")
         let coordinator = StorageCoordinator(defaults: defaults, applicationSupport: support, keychain: keychain)
         try coordinator.prepareBeforeOpeningContainer()
         let settings = try XCTUnwrap(SettingsStore(directory: coordinator.activeDirectory).load())
-        XCTAssertEqual(settings.aiConfiguration.apiKey, "TEST-MIGRATION-KEY-NOT-REAL")
+        XCTAssertTrue(settings.aiConfiguration.apiKey.isEmpty)
+        XCTAssertEqual(keychain.values["active"], "TEST-MIGRATION-KEY-NOT-REAL")
         XCTAssertTrue(keychain.wasDeleted)
     }
 }
 
 private final class FakeKeychain: AIKeychainStoring, @unchecked Sendable {
-    var value: String?
+    var values: [String: String] = [:]
     var wasDeleted = false
-    init(value: String?) { self.value = value }
-    func read(service: String, account: String) throws -> String? { value }
-    func save(_ value: String, service: String, account: String) throws { self.value = value }
-    func delete(service: String, account: String) throws { wasDeleted = true; value = nil }
+    init(value: String?) { values["apiKey"] = value }
+    func read(service: String, account: String) throws -> String? { values[account] }
+    func save(_ value: String, service: String, account: String) throws { values[account] = value }
+    func delete(service: String, account: String) throws { wasDeleted = true; values[account] = nil }
 }

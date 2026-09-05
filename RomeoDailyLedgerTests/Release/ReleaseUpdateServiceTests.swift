@@ -11,12 +11,12 @@ struct ReleaseUpdateServiceTests {
     }
 
     @Test func newerVersionIsAvailable() async throws {
-        let release = GitHubRelease(tagName: "v1.1.0", htmlURL: URL(string: "https://example.com/release")!)
+        let release = GitHubRelease(tagName: "v1.1.1", htmlURL: URL(string: "https://example.com/release")!)
         #expect(try await ReleaseUpdateService.check(using: StubClient(result: .success(release))) == .updateAvailable(release))
     }
 
     @Test func sameVersionIsUpToDate() async throws {
-        let release = GitHubRelease(tagName: "v1.0.0", htmlURL: URL(string: "https://example.com/release")!)
+        let release = GitHubRelease(tagName: "v1.1.0", htmlURL: URL(string: "https://example.com/release")!)
         #expect(try await ReleaseUpdateService.check(using: StubClient(result: .success(release))) == .upToDate(release))
     }
 

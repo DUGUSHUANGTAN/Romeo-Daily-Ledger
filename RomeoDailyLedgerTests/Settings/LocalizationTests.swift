@@ -9,9 +9,15 @@ struct LocalizationTests {
             Issue.record("缺少繁体中文语言选项")
             return
         }
-        for key in ["app.name", "nav.ledger.title", "settings.general.title", "language.zhHant", "category.clothing"] {
+        for key in ["app.name", "app.version", "nav.ledger.title", "settings.general.title", "language.zhHant", "category.clothing"] {
             #expect(AppLocalization.text(key, language: traditional) != key)
         }
+    }
+
+    @Test func applicationVersionCopyIsLocalized() {
+        #expect(AppLocalization.text("app.version", language: .english) == "Version %@")
+        #expect(AppLocalization.text("app.version", language: .simplifiedChinese) == "版本 %@")
+        #expect(AppLocalization.text("app.version", language: .traditionalChinese) == "版本 %@")
     }
 
     @Test func navigationDoesNotMixLanguages() {
@@ -119,14 +125,23 @@ struct LocalizationTests {
     @Test func customCategoryNamesAndUserNotesRemainUntranslated() {
         #expect(AppLocalization.categoryName(systemKey: nil, customName: "My Side Project", language: .simplifiedChinese) == "My Side Project")
         #expect(AppLocalization.categoryName(systemKey: nil, customName: "旅行基金", language: .english) == "旅行基金")
-        #expect(AppLocalization.userContent("LedgerRepository", language: .simplifiedChinese) == "LedgerRepository")
+    }
+
+    @Test func importedCustomCategoryKeyDoesNotExposeLocalizationPrefix() {
+        for language in AppLanguage.allCases {
+            #expect(AppLocalization.categoryName(systemKey: "交通", language: language) == "交通")
+        }
+    }
+
+    @Test func keepDuplicateCopyUsesTheRequestedThreeLanguageLabels() {
+        #expect(AppLocalization.text("settings.data.import.keepBoth", language: .simplifiedChinese) == "保留重复")
+        #expect(AppLocalization.text("settings.data.import.keepBoth", language: .traditionalChinese) == "保留重複")
+        #expect(AppLocalization.text("settings.data.import.keepBoth", language: .english) == "Keep Duplicates")
     }
 
     @Test func settingsDestinationAndCommandAreDiscoverableWithoutSidebarShortcutText() {
         #expect(SidebarDestination.allCases.contains(.settings))
         #expect(SidebarDestination.settings.icon == .settings)
         #expect(AppCommands.settingsShortcutKey == ",")
-        #expect(!SidebarDestination.settings.localizedSubtitle(language: .simplifiedChinese).contains("⌘"))
-        #expect(!SidebarDestination.settings.localizedSubtitle(language: .english).contains("⌘"))
     }
 }

@@ -63,12 +63,12 @@ struct InsightsViewModelTests {
         #expect(model.displayName(for: model.report.categories[0]) == "其他")
     }
 
-    @Test func selectingYearAndMonthReloadsImmediatelyAndClampsRange() async {
+    @Test func selectingYearAndMonthReloadsImmediatelyAndClampsMonth() async {
         let repository = InsightsRepositoryStub()
         let model = InsightsViewModel(repository: repository, calendar: calendar, timeZone: calendar.timeZone)
         await model.select(year: 2200, month: 0)
-        #expect(model.displayedMonth == date(2100, 1, 1))
-        #expect(repository.requestedIntervals == [DateInterval(start: date(2100, 1, 1), end: date(2100, 2, 1))])
+        #expect(model.displayedMonth == date(2200, 1, 1))
+        #expect(repository.requestedIntervals == [DateInterval(start: date(2200, 1, 1), end: date(2200, 2, 1))])
     }
 
     private var calendar: Calendar {

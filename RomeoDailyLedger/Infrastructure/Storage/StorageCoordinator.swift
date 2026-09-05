@@ -73,7 +73,10 @@ struct SettingsStore: Sendable {
     }
     func save(_ settings: StoredSettings) throws {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        let data = try JSONEncoder.pretty.encode(settings)
+        var safe = settings
+        safe.aiConfiguration.apiKey = ""
+        for index in safe.aiModelPresets.indices { safe.aiModelPresets[index].configuration.apiKey = "" }
+        let data = try JSONEncoder.pretty.encode(safe)
         try data.write(to: url, options: .atomic)
     }
 }
@@ -144,12 +147,20 @@ struct StorageMigrator: Sendable {
         guard fm.fileExists(atPath: target.appending(path: "default.store").path) else { throw CocoaError(.fileNoSuchFile) }
     }
 
-    func migrate(from source: URL, to target: URL, removeSourceDirectory: Bool = false, verify: () throws -> Void) throws {
+    func migrate(
+        from source: URL,
+        to target: URL,
+        removeSourceDirectory: Bool = false,
+        preserveSource: Bool = false,
+        verify: () throws -> Void
+    ) throws {
         do {
             try copyDatabaseFamily(from: source, to: target)
             try verify()
             try writeState(.init(status: .verified, source: source.path, target: target.path), to: target)
-            if removeSourceDirectory {
+            if preserveSource {
+                // Source cleanup happens only after the new location is committed.
+            } else if removeSourceDirectory {
                 try FileManager.default.removeItem(at: source)
             } else {
                 try deleteDatabaseFamily(in: source)
@@ -199,15 +210,17 @@ struct StorageMigrator: Sendable {
         let target = pendingDirectory ?? activeDirectory
         try migrateLegacyStoreIfNeeded(to: target)
         if let pendingDirectory, pendingDirectory != activeDirectory, FileManager.default.fileExists(atPath: activeDirectory.appending(path: "default.store").path) {
+            let source = activeDirectory
             do {
-                let expected = try databaseCounts(at: activeDirectory)
-                try migrator.migrate(from: activeDirectory, to: pendingDirectory, removeSourceDirectory: true) {
+                let expected = try databaseCounts(at: source)
+                try migrator.migrate(from: source, to: pendingDirectory, preserveSource: true) {
                     guard try databaseCounts(at: pendingDirectory) == expected else { throw CocoaError(.fileReadCorruptFile) }
                     if FileManager.default.fileExists(atPath: SettingsStore(directory: pendingDirectory).url.path) { _ = try SettingsStore(directory: pendingDirectory).load() }
                 }
                 try storeBookmark(pendingDirectory, forKey: Self.activeDirectoryKey); defaults.removeObject(forKey: Self.pendingDirectoryKey)
+                try? FileManager.default.removeItem(at: source)
             }
-            catch { try? migrator.writeState(.init(status: .recoveryRequired, source: activeDirectory.path, target: pendingDirectory.path, message: error.localizedDescription), to: pendingDirectory); throw error }
+            catch { try? migrator.writeState(.init(status: .recoveryRequired, source: source.path, target: pendingDirectory.path, message: error.localizedDescription), to: pendingDirectory); throw error }
         }
         try FileManager.default.createDirectory(at: target, withIntermediateDirectories: true)
         if !FileManager.default.fileExists(atPath: StorageLayout(directory: target).formatVersionURL.path) {
@@ -235,10 +248,14 @@ struct StorageMigrator: Sendable {
         settings.language = defaults.string(forKey: "preferences.language") ?? settings.language
         settings.themeMode = defaults.string(forKey: "preferences.themeMode") ?? settings.themeMode
         if let data = defaults.data(forKey: "preferences.aiConfiguration"), let configuration = try? JSONDecoder().decode(AIConfiguration.self, from: data) { settings.aiConfiguration = configuration }
-        if let key = try keychain.read(service: KeychainAIKeyStore.service, account: "apiKey") { settings.aiConfiguration.apiKey = key }
+        let legacyKey = try keychain.read(service: KeychainAIKeyStore.service, account: "apiKey")
+        if let key = legacyKey ?? (settings.aiConfiguration.apiKey.isEmpty ? nil : settings.aiConfiguration.apiKey) {
+            try keychain.save(key, service: KeychainAIKeyStore.service, account: "active")
+        }
+        settings.aiConfiguration.apiKey = ""
         try store.save(settings)
         guard try store.load() == settings else { throw CocoaError(.fileWriteUnknown) }
-        if !settings.aiConfiguration.apiKey.isEmpty { try keychain.delete(service: KeychainAIKeyStore.service, account: "apiKey") }
+        if legacyKey != nil { try keychain.delete(service: KeychainAIKeyStore.service, account: "apiKey") }
     }
 
     private func databaseCounts(at directory: URL) throws -> (Int, Int) {

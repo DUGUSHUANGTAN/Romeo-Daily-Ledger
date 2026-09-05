@@ -1,6 +1,23 @@
 import AppKit
 import SwiftUI
 
+extension View {
+    func fadingAtTopEdge() -> some View {
+        mask(alignment: .top) {
+            VStack(spacing: 0) {
+                LinearGradient(
+                    colors: [.clear, .black],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: 32)
+                Color.black
+            }
+        }
+    }
+
+}
+
 struct AppColor: Equatable, Sendable {
     let hex: String
 
@@ -50,11 +67,9 @@ struct AppTheme: Equatable, Sendable {
     let primaryText: AppColor
     let secondaryText: AppColor
     let primaryAccent: AppColor
-    let selectionForeground: AppColor
     let secondaryAccent: AppColor
     let surface: AppColor
-    let divider: AppColor
 
-    static let light = AppTheme(canvas: AppColor(hex: "FFFDF8"), chrome: AppColor(hex: "EEE7DA"), primaryText: AppColor(hex: "28241E"), secondaryText: AppColor(hex: "625B50"), primaryAccent: AppColor(hex: "1F5B4A"), selectionForeground: AppColor(hex: "F7FAF8"), secondaryAccent: AppColor(hex: "E89769"), surface: AppColor(hex: "F3EDE1"), divider: AppColor(hex: "D7CDBC"))
-    static let dark = AppTheme(canvas: AppColor(hex: "161B21"), chrome: AppColor(hex: "101318"), primaryText: AppColor(hex: "EEF1F4"), secondaryText: AppColor(hex: "AAB2B9"), primaryAccent: AppColor(hex: "B8E78C"), selectionForeground: AppColor(hex: "F7FAF8"), secondaryAccent: AppColor(hex: "839A72"), surface: AppColor(hex: "20262D"), divider: AppColor(hex: "343D46"))
+    static let light = AppTheme(canvas: AppColor(hex: "FFFDF8"), chrome: AppColor(hex: "EEE7DA"), primaryText: AppColor(hex: "28241E"), secondaryText: AppColor(hex: "625B50"), primaryAccent: AppColor(hex: "1F5B4A"), secondaryAccent: AppColor(hex: "E89769"), surface: AppColor(hex: "F3EDE1"))
+    static let dark = AppTheme(canvas: AppColor(hex: "161B21"), chrome: AppColor(hex: "101318"), primaryText: AppColor(hex: "EEF1F4"), secondaryText: AppColor(hex: "AAB2B9"), primaryAccent: AppColor(hex: "B8E78C"), secondaryAccent: AppColor(hex: "839A72"), surface: AppColor(hex: "20262D"))
 }

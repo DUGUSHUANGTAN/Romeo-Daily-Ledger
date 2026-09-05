@@ -13,6 +13,7 @@ final class InsightsViewModel {
     private let repository: LedgerRepository
     private let aggregator: InsightsAggregator
     private var categoriesByID: [UUID: Category] = [:]
+    var displayedYear: Int { CalendarViewModel.displayYear(in: calendar, for: displayedMonth) }
 
     init(
         repository: LedgerRepository,
@@ -55,7 +56,7 @@ final class InsightsViewModel {
 
     func moveMonth(by offset: Int) async {
         guard let target = calendar.date(byAdding: .month, value: offset, to: displayedMonth),
-              CalendarViewModel.supportedYears.contains(calendar.component(.year, from: target)),
+              CalendarViewModel.supportedYears.contains(CalendarViewModel.displayYear(in: calendar, for: target)),
               let start = calendar.dateInterval(of: .month, for: target)?.start else { return }
         displayedMonth = start
         await load()
@@ -64,14 +65,15 @@ final class InsightsViewModel {
     func select(year: Int, month: Int) async {
         let year = min(max(year, CalendarViewModel.supportedYears.lowerBound), CalendarViewModel.supportedYears.upperBound)
         let month = min(max(month, 1), 12)
-        guard let date = calendar.date(from: DateComponents(year: year, month: month, day: 1)),
+        let components = CalendarViewModel.dateComponents(year: year, month: month, timeZone: calendar.timeZone)
+        guard let date = calendar.date(from: components),
               let start = calendar.dateInterval(of: .month, for: date)?.start else { return }
         displayedMonth = start
         await load()
     }
 
     func selectCurrentMonth(_ today: Date = .now) async {
-        await select(year: calendar.component(.year, from: today), month: calendar.component(.month, from: today))
+        await select(year: CalendarViewModel.displayYear(in: calendar, for: today), month: calendar.component(.month, from: today))
     }
 
     func displayName(for summary: InsightsCategorySummary, language: AppLanguage = .simplifiedChinese) -> String {

@@ -29,7 +29,14 @@ final class AppPreferences {
 
     private let defaults: UserDefaults
     private let settingsStore: SettingsStore
+    private let keychain: any AIKeychainStoring
     private var isLoading = true
+
+    static func persistedLanguage(defaults: UserDefaults = .standard) -> AppLanguage {
+        let directory = StorageCoordinator(defaults: defaults).activeDirectory
+        let stored = try? SettingsStore(directory: directory).load()
+        return AppLanguage(rawValue: stored?.language ?? defaults.string(forKey: Key.language) ?? "") ?? .simplifiedChinese
+    }
 
     var currencyCode: String {
         didSet {
@@ -70,6 +77,9 @@ final class AppPreferences {
 
     var aiModelPresets: [AIModelPreset] {
         didSet {
+            for preset in oldValue where !aiModelPresets.contains(where: { $0.id == preset.id }) {
+                try? keychain.delete(service: KeychainAIKeyStore.service, account: Self.keyAccount(for: preset.id))
+            }
             if let selectedAIModelID,
                let selected = aiModelPresets.first(where: { $0.id == selectedAIModelID }) {
                 aiConfiguration = selected.configuration
@@ -95,8 +105,13 @@ final class AppPreferences {
         set { aiConfiguration.apiKey = newValue }
     }
 
-    init(defaults: UserDefaults = .standard, settingsStore: SettingsStore? = nil) {
+    init(
+        defaults: UserDefaults = .standard,
+        settingsStore: SettingsStore? = nil,
+        keychain: any AIKeychainStoring = KeychainAIKeyStore()
+    ) {
         self.defaults = defaults
+        self.keychain = keychain
         let directory = StorageCoordinator(defaults: defaults).activeDirectory
         self.settingsStore = settingsStore ?? SettingsStore(directory: directory)
         let stored = try? self.settingsStore.load()
@@ -104,15 +119,22 @@ final class AppPreferences {
         language = AppLanguage(rawValue: stored?.language ?? defaults.string(forKey: Key.language) ?? "") ?? .simplifiedChinese
         themeMode = ThemeMode(rawValue: stored?.themeMode ?? defaults.string(forKey: Key.themeMode) ?? "") ?? .system
         fontScalePercent = Self.normalizedFontScalePercent(stored?.fontScalePercent ?? defaults.integer(forKey: Key.fontScalePercent))
-        if let configuration = stored?.aiConfiguration {
-            aiConfiguration = configuration
+        var configuration: AIConfiguration
+        if let storedConfiguration = stored?.aiConfiguration {
+            configuration = storedConfiguration
         } else if let data = defaults.data(forKey: Key.aiConfiguration),
            let saved = try? JSONDecoder().decode(AIConfiguration.self, from: data) {
-            aiConfiguration = saved
+            configuration = saved
         } else {
-            aiConfiguration = AIConfiguration()
+            configuration = AIConfiguration()
         }
-        aiModelPresets = stored?.aiModelPresets ?? []
+        Self.restoreKey(in: &configuration, account: "active", keychain: keychain)
+        aiConfiguration = configuration
+        var presets = stored?.aiModelPresets ?? []
+        for index in presets.indices {
+            Self.restoreKey(in: &presets[index].configuration, account: Self.keyAccount(for: presets[index].id), keychain: keychain)
+        }
+        aiModelPresets = presets
         selectedAIModelID = stored?.selectedAIModelID
         aiAnalysisHistory = stored?.aiAnalysisHistory ?? []
         isLoading = false
@@ -123,16 +145,44 @@ final class AppPreferences {
 
     private func persist() {
         guard !isLoading else { return }
-        try? settingsStore.save(StoredSettings(
-            currencyCode: currencyCode,
-            language: language.rawValue,
-            themeMode: themeMode.rawValue,
-            fontScalePercent: fontScalePercent,
-            aiConfiguration: aiConfiguration,
-            aiModelPresets: aiModelPresets,
-            selectedAIModelID: selectedAIModelID,
-            aiAnalysisHistory: aiAnalysisHistory
-        ))
+        do {
+            try storeKey(aiConfiguration.apiKey, account: "active")
+            for preset in aiModelPresets {
+                try storeKey(preset.configuration.apiKey, account: Self.keyAccount(for: preset.id))
+            }
+            try settingsStore.save(StoredSettings(
+                currencyCode: currencyCode,
+                language: language.rawValue,
+                themeMode: themeMode.rawValue,
+                fontScalePercent: fontScalePercent,
+                aiConfiguration: aiConfiguration,
+                aiModelPresets: aiModelPresets,
+                selectedAIModelID: selectedAIModelID,
+                aiAnalysisHistory: aiAnalysisHistory
+            ))
+        } catch { return }
+    }
+
+    private static func keyAccount(for id: UUID) -> String { "preset.\(id.uuidString.lowercased())" }
+
+    private static func restoreKey(
+        in configuration: inout AIConfiguration,
+        account: String,
+        keychain: any AIKeychainStoring
+    ) {
+        if configuration.apiKey.isEmpty {
+            configuration.apiKey = (try? keychain.read(service: KeychainAIKeyStore.service, account: account)) ?? ""
+        } else {
+            try? keychain.save(configuration.apiKey, service: KeychainAIKeyStore.service, account: account)
+        }
+    }
+
+    private func storeKey(_ value: String, account: String) throws {
+        if value.isEmpty {
+            try keychain.delete(service: KeychainAIKeyStore.service, account: account)
+        } else {
+            try keychain.save(value, service: KeychainAIKeyStore.service, account: account)
+        }
     }
 
     private static func normalizedCurrencyCode(_ value: String) -> String {

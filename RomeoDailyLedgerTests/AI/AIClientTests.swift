@@ -4,6 +4,68 @@ import Testing
 
 @Suite("AI protocol client", .serialized)
 struct AIClientTests {
+    @Test func chatCompletionStreamExtractsOnlyTextDeltas() throws {
+        let parser = AIStreamEventParser(protocolType: .chatCompletions)
+        #expect(try parser.delta(from: #"{"choices":[{"delta":{"content":"你"}}]}"#) == "你")
+        #expect(try parser.delta(from: #"{"choices":[{"delta":{"content":"好"}}]}"#) == "好")
+        #expect(try parser.delta(from: #"{"choices":[{"delta":{"role":"assistant"}}]}"#) == nil)
+        #expect(parser.isTerminal("[DONE]"))
+        #expect(parser.isTerminal(#"{"choices":[{"delta":{},"finish_reason":"stop"}]}"#))
+    }
+
+    @Test func responsesStreamExtractsOutputTextDeltas() throws {
+        let parser = AIStreamEventParser(protocolType: .responses)
+        #expect(try parser.delta(from: #"{"type":"response.output_text.delta","delta":"第一段"}"#) == "第一段")
+        #expect(try parser.delta(from: #"{"type":"response.completed"}"#) == nil)
+        #expect(parser.isTerminal(#"{"type":"response.completed"}"#))
+    }
+
+    @Test func streamingAnalysisFallsBackToACompleteJSONResponse() async throws {
+        let body = Data(#"{"choices":[{"message":{"role":"assistant","content":"完整回答"}}]}"#.utf8)
+        let client = AIClient(session: Self.session(data: body, status: 200))
+        let stream = client.streamAnalysis(
+            question: "总结",
+            scope: AIAnalysisScope(currencyCode: "CNY", entries: [], categoryNames: [:]),
+            configuration: AIConfiguration(baseURL: URL(string: "https://example.test/v1")!, model: "ledger", apiKey: "key")
+        )
+        var chunks: [String] = []
+        for try await chunk in stream { chunks.append(chunk) }
+
+        #expect(chunks == ["完整回答"])
+        let request = try client.makeAnalysisRequest(
+            question: "总结",
+            scope: AIAnalysisScope(currencyCode: "CNY", entries: [], categoryNames: [:]),
+            configuration: AIConfiguration(baseURL: URL(string: "https://example.test/v1")!, model: "ledger", apiKey: "key"),
+            streams: true
+        )
+        let requestBody = String(data: try #require(request.httpBody), encoding: .utf8) ?? ""
+        #expect(requestBody.contains(#""stream":true"#))
+    }
+
+    @Test func streamingAnalysisKeepsDeltasSmoothAndPublishesOneCompletion() async throws {
+        let body = Data("""
+        data: {"choices":[{"delta":{"content":"你"}}]}
+
+        data: {"choices":[{"delta":{"content":"好"}}]}
+
+        data: {"choices":[{"delta":{},"finish_reason":"stop"}]}
+
+        """.utf8)
+        let client = AIClient(session: Self.session(data: body, status: 200, contentType: "text/event-stream"))
+        let completion = CompletionCapture()
+        let stream = client.streamAnalysis(
+            question: "总结",
+            scope: AIAnalysisScope(currencyCode: "CNY", entries: [], categoryNames: [:]),
+            configuration: AIConfiguration(baseURL: URL(string: "https://example.test/v1")!, model: "ledger", apiKey: "key"),
+            onComplete: { completion.value = $0 }
+        )
+        var deltas: [String] = []
+        for try await delta in stream { deltas.append(delta) }
+
+        #expect(deltas == ["你", "好"])
+        #expect(completion.value == "你好")
+    }
+
     @Test func requestUsesConfigurationKeyAndInjectedLocalDateContext() throws {
         let instant = try #require(ISO8601DateFormatter().date(from: "2026-08-31T16:30:00Z"))
         let zone = try #require(TimeZone(identifier: "Asia/Shanghai"))
@@ -125,15 +187,53 @@ struct AIClientTests {
         #expect(requestBody.contains("CNY"))
     }
 
-    @Test func connectionTestPerformsARealProtocolRequest() async throws {
-        let body = Data(#"{"choices":[{"message":{"role":"assistant","content":"OK"}}]}"#.utf8)
+    @Test func connectionTestUsesOneTokenChatCompletion() async throws {
+        let body = Data(#"{"choices":[{"message":{"role":"assistant","content":"1"}}]}"#.utf8)
         let client = AIClient(session: Self.session(data: body, status: 200))
 
         try await client.testConnection(
             configuration: AIConfiguration(baseURL: URL(string: "https://example.test/v1")!, model: "ledger", apiKey: "key")
         )
 
-        #expect(StubURLProtocol.lastRequest?.url?.path == "/v1/chat/completions")
+        let request = try client.makeConnectionTestRequest(
+            configuration: AIConfiguration(baseURL: URL(string: "https://example.test/v1")!, model: "ledger", apiKey: "key")
+        )
+        #expect(request.url?.path == "/v1/chat/completions")
+        #expect(request.httpMethod == "POST")
+        let requestBody = try #require(request.httpBody)
+        let payload = try #require(JSONSerialization.jsonObject(with: requestBody) as? [String: Any])
+        #expect(payload["max_tokens"] as? Int == 1)
+        let messages = try #require(payload["messages"] as? [[String: String]])
+        #expect(messages == [["role": "user", "content": "1"]])
+    }
+
+    @Test func connectionTestUsesOneTokenResponsesRequest() async throws {
+        let body = Data(#"{"id":"response-id","output":[]}"#.utf8)
+        let client = AIClient(session: Self.session(data: body, status: 200))
+
+        try await client.testConnection(
+            configuration: AIConfiguration(protocolType: .responses, baseURL: URL(string: "https://example.test/v1")!, model: "ledger", apiKey: "key")
+        )
+
+        let request = try client.makeConnectionTestRequest(
+            configuration: AIConfiguration(protocolType: .responses, baseURL: URL(string: "https://example.test/v1")!, model: "ledger", apiKey: "key")
+        )
+        #expect(request.url?.path == "/v1/responses")
+        let requestBody = try #require(request.httpBody)
+        let payload = try #require(JSONSerialization.jsonObject(with: requestBody) as? [String: Any])
+        #expect(payload["max_output_tokens"] as? Int == 1)
+        #expect(payload["input"] as? String == "1")
+        #expect(payload["instructions"] == nil)
+    }
+
+    @Test func connectionTestRejectsInvalidSuccessBody() async {
+        let client = AIClient(session: Self.session(data: Data("not-json".utf8), status: 200))
+
+        await #expect(throws: AIClientError.self) {
+            try await client.testConnection(
+                configuration: AIConfiguration(baseURL: URL(string: "https://example.test/v1")!, model: "ledger", apiKey: "key")
+            )
+        }
     }
 
     @Test func analysisSendsOnlyTheAuthorizedScope() async throws {
@@ -176,6 +276,8 @@ struct AIClientTests {
         let requestBody = String(data: try #require(request.httpBody), encoding: .utf8) ?? ""
         #expect(requestBody.localizedCaseInsensitiveContains("natural conversation"))
         #expect(requestBody.localizedCaseInsensitiveContains("concise"))
+        #expect(requestBody.localizedCaseInsensitiveContains("only the user's specific question"))
+        #expect(requestBody.localizedCaseInsensitiveContains("did not ask about"))
     }
 
     @Test func analysisUsesOnlyTheFixedInAppInstructions() async throws {
@@ -202,7 +304,7 @@ struct AIClientTests {
         let client = AIClient(session: Self.session(data: Data(), status: 200))
 
         await #expect(throws: AIClientError.invalidBaseURL) {
-            try await client.parseLedger(
+            _ = try await client.parseLedger(
                 text: "Lunch",
                 configuration: AIConfiguration(baseURL: URL(string: "http://example.test/v1")!, model: "ledger", apiKey: "key")
             )
@@ -213,7 +315,7 @@ struct AIClientTests {
         let client = AIClient(session: Self.failingSession())
 
         do {
-            try await client.parseLedger(
+            _ = try await client.parseLedger(
                 text: "Lunch",
                 configuration: AIConfiguration(baseURL: URL(string: "https://example.test/v1")!, model: "ledger", apiKey: "key")
             )
@@ -232,9 +334,10 @@ struct AIClientTests {
         }
     }
 
-    private static func session(data: Data, status: Int) -> URLSession {
+    private static func session(data: Data, status: Int, contentType: String? = nil) -> URLSession {
         StubURLProtocol.data = data
         StubURLProtocol.status = status
+        StubURLProtocol.contentType = contentType
         StubURLProtocol.failure = nil
         StubURLProtocol.lastRequest = nil
         let configuration = URLSessionConfiguration.ephemeral
@@ -251,9 +354,20 @@ struct AIClientTests {
     }
 }
 
+private final class CompletionCapture: @unchecked Sendable {
+    private let lock = NSLock()
+    private var stored = ""
+
+    var value: String {
+        get { lock.withLock { stored } }
+        set { lock.withLock { stored = newValue } }
+    }
+}
+
 private final class StubURLProtocol: URLProtocol {
     nonisolated(unsafe) static var data = Data()
     nonisolated(unsafe) static var status = 200
+    nonisolated(unsafe) static var contentType: String?
     nonisolated(unsafe) static var failure: Error?
     nonisolated(unsafe) static var lastRequest: URLRequest?
     override class func canInit(with request: URLRequest) -> Bool { true }
@@ -280,7 +394,8 @@ private final class StubURLProtocol: URLProtocol {
             client?.urlProtocol(self, didFailWithError: failure)
             return
         }
-        let response = HTTPURLResponse(url: request.url!, statusCode: Self.status, httpVersion: nil, headerFields: nil)!
+        let headers = Self.contentType.map { ["Content-Type": $0] }
+        let response = HTTPURLResponse(url: request.url!, statusCode: Self.status, httpVersion: nil, headerFields: headers)!
         client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
         client?.urlProtocol(self, didLoad: Self.data)
         client?.urlProtocolDidFinishLoading(self)

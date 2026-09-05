@@ -8,14 +8,8 @@ struct AppPreferencesTests {
         let presets = ["A", "B", "C"].map {
             AIModelPreset(name: $0, configuration: AIConfiguration(model: $0))
         }
-        let once = AIModelPresetOrder.reordered(presets, from: IndexSet(integer: 0), to: 3)
-        let twice = AIModelPresetOrder.reordered(once, from: IndexSet(integer: 0), to: 2)
-
-        #expect(once.map(\.name) == ["B", "C", "A"])
-        #expect(twice.map(\.name) == ["C", "B", "A"])
-
-        let dragged = AIModelPresetOrder.reordered(twice, moving: twice[2].id, before: twice[0].id)
-        #expect(dragged.map(\.name) == ["A", "C", "B"])
+        let dragged = AIModelPresetOrder.reordered(presets, moving: presets[2].id, before: presets[0].id)
+        #expect(dragged.map(\.name) == ["C", "A", "B"])
 
         let movedToBottom = AIModelPresetOrder.reordered(
             dragged,
@@ -23,7 +17,7 @@ struct AppPreferencesTests {
             relativeTo: dragged[2].id,
             placeAfter: true
         )
-        #expect(movedToBottom.map(\.name) == ["C", "B", "A"])
+        #expect(movedToBottom.map(\.name) == ["A", "B", "C"])
     }
 
     @Test func categoryReorderingKeepsOtherLastAcrossRepeatedMoves() {
@@ -31,28 +25,41 @@ struct AppPreferencesTests {
         let second = Category(kind: .expense, customName: "B", iconName: "tag", colorToken: "custom", sortOrder: 1)
         let other = Category(kind: .expense, systemKey: "other", iconName: "ellipsis", colorToken: "other", sortOrder: .max)
 
-        let once = CategoryOrder.reordered([first, second, other], from: IndexSet(integer: 0), to: 2)
-        let twice = CategoryOrder.reordered(once, from: IndexSet(integer: 0), to: 2)
-
-        #expect(once.map(\.customName) == ["B", "A", nil])
-        #expect(twice.map(\.customName) == ["A", "B", nil])
-        #expect(twice.last?.systemKey == "other")
-
-        let dragged = CategoryOrder.reordered(twice, moving: second.id, before: first.id)
+        let dragged = CategoryOrder.reordered([first, second, other], moving: second.id, before: first.id)
         #expect(dragged.map(\.customName) == ["B", "A", nil])
+        #expect(dragged.last?.systemKey == "other")
         let attemptedOtherDrag = CategoryOrder.reordered(dragged, moving: other.id, before: first.id)
         #expect(attemptedOtherDrag.map(\.id) == dragged.map(\.id))
     }
 
     @Test func modelPresetStatusDefaultsToNotConnectedAndPersists() throws {
+        let checkedAt = Date(timeIntervalSince1970: 1_000)
         let preset = AIModelPreset(
             name: "OpenAI",
-            configuration: AIConfiguration(model: "gpt-test", apiKey: "key")
+            configuration: AIConfiguration(model: "gpt-test", apiKey: "key"),
+            lastConnectionCheckAt: checkedAt
         )
         #expect(preset.connectionStatus == .notConnected)
 
         let decoded = try JSONDecoder().decode(AIModelPreset.self, from: JSONEncoder().encode(preset))
         #expect(decoded == preset)
+        #expect(decoded.lastConnectionCheckAt == checkedAt)
+    }
+
+    @Test func legacyModelPresetWithoutCheckTimeStillDecodes() throws {
+        let data = Data(#"{"id":"00000000-0000-0000-0000-000000000001","name":"Legacy","configuration":{"protocolType":"chatCompletions","baseURL":"https:\/\/example.com\/v1","model":"ledger","apiKey":""},"connectionStatus":"connected"}"#.utf8)
+
+        let preset = try JSONDecoder().decode(AIModelPreset.self, from: data)
+
+        #expect(preset.lastConnectionCheckAt == nil)
+    }
+
+    @Test func modelStatusCacheExpiresAtTenMinutes() {
+        let now = Date(timeIntervalSince1970: 1_000)
+
+        #expect(!AIModelStatusCache.shouldCheck(lastCheckedAt: now.addingTimeInterval(-599), now: now))
+        #expect(AIModelStatusCache.shouldCheck(lastCheckedAt: now.addingTimeInterval(-600), now: now))
+        #expect(AIModelStatusCache.shouldCheck(lastCheckedAt: nil, now: now))
     }
 
     @Test func failedAndUntestedModelsUseDisconnectedIndicator() {
@@ -62,7 +69,7 @@ struct AppPreferencesTests {
     }
     @Test func defaultsMatchSpecification() {
         let defaults = isolatedDefaults()
-        let preferences = AppPreferences(defaults: defaults, settingsStore: temporaryStore())
+        let preferences = AppPreferences(defaults: defaults, settingsStore: temporaryStore(), keychain: PreferencesKeychain())
 
         #expect(preferences.currencyCode == "USD")
         #expect(preferences.themeMode == .system)
@@ -73,13 +80,14 @@ struct AppPreferencesTests {
     @Test func preferencesPersistThroughInjectedUserDefaults() {
         let defaults = isolatedDefaults()
         let store = temporaryStore()
-        let first = AppPreferences(defaults: defaults, settingsStore: store)
+        let keychain = PreferencesKeychain()
+        let first = AppPreferences(defaults: defaults, settingsStore: store, keychain: keychain)
         first.currencyCode = "EUR"
         first.themeMode = .dark
         first.language = .english
         first.fontScalePercent = 125
 
-        let restored = AppPreferences(defaults: defaults, settingsStore: store)
+        let restored = AppPreferences(defaults: defaults, settingsStore: store, keychain: keychain)
         #expect(restored.currencyCode == "EUR")
         #expect(restored.themeMode == .dark)
         #expect(restored.language == .english)
@@ -87,7 +95,7 @@ struct AppPreferencesTests {
     }
 
     @Test func fontScaleIsClampedAndRoundedToFivePercentSteps() {
-        let preferences = AppPreferences(defaults: isolatedDefaults(), settingsStore: temporaryStore())
+        let preferences = AppPreferences(defaults: isolatedDefaults(), settingsStore: temporaryStore(), keychain: PreferencesKeychain())
 
         preferences.fontScalePercent = 143
         #expect(preferences.fontScalePercent == 140)
@@ -102,7 +110,7 @@ struct AppPreferencesTests {
     @Test func settingsJSONDoesNotPersistRemovedTypographyOrMotionControls() throws {
         let directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
         let store = SettingsStore(directory: directory)
-        _ = AppPreferences(defaults: isolatedDefaults(), settingsStore: store)
+        _ = AppPreferences(defaults: isolatedDefaults(), settingsStore: store, keychain: PreferencesKeychain())
         let text = try String(contentsOf: store.url, encoding: .utf8)
         #expect(!text.contains("typographyStyle"))
         #expect(!text.contains("motionIntensity"))
@@ -112,16 +120,49 @@ struct AppPreferencesTests {
         let defaults = isolatedDefaults()
         let directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
         let store = SettingsStore(directory: directory)
-        let preferences = AppPreferences(defaults: defaults, settingsStore: store)
+        let keychain = PreferencesKeychain()
+        let preferences = AppPreferences(defaults: defaults, settingsStore: store, keychain: keychain)
         preferences.aiConfiguration = AIConfiguration(
             protocolType: .chatCompletions,
             baseURL: URL(string: "https://example.com/v1")!,
             model: "compatible-model",
             apiKey: "secret-value"
         )
+        let json = try String(contentsOf: store.url, encoding: .utf8)
 
-        let restored = AppPreferences(defaults: defaults, settingsStore: store)
+        let restored = AppPreferences(defaults: defaults, settingsStore: store, keychain: keychain)
+        #expect(!json.contains("secret-value"))
         #expect(restored.aiConfiguration.apiKey == "secret-value")
+    }
+
+    @Test func modelPresetKeysRoundTripThroughKeychainWithoutEnteringJSON() throws {
+        let defaults = isolatedDefaults()
+        let store = temporaryStore()
+        let keychain = PreferencesKeychain()
+        let id = UUID()
+        let preferences = AppPreferences(defaults: defaults, settingsStore: store, keychain: keychain)
+        preferences.aiModelPresets = [AIModelPreset(
+            id: id,
+            name: "Local",
+            configuration: AIConfiguration(model: "model", apiKey: "preset-secret")
+        )]
+
+        let json = try String(contentsOf: store.url, encoding: .utf8)
+        let restored = AppPreferences(defaults: defaults, settingsStore: store, keychain: keychain)
+
+        #expect(!json.contains("preset-secret"))
+        #expect(restored.aiModelPresets.first?.configuration.apiKey == "preset-secret")
+    }
+
+    @Test func deletingModelPresetDeletesItsKeychainKey() throws {
+        let keychain = PreferencesKeychain()
+        let id = UUID()
+        let preferences = AppPreferences(defaults: isolatedDefaults(), settingsStore: temporaryStore(), keychain: keychain)
+        preferences.aiModelPresets = [AIModelPreset(id: id, name: "Local", configuration: AIConfiguration(model: "model", apiKey: "secret"))]
+
+        preferences.aiModelPresets.removeAll()
+
+        #expect(try keychain.read(service: KeychainAIKeyStore.service, account: "preset.\(id.uuidString.lowercased())") == nil)
     }
 
     @Test func legacyAIConfigurationDecodesWithEmptyAPIKey() throws {
@@ -156,4 +197,11 @@ struct AppPreferencesTests {
     private func temporaryStore() -> SettingsStore {
         SettingsStore(directory: FileManager.default.temporaryDirectory.appending(path: UUID().uuidString))
     }
+}
+
+private final class PreferencesKeychain: AIKeychainStoring, @unchecked Sendable {
+    private var values: [String: String] = [:]
+    func read(service: String, account: String) throws -> String? { values[account] }
+    func save(_ value: String, service: String, account: String) throws { values[account] = value }
+    func delete(service: String, account: String) throws { values[account] = nil }
 }

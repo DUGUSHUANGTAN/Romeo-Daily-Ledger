@@ -1,5 +1,6 @@
 .superpowers/
 .DS_Store
 build/
+*.profraw
 PROGRESS.md
 docs/superpowers/

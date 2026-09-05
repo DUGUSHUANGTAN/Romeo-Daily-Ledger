@@ -68,13 +68,13 @@ struct GitHubReleaseClient: ReleaseUpdateFetching {
     private func request(for url: URL) -> URLRequest {
         var request = URLRequest(url: url)
         request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
-        request.setValue("Romeo-Daily-Ledger/1.0.0", forHTTPHeaderField: "User-Agent")
+        request.setValue("Romeo-Daily-Ledger/1.1.0", forHTTPHeaderField: "User-Agent")
         return request
     }
 }
 
 enum ReleaseUpdateService {
-    static let currentVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0"
+    static let currentVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.1.0"
     static let releasesPage = URL(string: "https://github.com/DUGUSHUANGTAN/Romeo-Daily-Ledger/releases")!
 
     static func check(using client: any ReleaseUpdateFetching = GitHubReleaseClient()) async throws -> ReleaseUpdateResult {

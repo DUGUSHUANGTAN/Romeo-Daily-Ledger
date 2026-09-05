@@ -16,7 +16,7 @@
 
 从 [GitHub Releases](https://github.com/DUGUSHUANGTAN/Romeo-Daily-Ledger/releases) 下载 DMG，打开后将 “Romeo Daily Ledger” 拖入 Applications。
 
-V1.0.3 提供 Apple Silicon（M 系列芯片）构建。没有 Developer ID 时，首次打开可能需要在 Finder 中右键应用并选择“打开”。
+V1.1.0 提供 Apple Silicon（M 系列芯片）构建。没有 Developer ID 时，首次打开可能需要在 Finder 中右键应用并选择“打开”。
 
 ## 数据保存
 

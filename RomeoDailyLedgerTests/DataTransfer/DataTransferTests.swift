@@ -27,6 +27,13 @@ struct DataTransferTests {
         #expect(String(data: data, encoding: .utf8)?.contains("\"工资\"") == false) // UTF-8 is unquoted here
     }
 
+    @Test func csvRejectsDuplicateHeaders() {
+        let data = Data("id,id,kind,amount,currencyCode,categoryID,categoryKey,note,occurredAt\nA,A,expense,1,CNY,,,,2026-01-01".utf8)
+        #expect(throws: LedgerTransferError.malformedCSV) {
+            try LedgerTransferCodec.csv.decode([LedgerTransferRecord].self, from: data)
+        }
+    }
+
     private func normalizedForCurrentTimeZone(_ record: LedgerTransferRecord) -> LedgerTransferRecord {
         var normalized = record
         normalized.occurredAt = AppDateNormalizer().normalize(record.occurredAt)

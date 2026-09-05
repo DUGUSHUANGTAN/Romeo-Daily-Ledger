@@ -26,16 +26,15 @@ struct AIAnalysisScope: Codable, Equatable, Sendable {
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = timeZone
         formatter.dateFormat = "yyyy-MM-dd"
-        self.entries = entries
-            .map { entry in
-                Entry(
-                    kind: entry.kind,
-                    amount: entry.amount,
-                    category: categoryNames[entry.categoryID] ?? "other",
-                    note: entry.note,
-                    occurredAt: formatter.string(from: entry.occurredAt)
-                )
-            }
+        self.entries = entries.map { entry in
+            Entry(
+                kind: entry.kind,
+                amount: entry.amount,
+                category: categoryNames[entry.categoryID] ?? "other",
+                note: entry.note,
+                occurredAt: formatter.string(from: entry.occurredAt)
+            )
+        }
     }
 
     func jsonString() throws -> String {

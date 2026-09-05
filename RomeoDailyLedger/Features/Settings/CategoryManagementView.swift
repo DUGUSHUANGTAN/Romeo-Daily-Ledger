@@ -30,6 +30,8 @@ struct CategoryManagementView: View {
     private var categoryList: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
+                Text(AppLocalization.text("settings.categories.title", language: language))
+                    .font(AppTypography.display(.system))
                 categorySection(titleKey: "entry.expense", categories: expenseCategories)
                 categorySection(titleKey: "entry.income", categories: incomeCategories)
                 if errorMessage != nil {
@@ -41,8 +43,8 @@ struct CategoryManagementView: View {
             .padding(24)
         }
         .coordinateSpace(name: "category-drag-space")
+        .fadingAtTopEdge()
         .onPreferenceChange(CategoryFramePreferenceKey.self) { categoryFrames = $0 }
-        .navigationTitle(AppLocalization.text("settings.categories.title", language: language))
         .task { await loadCategories() }
         .alert(AppLocalization.text("settings.categories.editName", language: language), isPresented: editAlertBinding) {
             TextField(AppLocalization.text("field.category", language: language), text: $editedName)
@@ -216,24 +218,6 @@ struct CategoryManagementView: View {
         } catch { errorMessage = String(describing: error) }
     }
 
-    private func move(kind: EntryKind, source: IndexSet, destination: Int) {
-        let current = kind == .expense ? expenseCategories : incomeCategories
-        let reordered = CategoryOrder.reordered(current, from: source, to: destination)
-        if kind == .expense { expenseCategories = reordered }
-        else { incomeCategories = reordered }
-        Task { @MainActor in
-            do {
-                try await repository.reorderCategories(
-                    kind: kind,
-                    orderedIDs: reordered.filter { $0.systemKey != "other" }.map(\.id)
-                )
-            } catch {
-                errorMessage = String(describing: error)
-                await loadCategories()
-            }
-        }
-    }
-
     private func moveCategory(sourceID: UUID, onto target: Category) {
         guard sourceID != target.id else { return }
         let current = target.kind == .expense ? expenseCategories : incomeCategories
@@ -304,14 +288,6 @@ private struct CategoryFramePreferenceKey: PreferenceKey {
 }
 
 enum CategoryOrder {
-    static func reordered(_ categories: [Category], from source: IndexSet, to destination: Int) -> [Category] {
-        var movable = categories.filter { $0.systemKey != "other" }
-        let validSource = IndexSet(source.filter { $0 < movable.count })
-        guard !validSource.isEmpty else { return categories }
-        movable.move(fromOffsets: validSource, toOffset: min(destination, movable.count))
-        return movable + categories.filter { $0.systemKey == "other" }
-    }
-
     static func reordered(_ categories: [Category], moving sourceID: UUID, before targetID: UUID) -> [Category] {
         guard let source = categories.first(where: { $0.id == sourceID }), source.systemKey != "other",
               categories.contains(where: { $0.id == targetID }) else { return categories }
@@ -392,7 +368,7 @@ private struct CategoryEntriesView: View {
                                     .accessibilityIdentifier("category-entry-\(entry.id.uuidString.lowercased())")
                                 }
                             } header: {
-                                Text(group.date, format: .dateTime.year().month().day()).font(.headline)
+                                Text(group.date, format: .dateTime.year().month().day().locale(language.locale)).font(.headline)
                             }
                         }
                     }
@@ -476,9 +452,4 @@ enum CategoryNamePolicy {
         guard !normalized.isEmpty else { return false }
         return existingDisplayNames.contains { $0.caseInsensitiveCompare(normalized) == .orderedSame }
     }
-}
-
-enum CategoryManagementPolicy {
-    static func canEdit(systemKey: String?) -> Bool { systemKey != "other" }
-    static func canDelete(systemKey: String?) -> Bool { systemKey != "other" }
 }
