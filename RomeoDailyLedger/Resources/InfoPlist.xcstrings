@@ -4,7 +4,8 @@
     "CFBundleDisplayName" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Romeo Daily Ledger" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "罗密欧每日记账" } }
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "罗密欧每日记账" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "羅密歐每日記賬" } }
       }
     }
   },

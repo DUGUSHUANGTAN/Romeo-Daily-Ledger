@@ -20,6 +20,7 @@ struct AILedgerAssistantView: View {
     @State private var requestTask: Task<Void, Never>?
     @State private var showPreview = false
     @State private var showAnalysisHistory = false
+    @State private var analysisDidEmit = false
 
     let dependencies: AppDependencies
     let theme: AppTheme
@@ -68,7 +69,7 @@ struct AILedgerAssistantView: View {
                     .foregroundStyle(.red)
                     .accessibilityIdentifier("ai-error")
             }
-            if requestState.isLoading {
+            if requestState.isLoading, mode != .analysis {
                 HStack {
                     TasteSpinner(reduceMotion: reduceMotion)
                     Text(AppLocalization.text("ai.loading", language: language))
@@ -81,7 +82,12 @@ struct AILedgerAssistantView: View {
         .padding(28)
         .foregroundStyle(theme.primaryText.color)
         .background(theme.canvas.color)
-        .onDisappear { requestTask?.cancel() }
+        .onChange(of: mode) { oldMode, newMode in
+            if oldMode == .analysis, newMode != .analysis, !analysisDidEmit { requestTask?.cancel() }
+        }
+        .onDisappear {
+            if mode != .analysis || !analysisDidEmit { requestTask?.cancel() }
+        }
         .sheet(isPresented: $showPreview) {
             AILedgerPreviewView(
                 drafts: drafts,
@@ -140,6 +146,15 @@ struct AILedgerAssistantView: View {
             Button(AppLocalization.text("ai.analysis.history", language: language)) { showAnalysisHistory = true }
                 .accessibilityIdentifier("ai-analysis-history")
 
+            if requestState.isLoading, !analysisDidEmit {
+                HStack {
+                    TasteSpinner(reduceMotion: reduceMotion)
+                    Text(AppLocalization.text("ai.loading", language: language))
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("ai-loading")
+            }
+
             if let analysisResult {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(AppLocalization.text("ai.analysis.result", language: language))
@@ -183,6 +198,9 @@ struct AILedgerAssistantView: View {
         guard requestTask == nil,
               !question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         error = nil
+        let submittedQuestion = question.trimmingCharacters(in: .whitespacesAndNewlines)
+        analysisResult = nil
+        analysisDidEmit = false
         requestTask = Task { @MainActor in
             defer { requestTask = nil }
             do {
@@ -199,38 +217,49 @@ struct AILedgerAssistantView: View {
                         entries: entries,
                         categoryNames: categoryNames
                     )
-                    return try await client.analyze(
-                        question: question,
+                    var accumulated = ""
+                    let completion = AnalysisStreamCompletion()
+                    for try await delta in client.streamAnalysis(
+                        question: submittedQuestion,
                         scope: scope,
-                        configuration: dependencies.preferences.aiConfiguration
-                    )
+                        configuration: dependencies.preferences.aiConfiguration,
+                        onComplete: { completion.finish(with: $0) }
+                    ) {
+                        if completion.text != nil { break }
+                        analysisDidEmit = true
+                        accumulated.append(delta)
+                        analysisResult = accumulated
+                    }
+                    if let completedText = completion.text {
+                        accumulated = completedText
+                        analysisResult = completedText
+                    }
+                    guard !accumulated.isEmpty else { throw AIClientError.responseDecoding("Missing model content") }
+                    return accumulated
                 }
                 analysisResult = answer
                 dependencies.preferences.aiAnalysisHistory.insert(
-                    AIAnalysisHistoryItem(question: question.trimmingCharacters(in: .whitespacesAndNewlines), answer: answer),
+                    AIAnalysisHistoryItem(question: submittedQuestion, answer: answer),
                     at: 0
                 )
             } catch is CancellationError {
+                analysisResult = nil
             } catch {
+                analysisResult = nil
                 self.error = localizedAIError(error, language: language)
             }
         }
     }
 }
 
-enum AIAnalysisResultLayout {
-    static func shouldScroll(contentHeight: CGFloat, availableHeight: CGFloat) -> Bool {
-        contentHeight > availableHeight
-    }
+private final class AnalysisStreamCompletion: @unchecked Sendable {
+    private let lock = NSLock()
+    private var storedText: String?
 
-    static func contentHeight(for text: String, width: CGFloat) -> CGFloat {
-        let contentWidth = max(width - 24, 1)
-        let bounds = (text as NSString).boundingRect(
-            with: CGSize(width: contentWidth, height: .greatestFiniteMagnitude),
-            options: [.usesLineFragmentOrigin, .usesFontLeading],
-            attributes: [.font: NSFont.preferredFont(forTextStyle: .body)]
-        )
-        return max(44, ceil(bounds.height) + 24)
+    var text: String? { lock.withLock { storedText } }
+
+    func finish(with text: String) {
+        lock.withLock { storedText = text }
     }
 }
 
@@ -239,32 +268,18 @@ private struct AdaptiveAnalysisResult: View {
     let surface: Color
 
     var body: some View {
-        GeometryReader { proxy in
-            let contentHeight = AIAnalysisResultLayout.contentHeight(for: text, width: proxy.size.width)
-            let availableHeight = max(proxy.size.height, 70)
-            let shouldScroll = AIAnalysisResultLayout.shouldScroll(
-                contentHeight: contentHeight,
-                availableHeight: availableHeight
-            )
-
-            Group {
-                if shouldScroll {
-                    ScrollView {
-                        resultText
-                    }
-                } else {
-                    resultText
-                        .frame(height: contentHeight, alignment: .top)
-                }
+        ScrollViewReader { proxy in
+            ScrollView {
+                resultText
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
+                Color.clear.frame(height: 1).id("analysis-stream-bottom")
             }
-            .frame(
-                maxWidth: .infinity,
-                maxHeight: shouldScroll ? .infinity : contentHeight,
-                alignment: .top
-            )
-            .background(surface, in: RoundedRectangle(cornerRadius: 10))
+            .onChange(of: text) { _, _ in
+                proxy.scrollTo("analysis-stream-bottom", anchor: .bottom)
+            }
         }
-        .frame(minHeight: 70, maxHeight: .infinity)
+        .frame(minHeight: 70, maxHeight: .infinity, alignment: .top)
+        .background(surface, in: RoundedRectangle(cornerRadius: 10))
     }
 
     private var resultText: some View {
@@ -308,6 +323,11 @@ struct MultilineSubmitTextEditor: View {
 enum MultilineSubmitBehavior {
     static func shouldSubmit(shiftPressed: Bool, hasMarkedText: Bool) -> Bool {
         !shiftPressed && !hasMarkedText
+    }
+
+    static func shouldSubmit(command: String, shiftPressed: Bool, hasMarkedText: Bool) -> Bool {
+        guard command == "insertNewline:" || command == "insertNewlineIgnoringFieldEditor:" else { return false }
+        return shouldSubmit(shiftPressed: shiftPressed, hasMarkedText: hasMarkedText)
     }
 }
 
@@ -362,17 +382,14 @@ private struct ComposingTextView: NSViewRepresentable {
 private final class SubmitAwareTextView: NSTextView {
     var onSubmit: (() -> Void)?
 
-    override func keyDown(with event: NSEvent) {
-        guard event.keyCode == 36 || event.keyCode == 76 else {
-            super.keyDown(with: event)
-            return
-        }
-        let shiftPressed = event.modifierFlags.contains(.shift)
+    override func doCommand(by selector: Selector) {
+        let shiftPressed = NSApp.currentEvent?.modifierFlags.contains(.shift) == true
         guard MultilineSubmitBehavior.shouldSubmit(
+            command: NSStringFromSelector(selector),
             shiftPressed: shiftPressed,
             hasMarkedText: hasMarkedText()
         ) else {
-            super.keyDown(with: event)
+            super.doCommand(by: selector)
             return
         }
         onSubmit?()
@@ -580,30 +597,52 @@ private struct AIAnalysisHistoryView: View {
     let theme: AppTheme
     let typography: AppTypography.Style
     @State private var selected: AIAnalysisHistoryItem?
-    @State private var pendingDeletion: AIAnalysisHistoryItem?
+    @State private var selectedHistoryIDs: Set<UUID> = []
+    @State private var isDeletionConfirmationPresented = false
 
     var body: some View {
         NavigationSplitView {
-            List(preferences.aiAnalysisHistory, selection: $selected) { item in
+            List(preferences.aiAnalysisHistory) { item in
                 HStack {
                     VStack(alignment: .leading, spacing: 3) {
                         Text(item.question).lineLimit(2)
-                        Text(item.createdAt, format: .dateTime.year().month().day().hour().minute())
+                        Text(item.createdAt, format: .dateTime.year().month().day().hour().minute().locale(language.locale))
                             .font(AppTypography.caption(typography)).foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Button(role: .destructive) {
-                        pendingDeletion = item
-                    } label: { Image(systemName: "trash") }
-                        .buttonStyle(.borderless)
-                        .foregroundStyle(.red)
-                        .accessibilityIdentifier("ai-analysis-history-delete-\(item.id.uuidString.lowercased())")
                 }
-                .tag(item)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(
+                    selectedHistoryIDs.contains(item.id) ? theme.primaryAccent.color.opacity(0.16) : .clear,
+                    in: RoundedRectangle(cornerRadius: 10)
+                )
+                .contentShape(Rectangle())
+                .gesture(
+                    LongPressGesture(minimumDuration: 0.5)
+                        .exclusively(before: TapGesture())
+                        .onEnded { value in
+                            switch value {
+                            case .first:
+                                selectedHistoryIDs.insert(item.id)
+                            case .second:
+                                if selectedHistoryIDs.isEmpty {
+                                    selected = item
+                                } else if !selectedHistoryIDs.insert(item.id).inserted {
+                                    selectedHistoryIDs.remove(item.id)
+                                }
+                            }
+                        }
+                )
+                .accessibilityAddTraits(.isButton)
+                .accessibilityAddTraits(selectedHistoryIDs.contains(item.id) ? .isSelected : [])
+                .accessibilityValue(AppLocalization.text(selectedHistoryIDs.contains(item.id) ? "accessibility.selected" : "accessibility.notSelected", language: language))
+                .accessibilityIdentifier("ai-analysis-history-row-\(item.id.uuidString.lowercased())")
             }
             .navigationTitle(AppLocalization.text("ai.analysis.history", language: language))
+            .navigationSplitViewColumnWidth(min: 190, ideal: 220, max: 260)
         } detail: {
-            if let selected {
+            if let selected = selected ?? preferences.aiAnalysisHistory.first {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
                         Text(selected.question).font(AppTypography.title(typography))
@@ -616,17 +655,40 @@ private struct AIAnalysisHistoryView: View {
             }
         }
         .frame(minWidth: 760, minHeight: 480)
-        .toolbar { ToolbarItem(placement: .cancellationAction) { Button(AppLocalization.text("button.done", language: language)) { dismiss() } } }
+        .toolbar {
+            ToolbarItem(placement: .destructiveAction) {
+                HStack(spacing: 12) {
+                    if selectedHistoryIDs.isEmpty {
+                        Text(AppLocalization.text("ai.analysis.history.selectionHint", language: language))
+                            .font(AppTypography.caption(typography))
+                            .foregroundStyle(theme.secondaryText.color)
+                            .accessibilityIdentifier("ai-analysis-history-selection-hint")
+                    } else {
+                        Button(AppLocalization.text("button.deleteSelected", language: language)) {
+                            isDeletionConfirmationPresented = true
+                        }
+                        .tint(.red)
+                        Button(AppLocalization.text("button.cancelSelection", language: language)) {
+                            selectedHistoryIDs.removeAll()
+                        }
+                        Text(AppLocalization.format("ai.analysis.history.selectedCount", language: language, selectedHistoryIDs.count))
+                            .font(AppTypography.caption(typography))
+                    }
+                }
+            }
+            ToolbarItem(placement: .confirmationAction) {
+                Button(AppLocalization.text("button.done", language: language)) { dismiss() }
+            }
+        }
         .confirmationDialog(
             AppLocalization.text("ledger.delete.confirmTitle", language: language),
-            isPresented: Binding(get: { pendingDeletion != nil }, set: { if !$0 { pendingDeletion = nil } }),
+            isPresented: $isDeletionConfirmationPresented,
             titleVisibility: .visible
         ) {
             Button(AppLocalization.text("button.confirmDelete", language: language), role: .destructive) {
-                guard let item = pendingDeletion else { return }
-                preferences.aiAnalysisHistory.removeAll { $0.id == item.id }
-                if selected?.id == item.id { selected = nil }
-                pendingDeletion = nil
+                if let selected, selectedHistoryIDs.contains(selected.id) { self.selected = nil }
+                preferences.aiAnalysisHistory.removeAll { selectedHistoryIDs.contains($0.id) }
+                selectedHistoryIDs.removeAll()
             }
             Button(AppLocalization.text("button.cancel", language: language), role: .cancel) {}
         }

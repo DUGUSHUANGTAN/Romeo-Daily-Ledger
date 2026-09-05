@@ -39,6 +39,7 @@ struct InsightsView: View {
             .padding(28)
             .frame(maxWidth: 980, alignment: .leading)
         }
+        .fadingAtTopEdge()
         .foregroundStyle(theme.primaryText.color)
         .background(theme.canvas.color)
         .task {
@@ -54,18 +55,20 @@ struct InsightsView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(AppLocalization.text("nav.insights.title", language: language))
                     .font(AppTypography.display(typography))
-                Text(model.displayedMonth, format: .dateTime.year().month(.wide))
+                Text(model.displayedMonth, format: .dateTime.year().month(.wide).locale(language.locale))
                     .font(AppTypography.body(typography))
                     .foregroundStyle(theme.secondaryText.color)
             }
             HStack(spacing: 10) {
-                TextField(AppLocalization.text("calendar.year", language: language), text: $yearText)
-                    .labelsHidden()
-                    .frame(width: 72)
-                    .accessibilityIdentifier("insights-year")
-                    .onSubmit { commitYear() }
+                CommitOnEndEditingTextField(
+                    text: $yearText,
+                    placeholder: AppLocalization.text("calendar.year", language: language),
+                    accessibilityIdentifier: "insights-year",
+                    onCommit: commitYear
+                )
+                .frame(width: 72)
                 Picker(AppLocalization.text("calendar.month", language: language), selection: monthBinding) {
-                    ForEach(1...12, id: \.self) { Text(model.calendar.monthSymbols[$0 - 1]).tag($0) }
+                    ForEach(1...12, id: \.self) { Text(monthSymbols[$0 - 1]).tag($0) }
                 }
                 .labelsHidden().frame(width: 110).accessibilityIdentifier("insights-month")
                 Button(AppLocalization.text("insights.thisMonth", language: language)) { Task { await model.selectCurrentMonth() } }
@@ -75,14 +78,20 @@ struct InsightsView: View {
         }
     }
 
-    private var monthBinding: Binding<Int> { Binding(get: { model.calendar.component(.month, from: model.displayedMonth) }, set: { month in Task { await model.select(year: model.calendar.component(.year, from: model.displayedMonth), month: month) } }) }
+    private var monthBinding: Binding<Int> { Binding(get: { model.calendar.component(.month, from: model.displayedMonth) }, set: { month in Task { await model.select(year: model.displayedYear, month: month) } }) }
 
-    private func synchronizeYearText() {
-        yearText = String(model.calendar.component(.year, from: model.displayedMonth))
+    private var monthSymbols: [String] {
+        var calendar = model.calendar
+        calendar.locale = language.locale
+        return calendar.monthSymbols
     }
 
-    private func commitYear() {
-        guard let year = CalendarViewModel.validatedYear(from: yearText) else {
+    private func synchronizeYearText() {
+        yearText = String(model.displayedYear)
+    }
+
+    private func commitYear(_ input: String) {
+        guard let year = CalendarViewModel.validatedYear(from: input) else {
             synchronizeYearText()
             return
         }

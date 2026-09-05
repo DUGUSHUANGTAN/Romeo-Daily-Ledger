@@ -8,6 +8,7 @@ final class LedgerTransferService {
 
     private let repository: any LedgerRepository
     private let dateNormalizer: AppDateNormalizer
+    private let timeZoneProvider: any AppTimeZoneProviding
 
     init(
         repository: any LedgerRepository,
@@ -15,6 +16,7 @@ final class LedgerTransferService {
         timeZoneProvider: any AppTimeZoneProviding = SystemAppTimeZoneProvider()
     ) {
         self.repository = repository
+        self.timeZoneProvider = timeZoneProvider
         self.dateNormalizer = AppDateNormalizer(clock: clock, timeZoneProvider: timeZoneProvider)
     }
 
@@ -31,15 +33,15 @@ final class LedgerTransferService {
                 note: entry.note, occurredAt: entry.occurredAt))
         }
         switch format {
-        case .json: return try LedgerTransferCodec.json.encode(records)
-        case .csv: return try LedgerTransferCodec.csv.encode(records)
+        case .json: return try JSONCodec(timeZoneProvider: timeZoneProvider).encode(records)
+        case .csv: return try CSVCodec(timeZoneProvider: timeZoneProvider).encode(records)
         }
     }
 
     func decode(data: Data, format: Format) throws -> [LedgerTransferRecord] {
         switch format {
-        case .json: return try LedgerTransferCodec.json.decode([LedgerTransferRecord].self, from: data)
-        case .csv: return try LedgerTransferCodec.csv.decode([LedgerTransferRecord].self, from: data)
+        case .json: return try JSONCodec(timeZoneProvider: timeZoneProvider).decode([LedgerTransferRecord].self, from: data)
+        case .csv: return try CSVCodec(timeZoneProvider: timeZoneProvider).decode([LedgerTransferRecord].self, from: data)
         }
     }
 

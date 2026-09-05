@@ -202,6 +202,30 @@ final class LedgerFlowUITests: XCTestCase {
         XCTAssertTrue(app.buttons["insights-current-month"].exists)
     }
 
+    func testCalendarAndInsightsCommitYearWhenFocusMovesToMonthPicker() {
+        let app = launchApp()
+
+        app.descendants(matching: .any)["sidebar-calendar"].click()
+        let calendarYear = app.textFields["calendar-year"]
+        XCTAssertTrue(calendarYear.waitForExistence(timeout: 2))
+        calendarYear.click()
+        calendarYear.typeKey("a", modifierFlags: .command)
+        calendarYear.typeText("2001")
+        app.popUpButtons["calendar-month"].click()
+        app.menuItems["February"].click()
+        XCTAssertEqual(calendarYear.value as? String, "2001")
+
+        app.descendants(matching: .any)["sidebar-insights"].click()
+        let insightsYear = app.textFields["insights-year"]
+        XCTAssertTrue(insightsYear.waitForExistence(timeout: 2))
+        insightsYear.click()
+        insightsYear.typeKey("a", modifierFlags: .command)
+        insightsYear.typeText("2002")
+        app.popUpButtons["insights-month"].click()
+        app.menuItems["January"].click()
+        XCTAssertEqual(insightsYear.value as? String, "2002")
+    }
+
     private func launchApp() -> XCUIApplication {
         continueAfterFailure = false
         let app = XCUIApplication()

@@ -4,7 +4,7 @@ import Observation
 @Observable
 @MainActor
 final class CalendarViewModel {
-    static let supportedYears = 1900...2100
+    static let supportedYears = 0...9999
     struct Day: Identifiable, Equatable {
         let date: Date
         let isInDisplayedMonth: Bool
@@ -15,11 +15,23 @@ final class CalendarViewModel {
     private(set) var calendar: Calendar
     var displayedMonth: Date
     var selectedDate: Date
+    var displayedYear: Int { Self.displayYear(in: calendar, for: displayedMonth) }
 
     static func validatedYear(from text: String) -> Int? {
         guard let year = Int(text.trimmingCharacters(in: .whitespacesAndNewlines)),
               supportedYears.contains(year) else { return nil }
         return year
+    }
+
+    static func displayYear(in calendar: Calendar, for date: Date) -> Int {
+        let year = calendar.component(.year, from: date)
+        return calendar.component(.era, from: date) == 0 ? 1 - year : year
+    }
+
+    static func dateComponents(year: Int, month: Int, timeZone: TimeZone) -> DateComponents {
+        year == 0
+            ? DateComponents(calendar: nil, timeZone: timeZone, era: 0, year: 1, month: month, day: 1)
+            : DateComponents(calendar: nil, timeZone: timeZone, era: 1, year: year, month: month, day: 1)
     }
 
     init(
@@ -41,7 +53,7 @@ final class CalendarViewModel {
 
     func moveMonth(by offset: Int) {
         let target = calendar.date(byAdding: .month, value: offset, to: displayedMonth)!
-        let year = calendar.component(.year, from: target)
+        let year = Self.displayYear(in: calendar, for: target)
         guard Self.supportedYears.contains(year) else { return }
         displayedMonth = monthStart(containing: target)
     }
@@ -49,13 +61,15 @@ final class CalendarViewModel {
     func select(year: Int, month: Int) {
         let year = min(max(year, Self.supportedYears.lowerBound), Self.supportedYears.upperBound)
         let month = min(max(month, 1), 12)
-        var components = DateComponents(year: year, month: month, day: 1)
-        components.timeZone = calendar.timeZone
-        if let date = calendar.date(from: components) { displayedMonth = monthStart(containing: date) }
+        let components = Self.dateComponents(year: year, month: month, timeZone: calendar.timeZone)
+        if let date = calendar.date(from: components) {
+            selectedDate = date
+            displayedMonth = monthStart(containing: date)
+        }
     }
 
     func selectToday(_ today: Date = .now) {
-        let year = calendar.component(.year, from: today)
+        let year = Self.displayYear(in: calendar, for: today)
         guard Self.supportedYears.contains(year) else { return }
         selectedDate = today
         displayedMonth = monthStart(containing: today)
@@ -85,6 +99,8 @@ struct HistorySearchIndex {
     let entries: [LedgerEntry]
     let categoryNames: [UUID: String]
     var calendar: Calendar
+    let incomeName: String
+    let expenseName: String
 
     func results(matching query: String) -> [LedgerEntry] {
         let needle = query.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -95,9 +111,11 @@ struct HistorySearchIndex {
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "yyyy-MM-dd"
         return entries.filter { entry in
-            entry.note.localizedCaseInsensitiveContains(needle)
+            let kindName = entry.kind == .income ? incomeName : expenseName
+            return entry.note.localizedCaseInsensitiveContains(needle)
                 || (categoryNames[entry.categoryID]?.localizedCaseInsensitiveContains(needle) == true)
                 || formatter.string(from: entry.occurredAt).localizedCaseInsensitiveContains(needle)
+                || kindName.localizedCaseInsensitiveContains(needle)
         }
     }
 }

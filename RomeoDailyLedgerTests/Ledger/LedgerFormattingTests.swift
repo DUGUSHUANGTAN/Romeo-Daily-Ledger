@@ -55,6 +55,6 @@ struct LedgerFormattingTests {
             Category(kind: .expense, systemKey: "transport", iconName: "", colorToken: "", sortOrder: 3),
         ]
 
-        #expect(categories.map(LedgerFormatting.categoryName) == ["衣物", "食物", "住宿", "行程"])
+        #expect(categories.map { LedgerFormatting.categoryName($0, language: .simplifiedChinese) } == ["衣物", "食物", "住宿", "行程"])
     }
 }

@@ -2,11 +2,10 @@ import SwiftUI
 
 struct AppearanceSettingsView: View {
     @Bindable var preferences: AppPreferences
-    let systemReduceMotion: Bool
 
     var body: some View {
-        Form {
-            Section(AppLocalization.text("settings.appearance.theme", language: preferences.language)) {
+        SettingsPageScroll {
+            SettingsPageSection(AppLocalization.text("settings.appearance.theme", language: preferences.language)) {
                 Picker(AppLocalization.text("settings.appearance.theme", language: preferences.language), selection: $preferences.themeMode) {
                     ForEach(ThemeMode.allCases) { mode in
                         Text(AppLocalization.text("theme.\(mode.rawValue)", language: preferences.language))
@@ -21,9 +20,9 @@ struct AppearanceSettingsView: View {
                 }
             }
 
-            Section(AppLocalization.text("settings.appearance.typography", language: preferences.language)) {
+            SettingsPageSection(AppLocalization.text("settings.appearance.typography", language: preferences.language)) {
                 HStack(spacing: 12) {
-                    Text("Size")
+                    Text(AppLocalization.text("settings.appearance.fontSize", language: preferences.language))
                         .font(AppTypography.body(.system))
                     Slider(
                         value: Binding(
@@ -43,10 +42,9 @@ struct AppearanceSettingsView: View {
                 }
             }
         }
-        .formStyle(.grouped)
+        .padding(SettingsPageLayout.contentInset)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .navigationTitle(AppLocalization.text("settings.appearance.title", language: preferences.language))
-        .padding(24)
         .accessibilityIdentifier("settings-appearance")
     }
 }

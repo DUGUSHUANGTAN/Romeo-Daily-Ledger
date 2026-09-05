@@ -49,7 +49,7 @@ struct LedgerTransferRecord: Codable, Equatable, Sendable {
         } else { throw LedgerTransferError.invalidAmount }
         guard c.contains(.occurredAt) else { throw LedgerTransferError.missingField("occurredAt") }
         guard let dateText = try c.decodeIfPresent(String.self, forKey: .occurredAt),
-              let date = Self.parseDate(dateText) else { throw LedgerTransferError.invalidDate }
+              let date = Self.parseDate(dateText, timeZone: (decoder.userInfo[.ledgerTransferTimeZone] as? TimeZone) ?? .autoupdatingCurrent) else { throw LedgerTransferError.invalidDate }
         self.init(id: id, kind: kind, amount: amount,
                   currencyCode: (try c.decodeIfPresent(String.self, forKey: .currencyCode) ?? "USD"),
                   categoryID: try c.decodeIfPresent(UUID.self, forKey: .categoryID),
@@ -66,18 +66,19 @@ struct LedgerTransferRecord: Codable, Equatable, Sendable {
         try c.encodeIfPresent(categoryID, forKey: .categoryID)
         try c.encodeIfPresent(categoryKey, forKey: .categoryKey)
         try c.encode(note, forKey: .note)
-        try c.encode(Self.formatDate(occurredAt), forKey: .occurredAt)
+        try c.encode(Self.formatDate(occurredAt, timeZone: (encoder.userInfo[.ledgerTransferTimeZone] as? TimeZone) ?? .autoupdatingCurrent), forKey: .occurredAt)
     }
 
     private static func parseDate(_ text: String) -> Date? {
-        let f = ISO8601DateFormatter(); f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        let p = ISO8601DateFormatter(); p.formatOptions = [.withInternetDateTime]
-        return f.date(from: text) ?? p.date(from: text)
+        parseDate(text, timeZone: .autoupdatingCurrent)
     }
 
-    private static func formatDate(_ date: Date) -> String {
-        let f = ISO8601DateFormatter(); f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        return f.string(from: date)
+    private static func parseDate(_ text: String, timeZone: TimeZone) -> Date? {
+        LedgerTransferDateCoder(timeZone: timeZone).date(from: text)
+    }
+
+    private static func formatDate(_ date: Date, timeZone: TimeZone = .autoupdatingCurrent) -> String {
+        LedgerTransferDateCoder(timeZone: timeZone).string(from: date)
     }
 }
 
@@ -95,7 +96,7 @@ enum LedgerTransferError: Error, Equatable, LocalizedError {
         case .invalidData: return "The file is not a valid ledger export."
         case .missingField(let field): return "Required field '\(field)' is missing."
         case .invalidAmount: return "Amount must be a positive number."
-        case .invalidDate: return "Date is invalid or not in ISO-8601 format."
+        case .invalidDate: return "Date is invalid or not in yyyy-MM-dd or ISO-8601 format."
         case .invalidKind: return "Type must be income or expense."
         case .malformedCSV: return "The CSV file is malformed or has an invalid header."
         case .currencyMismatch(let expected, let actual):
@@ -151,12 +152,21 @@ enum LedgerTransferCodec {
 }
 
 struct JSONCodec {
+    private let timeZoneProvider: any AppTimeZoneProviding
+
+    init(timeZoneProvider: any AppTimeZoneProviding = SystemAppTimeZoneProvider()) {
+        self.timeZoneProvider = timeZoneProvider
+    }
+
     func encode(_ records: [LedgerTransferRecord]) throws -> Data {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        encoder.userInfo[.ledgerTransferTimeZone] = timeZoneProvider.timeZone
         return try encoder.encode(records)
     }
     func decode(_ type: [LedgerTransferRecord].Type, from data: Data) throws -> [LedgerTransferRecord] {
-        do { return try JSONDecoder().decode(type, from: data) }
+        let decoder = JSONDecoder()
+        decoder.userInfo[.ledgerTransferTimeZone] = timeZoneProvider.timeZone
+        do { return try decoder.decode(type, from: data) }
         catch let error as LedgerTransferError { throw error }
         catch { throw LedgerTransferError.invalidData }
     }
@@ -164,6 +174,11 @@ struct JSONCodec {
 
 struct CSVCodec {
     private let header = ["id", "kind", "amount", "currencyCode", "categoryID", "categoryKey", "note", "occurredAt"]
+    private let timeZoneProvider: any AppTimeZoneProviding
+
+    init(timeZoneProvider: any AppTimeZoneProviding = SystemAppTimeZoneProvider()) {
+        self.timeZoneProvider = timeZoneProvider
+    }
 
     func encode(_ records: [LedgerTransferRecord]) throws -> Data {
         var lines = [header.joined(separator: ",")]
@@ -173,7 +188,7 @@ struct CSVCodec {
                 NSDecimalNumber(decimal: record.amount).stringValue,
                 record.currencyCode, record.categoryID?.uuidString ?? "",
                 record.categoryKey ?? "", record.note,
-                ISO8601DateFormatter.transferString(from: record.occurredAt)
+                LedgerTransferDateCoder(timeZone: timeZoneProvider.timeZone).string(from: record.occurredAt)
             ].map(quote).joined(separator: ","))
         }
         return lines.joined(separator: "\n").data(using: .utf8)!
@@ -182,7 +197,9 @@ struct CSVCodec {
     func decode(_ type: [LedgerTransferRecord].Type, from data: Data) throws -> [LedgerTransferRecord] {
         guard let text = String(data: data, encoding: .utf8) else { throw LedgerTransferError.invalidData }
         let rows = try parse(text)
-        guard let first = rows.first, header.allSatisfy({ first.contains($0) }) else { throw LedgerTransferError.malformedCSV }
+        guard let first = rows.first,
+              Set(first).count == first.count,
+              header.allSatisfy({ first.contains($0) }) else { throw LedgerTransferError.malformedCSV }
         let indexes = Dictionary(uniqueKeysWithValues: first.enumerated().map { ($1, $0) })
         var result: [LedgerTransferRecord] = []
         for row in rows.dropFirst() where !row.allSatisfy(\.isEmpty) {
@@ -192,7 +209,7 @@ struct CSVCodec {
             guard let amountText = value("amount"),
                   let amount = Decimal(string: amountText, locale: Locale(identifier: "en_US_POSIX")),
                   amount > 0 else { throw LedgerTransferError.invalidAmount }
-            guard let dateText = value("occurredAt"), let date = ISO8601DateFormatter.parseTransferDate(dateText) else { throw LedgerTransferError.invalidDate }
+            guard let dateText = value("occurredAt"), let date = LedgerTransferDateCoder(timeZone: timeZoneProvider.timeZone).date(from: dateText) else { throw LedgerTransferError.invalidDate }
             result.append(LedgerTransferRecord(id: id, kind: kind, amount: amount,
                 currencyCode: value("currencyCode") ?? "USD", categoryID: value("categoryID").flatMap(UUID.init(uuidString:)),
                 categoryKey: value("categoryKey").flatMap { $0.isEmpty ? nil : $0 }, note: value("note") ?? "", occurredAt: date))
@@ -221,13 +238,45 @@ struct CSVCodec {
     }
 }
 
-private extension ISO8601DateFormatter {
-    static func transferString(from date: Date) -> String {
-        let f = ISO8601DateFormatter(); f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]; return f.string(from: date)
+private struct LedgerTransferDateCoder {
+    let timeZone: TimeZone
+
+    func string(from date: Date) -> String {
+        dateFormatter().string(from: date)
     }
-    static func parseTransferDate(_ text: String) -> Date? {
-        let f = ISO8601DateFormatter(); f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        let p = ISO8601DateFormatter(); p.formatOptions = [.withInternetDateTime]
-        return f.date(from: text) ?? p.date(from: text)
+
+    func date(from text: String) -> Date? {
+        let formatter = dateFormatter()
+        if let date = formatter.date(from: text), formatter.string(from: date) == text {
+            return date
+        }
+
+        let fractional = ISO8601DateFormatter()
+        fractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        fractional.timeZone = timeZone
+        let standard = ISO8601DateFormatter()
+        standard.formatOptions = [.withInternetDateTime]
+        standard.timeZone = timeZone
+        guard let instant = fractional.date(from: text) ?? standard.date(from: text) else { return nil }
+
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = timeZone
+        return calendar.startOfDay(for: instant)
     }
+
+    private func dateFormatter() -> DateFormatter {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = timeZone
+        let formatter = DateFormatter()
+        formatter.calendar = calendar
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = timeZone
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.isLenient = false
+        return formatter
+    }
+}
+
+private extension CodingUserInfoKey {
+    static let ledgerTransferTimeZone = CodingUserInfoKey(rawValue: "ledgerTransferTimeZone")!
 }

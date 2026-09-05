@@ -14,16 +14,18 @@ struct AIAnalysisTests {
     }
 
     @Test(arguments: [
-        (content: CGFloat(80), available: CGFloat(120), expected: false),
-        (content: CGFloat(120), available: CGFloat(120), expected: false),
-        (content: CGFloat(121), available: CGFloat(120), expected: true)
+        (command: "insertNewline:", shiftPressed: false, hasMarkedText: false, expected: true),
+        (command: "insertNewline:", shiftPressed: true, hasMarkedText: false, expected: false),
+        (command: "insertNewline:", shiftPressed: false, hasMarkedText: true, expected: false),
+        (command: "insertTab:", shiftPressed: false, hasMarkedText: false, expected: false)
     ])
-    func analysisResultScrollsOnlyWhenContentExceedsAvailableSpace(
-        content: CGFloat,
-        available: CGFloat,
+    func multilineReturnOnlySubmitsAfterInputMethodCommandRouting(
+        command: String,
+        shiftPressed: Bool,
+        hasMarkedText: Bool,
         expected: Bool
     ) {
-        #expect(AIAnalysisResultLayout.shouldScroll(contentHeight: content, availableHeight: available) == expected)
+        #expect(MultilineSubmitBehavior.shouldSubmit(command: command, shiftPressed: shiftPressed, hasMarkedText: hasMarkedText) == expected)
     }
 
     @Test func filtersEntriesToRequestedRange() throws {

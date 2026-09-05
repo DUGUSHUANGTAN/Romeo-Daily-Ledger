@@ -52,7 +52,8 @@ final class AppDependencies {
                 .appending(path: "RomeoDailyLedger-UITesting-\(UUID().uuidString)", directoryHint: .isDirectory)
             resolvedPreferences = AppPreferences(
                 defaults: UserDefaults(suiteName: suiteName)!,
-                settingsStore: SettingsStore(directory: settingsDirectory)
+                settingsStore: SettingsStore(directory: settingsDirectory),
+                keychain: DisabledAIKeyStore()
             )
         } else {
             resolvedPreferences = AppPreferences()

@@ -14,7 +14,7 @@ final class AppSmokeUITests: XCTestCase {
         application.launchArguments = ["--ui-testing"]
         application.launch()
 
-        let version = application.staticTexts["V1.0.3"]
+        let version = application.staticTexts["V1.1.0"]
         XCTAssertTrue(version.waitForExistence(timeout: 3))
     }
 }

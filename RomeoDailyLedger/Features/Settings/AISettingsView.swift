@@ -5,6 +5,7 @@ struct AISettingsView: View {
     @Bindable var preferences: AppPreferences
     @State private var editor: ModelEditorContext?
     @State private var pendingDeletion: AIModelPreset?
+    @State private var isClearAnalysisHistoryConfirmationPresented = false
     @State private var testingModelIDs: Set<UUID> = []
     @State private var draggingModelID: UUID?
     @State private var modelDragTranslation: CGSize = .zero
@@ -20,33 +21,43 @@ struct AISettingsView: View {
     }
 
     var body: some View {
-        Form {
-            Section(AppLocalization.text("settings.ai.models", language: language)) {
+        SettingsPageScroll {
+            SettingsPageSection(AppLocalization.text("settings.ai.models", language: language)) {
                 ForEach(preferences.aiModelPresets) { preset in modelRow(preset) }
-                Button { editor = ModelEditorContext(preset: nil) } label: {
-                    Label(AppLocalization.text("settings.ai.connection", language: language), systemImage: "plus")
+                HStack {
+                    Button { editor = ModelEditorContext(preset: nil) } label: {
+                        Label(AppLocalization.text("settings.ai.connection", language: language), systemImage: "plus")
+                    }
+                    .accessibilityIdentifier("settings-ai-add-model")
+                    Spacer()
+                    Button {
+                        Task { await refreshConnectionStatuses(force: true) }
+                    } label: {
+                        Label(AppLocalization.text("settings.ai.checkModels", language: language), systemImage: "arrow.clockwise")
+                    }
+                    .disabled(preferences.aiModelPresets.isEmpty || !testingModelIDs.isEmpty)
+                    .accessibilityIdentifier("settings-ai-check-models")
                 }
-                .accessibilityIdentifier("settings-ai-add-model")
                 Text(AppLocalization.text("settings.ai.models.hint", language: language))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            Section {
+            SettingsPageSection {
                 Button(AppLocalization.text("settings.ai.clearAnalysisHistory", language: language), role: .destructive) {
-                    preferences.aiAnalysisHistory.removeAll()
+                    isClearAnalysisHistoryConfirmationPresented = true
                 }
-                .disabled(preferences.aiAnalysisHistory.isEmpty)
+                .buttonStyle(.borderedProminent)
+                .tint(.red)
+                .accessibilityIdentifier("settings-ai-clear-analysis-history")
             }
         }
-        .formStyle(.grouped)
         .coordinateSpace(name: "model-drag-space")
         .onPreferenceChange(ModelFramePreferenceKey.self) { modelFrames = $0 }
         .navigationTitle(AppLocalization.text("settings.ai.title", language: language))
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .padding(.leading, 16)
-        .padding(.trailing, 24)
+        .padding(SettingsPageLayout.contentInset)
         .accessibilityIdentifier("settings-ai")
-        .task { await refreshConnectionStatuses() }
+        .task { await refreshConnectionStatuses(force: false) }
         .sheet(item: $editor) { context in
             AIModelEditorView(preset: context.preset, client: client) { saved in
                 save(saved)
@@ -61,6 +72,18 @@ struct AISettingsView: View {
             Button(AppLocalization.text("button.cancel", language: language), role: .cancel) {}
             Button(AppLocalization.text("button.delete", language: language), role: .destructive) { delete(preset) }
         } message: { _ in Text(AppLocalization.text("settings.ai.deleteModel.message", language: language)) }
+        .confirmationDialog(
+            AppLocalization.text("settings.ai.clearAnalysisHistory.confirmTitle", language: language),
+            isPresented: $isClearAnalysisHistoryConfirmationPresented,
+            titleVisibility: .visible
+        ) {
+            Button(AppLocalization.text("button.confirmDelete", language: language), role: .destructive) {
+                preferences.aiAnalysisHistory.removeAll()
+            }
+            Button(AppLocalization.text("button.cancel", language: language), role: .cancel) { }
+        } message: {
+            Text(AppLocalization.text("settings.ai.clearAnalysisHistory.confirmMessage", language: language))
+        }
     }
 
     private func modelRow(_ preset: AIModelPreset) -> some View {
@@ -164,7 +187,14 @@ struct AISettingsView: View {
 
     private func save(_ preset: AIModelPreset) {
         if let index = preferences.aiModelPresets.firstIndex(where: { $0.id == preset.id }) {
-            preferences.aiModelPresets[index] = preset
+            let previous = preferences.aiModelPresets[index]
+            var saved = preset
+            if previous.configuration != saved.configuration,
+               previous.lastConnectionCheckAt == saved.lastConnectionCheckAt {
+                saved.connectionStatus = .notConnected
+                saved.lastConnectionCheckAt = nil
+            }
+            preferences.aiModelPresets[index] = saved
         } else { preferences.aiModelPresets.append(preset) }
         preferences.selectedAIModelID = preset.id
     }
@@ -178,17 +208,12 @@ struct AISettingsView: View {
         pendingDeletion = nil
     }
 
-    private func moveModels(from source: IndexSet, to destination: Int) {
-        preferences.aiModelPresets = AIModelPresetOrder.reordered(
-            preferences.aiModelPresets,
-            from: source,
-            to: destination
-        )
-    }
-
     @MainActor
-    private func refreshConnectionStatuses() async {
-        let presets = preferences.aiModelPresets
+    private func refreshConnectionStatuses(force: Bool) async {
+        let now = Date.now
+        let presets = preferences.aiModelPresets.filter {
+            force || AIModelStatusCache.shouldCheck(lastCheckedAt: $0.lastConnectionCheckAt, now: now)
+        }
         testingModelIDs = Set(presets.map(\.id))
         await withTaskGroup(of: (UUID, AIModelConnectionStatus).self) { group in
             for preset in presets {
@@ -202,6 +227,7 @@ struct AISettingsView: View {
             for await (id, status) in group {
                 if let index = preferences.aiModelPresets.firstIndex(where: { $0.id == id }) {
                     preferences.aiModelPresets[index].connectionStatus = status
+                    preferences.aiModelPresets[index].lastConnectionCheckAt = now
                 }
                 testingModelIDs.remove(id)
             }
@@ -218,12 +244,6 @@ private struct ModelFramePreferenceKey: PreferenceKey {
 }
 
 enum AIModelPresetOrder {
-    static func reordered(_ presets: [AIModelPreset], from source: IndexSet, to destination: Int) -> [AIModelPreset] {
-        var result = presets
-        result.move(fromOffsets: source, toOffset: destination)
-        return result
-    }
-
     static func reordered(_ presets: [AIModelPreset], moving sourceID: UUID, before targetID: UUID) -> [AIModelPreset] {
         reordered(presets, moving: sourceID, relativeTo: targetID, placeAfter: false)
     }
@@ -261,47 +281,76 @@ private struct AIModelEditorView: View {
     init(preset: AIModelPreset?, client: any AIRequesting, onSave: @escaping (AIModelPreset) -> Void) {
         let value = preset ?? AIModelPreset(name: "", configuration: AIConfiguration())
         _preset = State(initialValue: value)
-        _baseURLText = State(initialValue: value.configuration.baseURL.absoluteString)
+        _baseURLText = State(initialValue: preset?.configuration.baseURL.absoluteString ?? "")
         self.client = client
         self.onSave = onSave
     }
 
     var body: some View {
-        Form {
-            TextField(AppLocalization.text("settings.ai.modelProviderName", language: language), text: $preset.name)
-                .accessibilityIdentifier("settings-ai-preset-name")
-            Picker(AppLocalization.text("settings.ai.protocol", language: language), selection: $preset.configuration.protocolType) {
-                ForEach(AIProtocol.allCases) { Text($0.displayName).tag($0) }
-            }
-            TextField(AppLocalization.text("settings.ai.baseURL", language: language), text: $baseURLText)
-                .accessibilityIdentifier("settings-ai-base-url")
-            TextField(AppLocalization.text("settings.ai.model", language: language), text: $preset.configuration.model)
-                .accessibilityIdentifier("settings-ai-model")
-            LabeledContent(AppLocalization.text("settings.ai.apiKey", language: language)) {
-                HStack(spacing: 6) {
-                    Group {
-                        if isKeyVisible { TextField("", text: $preset.configuration.apiKey) }
-                        else { SecureField("", text: $preset.configuration.apiKey) }
+        SettingsPageScroll {
+            SettingsPageSection {
+                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 10) {
+                    GridRow {
+                        Text(AppLocalization.text("settings.ai.modelProviderName", language: language))
+                        TextField("", text: $preset.name)
+                            .textFieldStyle(.roundedBorder)
+                            .accessibilityLabel(AppLocalization.text("settings.ai.modelProviderName", language: language))
+                            .accessibilityIdentifier("settings-ai-preset-name")
                     }
-                    .accessibilityIdentifier("settings-ai-api-key")
-                    Button { isKeyVisible.toggle() } label: { Image(systemName: isKeyVisible ? "eye.slash" : "eye") }
-                        .buttonStyle(.borderless)
-                        .accessibilityLabel(AppLocalization.text(
-                            isKeyVisible ? "settings.ai.apiKey.hide" : "settings.ai.apiKey.show",
-                            language: language
-                        ))
-                        .accessibilityIdentifier("settings-ai-toggle-api-key")
+                    GridRow {
+                        Text(AppLocalization.text("settings.ai.protocol", language: language))
+                        Picker("", selection: $preset.configuration.protocolType) {
+                            ForEach(AIProtocol.allCases) { Text($0.displayName).tag($0) }
+                        }
+                        .labelsHidden()
+                        .frame(width: 360, alignment: .trailing)
+                        .accessibilityLabel(AppLocalization.text("settings.ai.protocol", language: language))
+                    }
+                    GridRow {
+                        Text(AppLocalization.text("settings.ai.baseURL", language: language))
+                        TextField("", text: $baseURLText)
+                            .textFieldStyle(.roundedBorder)
+                            .accessibilityLabel(AppLocalization.text("settings.ai.baseURL", language: language))
+                            .accessibilityIdentifier("settings-ai-base-url")
+                    }
+                    GridRow {
+                        Text(AppLocalization.text("settings.ai.model", language: language))
+                        TextField("", text: $preset.configuration.model)
+                            .textFieldStyle(.roundedBorder)
+                            .accessibilityLabel(AppLocalization.text("settings.ai.model", language: language))
+                            .accessibilityIdentifier("settings-ai-model")
+                    }
+                    GridRow {
+                        Text(AppLocalization.text("settings.ai.apiKey", language: language))
+                        HStack(spacing: 6) {
+                            Group {
+                                if isKeyVisible { TextField("", text: $preset.configuration.apiKey) }
+                                else { SecureField("", text: $preset.configuration.apiKey) }
+                            }
+                            .textFieldStyle(.roundedBorder)
+                            .accessibilityLabel(AppLocalization.text("settings.ai.apiKey", language: language))
+                            .accessibilityIdentifier("settings-ai-api-key")
+                            Button { isKeyVisible.toggle() } label: { Image(systemName: isKeyVisible ? "eye.slash" : "eye") }
+                                .buttonStyle(.borderless)
+                                .accessibilityLabel(AppLocalization.text(
+                                    isKeyVisible ? "settings.ai.apiKey.hide" : "settings.ai.apiKey.show",
+                                    language: language
+                                ))
+                                .accessibilityIdentifier("settings-ai-toggle-api-key")
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                HStack {
+                    Button(AppLocalization.text("settings.ai.test", language: language)) { testConnection() }
+                        .disabled(requestTask != nil)
+                        .accessibilityIdentifier("settings-ai-test")
+                    if requestState.isLoading { TasteSpinner(reduceMotion: reduceMotion) }
+                    if let status { Text(status).foregroundStyle(.secondary).accessibilityIdentifier("settings-ai-status") }
                 }
             }
-            HStack {
-                Button(AppLocalization.text("settings.ai.test", language: language)) { testConnection() }
-                    .disabled(requestTask != nil)
-                    .accessibilityIdentifier("settings-ai-test")
-                if requestState.isLoading { TasteSpinner(reduceMotion: reduceMotion) }
-                if let status { Text(status).foregroundStyle(.secondary).accessibilityIdentifier("settings-ai-status") }
-            }
         }
-        .formStyle(.grouped).padding(20).frame(minWidth: 520, minHeight: 360)
+        .padding(20).frame(minWidth: 520, minHeight: 360)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) { Button(AppLocalization.text("button.cancel", language: language)) { dismiss() } }
             ToolbarItem(placement: .confirmationAction) {
@@ -334,11 +383,13 @@ private struct AIModelEditorView: View {
                 var validated = try validatedPreset()
                 try await requestState.perform { try await client.testConnection(configuration: validated.configuration) }
                 validated.connectionStatus = .connected
+                validated.lastConnectionCheckAt = .now
                 preset = validated
                 status = AppLocalization.text("settings.ai.ready", language: language)
             } catch is CancellationError {
             } catch {
                 preset.connectionStatus = .failed
+                preset.lastConnectionCheckAt = .now
                 status = localizedAIError(error, language: language)
             }
         }

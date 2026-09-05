@@ -69,6 +69,27 @@ final class AIFlowUITests: XCTestCase {
         XCTAssertTrue(app.descendants(matching: .any)["ai-analysis-result"].waitForExistence(timeout: 5))
     }
 
+    func testClearingAnalysisHistoryRequiresConfirmation() {
+        let app = launchApp()
+        app.descendants(matching: .any)["sidebar-aiAssistant"].click()
+        app.buttons["ai-mode-analysis"].click()
+        let question = app.textViews["ai-analysis-question"]
+        XCTAssertTrue(question.waitForExistence(timeout: 2))
+        question.click()
+        question.typeText("How am I doing?")
+        app.buttons["ai-analyze"].click()
+        XCTAssertTrue(app.descendants(matching: .any)["ai-analysis-result"].waitForExistence(timeout: 5))
+
+        app.descendants(matching: .any)["sidebar-settings"].click()
+        app.descendants(matching: .any)["settings-page-ai"].click()
+        let clearButton = app.buttons["Clear all analysis history"]
+        XCTAssertTrue(clearButton.waitForExistence(timeout: 2))
+        clearButton.click()
+
+        XCTAssertTrue(app.buttons["Confirm Delete"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.buttons["Clear all analysis history"].exists)
+    }
+
     func testAISettingsRunsConnectionTest() {
         let app = launchApp()
         app.descendants(matching: .any)["sidebar-settings"].click()

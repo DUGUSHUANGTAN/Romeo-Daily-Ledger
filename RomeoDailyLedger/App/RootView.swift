@@ -9,13 +9,6 @@ enum SidebarDestination: String, CaseIterable, Identifiable, Sendable {
         AppLocalization.text("nav.\(rawValue).title", language: language)
     }
 
-    func localizedSubtitle(language: AppLanguage) -> String {
-        AppLocalization.text("nav.\(rawValue).subtitle", language: language)
-    }
-
-    var title: String { localizedTitle(language: .simplifiedChinese) }
-    var subtitle: String { localizedSubtitle(language: .simplifiedChinese) }
-
     var icon: LucideIcon {
         switch self {
         case .ledger: .ledger
@@ -27,6 +20,10 @@ enum SidebarDestination: String, CaseIterable, Identifiable, Sendable {
         case .settings: .settings
         }
     }
+}
+
+enum SidebarKeyboardScope {
+    case main, settings
 }
 
 struct RootView: View {
@@ -42,6 +39,12 @@ struct RootView: View {
             }
         }
             .preferredColorScheme(preferredScheme(for: preferences.themeMode))
+            .onAppear {
+                AppLocalization.updateApplicationMenuTitle(in: NSApp.mainMenu, language: preferences.language)
+            }
+            .onChange(of: preferences.language) { _, language in
+                AppLocalization.updateApplicationMenuTitle(in: NSApp.mainMenu, language: language)
+            }
     }
 
     private func preferredScheme(for mode: ThemeMode) -> ColorScheme? {
@@ -83,6 +86,7 @@ private struct StorageRecoveryView: View {
 private struct RootContentView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
+    @State private var sidebarKeyboardScope = SidebarKeyboardScope.main
     let dependencies: AppDependencies
 
     var body: some View {
@@ -91,21 +95,41 @@ private struct RootContentView: View {
         let resolved = preferences.themeMode.resolve(systemIsDark: colorScheme == .dark)
         let theme = resolved == .dark ? AppTheme.dark : AppTheme.light
         let motion = MotionPolicy.navigation(systemReduceMotion: systemReduceMotion)
-        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.3"
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.1.0"
 
         NavigationSplitView {
             VStack(spacing: 0) {
-                List(SidebarDestination.allCases, selection: $dependencies.selectedDestination) { destination in
-                    NavigationLink(value: destination) {
-                        Label {
-                            Text(destination.localizedTitle(language: preferences.language))
-                        } icon: {
-                            LucideIconView(icon: destination.icon)
+                ScrollView {
+                    LazyVStack(spacing: 4) {
+                        ForEach(SidebarDestination.allCases) { destination in
+                            Button {
+                                dependencies.selectedDestination = destination
+                                sidebarKeyboardScope = .main
+                            } label: {
+                                Label {
+                                    Text(destination.localizedTitle(language: preferences.language))
+                                } icon: {
+                                    LucideIconView(icon: destination.icon)
+                                }
+                                .frame(maxWidth: .infinity, minHeight: 34, alignment: .leading)
+                                .padding(.horizontal, 8)
+                                .contentShape(Rectangle())
+                                .accessibilityLabel(destination.localizedTitle(language: preferences.language))
+                            }
+                            .foregroundStyle(theme.primaryText.color)
+                            .buttonStyle(.plain)
+                            .focusable(false)
+                            .background {
+                                SidebarSelectionBackground(
+                                    isSelected: dependencies.selectedDestination == destination,
+                                    theme: theme
+                                )
+                            }
+                            .accessibilityIdentifier("sidebar-\(destination.rawValue)")
                         }
-                        .accessibilityLabel(destination.localizedTitle(language: preferences.language))
                     }
-                    .frame(minHeight: 34)
-                    .accessibilityIdentifier("sidebar-\(destination.rawValue)")
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 6)
                 }
                 Text("V\(version)")
                     .font(.caption2)
@@ -119,33 +143,35 @@ private struct RootContentView: View {
             .navigationTitle(AppLocalization.text("app.name", language: preferences.language))
             .scrollContentBackground(.hidden)
             .background(theme.chrome.color)
-            .listStyle(.sidebar)
             .navigationSplitViewColumnWidth(min: 190, ideal: 220, max: 260)
         } detail: {
-            Group {
-                switch dependencies.selectedDestination {
-                case .ledger:
-                    LedgerView(repository: dependencies.repository, theme: theme, typography: .system)
-                case .calendar:
-                    CalendarView(repository: dependencies.repository, theme: theme, typography: .system)
-                case .insights:
-                    InsightsView(repository: dependencies.repository, theme: theme, typography: .system, motion: motion)
-                case .history:
-                    HistoryView(repository: dependencies.repository, theme: theme, typography: .system)
-                case .categories:
-                    CategoryManagementView(repository: dependencies.repository, language: preferences.language)
-                case .settings:
-                    SettingsRootView(dependencies: dependencies)
-                case .aiAssistant:
-                    AILedgerAssistantView(dependencies: dependencies, theme: theme, typography: .system)
+            ZStack {
+                Group {
+                    switch dependencies.selectedDestination {
+                    case .ledger:
+                        LedgerView(repository: dependencies.repository, theme: theme, typography: .system)
+                    case .calendar:
+                        CalendarView(repository: dependencies.repository, theme: theme, typography: .system)
+                    case .insights:
+                        InsightsView(repository: dependencies.repository, theme: theme, typography: .system, motion: motion)
+                    case .history:
+                        HistoryView(repository: dependencies.repository, theme: theme, typography: .system)
+                    case .categories:
+                        CategoryManagementView(repository: dependencies.repository, language: preferences.language)
+                    case .settings:
+                        SettingsRootView(dependencies: dependencies, keyboardScope: $sidebarKeyboardScope)
+                    case .aiAssistant:
+                        AILedgerAssistantView(dependencies: dependencies, theme: theme, typography: .system)
+                    }
                 }
+                .id(dependencies.selectedDestination)
+                .transition(motion.pageTransition)
             }
-            .id(dependencies.selectedDestination)
-            .transition(.opacity)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(theme.canvas.color)
-            .animation(animation(for: motion), value: dependencies.selectedDestination)
+            .animation(motion.pageAnimation, value: dependencies.selectedDestination)
         }
+        .windowToolbarBackgroundHidden()
         .tint(theme.primaryAccent.color)
         .environment(\.locale, preferences.language.locale)
         .environment(\.appLanguage, preferences.language)
@@ -154,13 +180,112 @@ private struct RootContentView: View {
         .background {
             AppCommands(dependencies: dependencies)
             FocusDismissMonitor()
+            SidebarArrowKeyMonitor(isActive: sidebarKeyboardScope == .main) { direction in
+                moveSidebarSelection(direction, dependencies: dependencies)
+            }
         }
         .frame(minWidth: 980, minHeight: 560)
     }
 
-    private func animation(for policy: MotionPolicy) -> Animation? {
-        guard policy.effectiveIntensity > 0 else { return nil }
-        return policy.usesSpring ? .snappy(duration: policy.duration) : .easeOut(duration: policy.duration)
+    private func moveSidebarSelection(_ direction: MoveCommandDirection, dependencies: AppDependencies) {
+        guard direction == .up || direction == .down,
+              let index = SidebarDestination.allCases.firstIndex(of: dependencies.selectedDestination) else { return }
+        let offset = direction == .down ? 1 : -1
+        let destinations = SidebarDestination.allCases
+        let next = destinations[(index + offset + destinations.count) % destinations.count]
+        dependencies.selectedDestination = next
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func windowToolbarBackgroundHidden() -> some View {
+        if #available(macOS 15.0, *) {
+            toolbarBackgroundVisibility(.hidden, for: .windowToolbar)
+        } else {
+            toolbarBackground(.hidden, for: .windowToolbar)
+        }
+    }
+}
+
+struct SidebarArrowKeyMonitor: NSViewRepresentable {
+    let isActive: Bool
+    let onMove: (MoveCommandDirection) -> Void
+
+    func makeCoordinator() -> Coordinator { Coordinator(parent: self) }
+
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView(frame: .zero)
+        context.coordinator.monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+            context.coordinator.handle(event)
+        }
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+        context.coordinator.parent = self
+    }
+
+    static func dismantleNSView(_ nsView: NSView, coordinator: Coordinator) {
+        if let monitor = coordinator.monitor { NSEvent.removeMonitor(monitor) }
+    }
+
+    @MainActor final class Coordinator {
+        var parent: SidebarArrowKeyMonitor
+        var monitor: Any?
+
+        init(parent: SidebarArrowKeyMonitor) { self.parent = parent }
+
+        func handle(_ event: NSEvent) -> NSEvent? {
+            guard parent.isActive,
+                  event.modifierFlags.intersection([.command, .control, .option, .shift]).isEmpty,
+                  !Self.isEditingText,
+                  let direction = Self.direction(for: event.keyCode) else { return event }
+            parent.onMove(direction)
+            return nil
+        }
+
+        private static var isEditingText: Bool {
+            guard let responder = NSApp.keyWindow?.firstResponder else { return false }
+            return responder is NSTextView || responder is NSTextField
+        }
+
+        private static func direction(for keyCode: UInt16) -> MoveCommandDirection? {
+            switch keyCode {
+            case 125: .down
+            case 126: .up
+            default: nil
+            }
+        }
+    }
+}
+
+private struct SidebarSelectionBackground: View {
+    let isSelected: Bool
+    let theme: AppTheme
+
+    var body: some View {
+        if isSelected {
+            if #available(macOS 26.0, *) {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(.clear)
+                    .glassEffect(
+                        .clear.tint(theme.primaryAccent.color.opacity(0.42)),
+                        in: .rect(cornerRadius: 8)
+                    )
+                    .padding(.vertical, 2)
+            } else {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(.thinMaterial)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(theme.primaryText.color.opacity(0.12), lineWidth: 0.5)
+                    }
+                    .padding(.vertical, 2)
+            }
+        } else {
+            Color.clear
+        }
     }
 }
 
@@ -186,8 +311,8 @@ private struct FocusDismissMonitor: NSViewRepresentable {
         if let monitor = coordinator.monitor { NSEvent.removeMonitor(monitor) }
     }
 
-    private static func isTextInput(_ view: NSView) -> Bool {
-        var candidate: NSView? = view
+    private static func isTextInput(_ view: NSView?) -> Bool {
+        var candidate = view
         while let current = candidate {
             if current is NSTextView || current is NSTextField { return true }
             candidate = current.superview
@@ -197,39 +322,5 @@ private struct FocusDismissMonitor: NSViewRepresentable {
 
     final class Coordinator {
         var monitor: Any?
-    }
-}
-
-private struct DestinationPlaceholder: View {
-    let destination: SidebarDestination
-    let theme: AppTheme
-    let typography: AppTypography.Style
-    let language: AppLanguage
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 22) {
-            LucideIconView(icon: destination.icon, size: 34)
-                .foregroundStyle(theme.primaryAccent.color)
-            VStack(alignment: .leading, spacing: 8) {
-                Text(destination.localizedTitle(language: language))
-                    .font(AppTypography.display(typography))
-                    .foregroundStyle(theme.primaryText.color)
-                Text(destination.localizedSubtitle(language: language))
-                    .font(AppTypography.body(typography))
-                    .foregroundStyle(theme.secondaryText.color)
-            }
-            Rectangle()
-                .fill(theme.secondaryAccent.color)
-                .frame(width: 48, height: 3)
-                .accessibilityHidden(true)
-            Text(AppLocalization.text("placeholder.futureFeature", language: language))
-                .font(AppTypography.caption(typography))
-                .foregroundStyle(theme.secondaryText.color)
-            Spacer()
-        }
-        .padding(48)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(theme.canvas.color)
-        .id(destination)
     }
 }

@@ -1,4 +1,54 @@
+import AppKit
 import SwiftUI
+
+struct CommitOnEndEditingTextField: NSViewRepresentable {
+    @Binding var text: String
+    let placeholder: String
+    let accessibilityIdentifier: String
+    let onCommit: (String) -> Void
+
+    func makeCoordinator() -> Coordinator { Coordinator(parent: self) }
+
+    func makeNSView(context: Context) -> NSTextField {
+        let field = NSTextField(string: text)
+        field.placeholderString = placeholder
+        field.delegate = context.coordinator
+        field.target = context.coordinator
+        field.action = #selector(Coordinator.commit(_:))
+        field.setAccessibilityIdentifier(accessibilityIdentifier)
+        return field
+    }
+
+    func updateNSView(_ field: NSTextField, context: Context) {
+        context.coordinator.parent = self
+        guard field.currentEditor() == nil, field.stringValue != text else { return }
+        field.stringValue = text
+    }
+
+    @MainActor final class Coordinator: NSObject, NSTextFieldDelegate {
+        var parent: CommitOnEndEditingTextField
+
+        init(parent: CommitOnEndEditingTextField) {
+            self.parent = parent
+        }
+
+        func controlTextDidChange(_ notification: Notification) {
+            guard let field = notification.object as? NSTextField else { return }
+            parent.text = field.stringValue
+        }
+
+        func controlTextDidEndEditing(_ notification: Notification) {
+            guard let field = notification.object as? NSTextField else { return }
+            parent.text = field.stringValue
+            parent.onCommit(field.stringValue)
+        }
+
+        @MainActor @objc func commit(_ sender: NSTextField) {
+            parent.text = sender.stringValue
+            parent.onCommit(sender.stringValue)
+        }
+    }
+}
 
 struct CalendarView: View {
     @Environment(\.appLanguage) private var language
@@ -24,18 +74,20 @@ struct CalendarView: View {
             VStack(alignment: .leading, spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(AppLocalization.text("nav.calendar.title", language: language)).font(AppTypography.display(typography))
-                    Text(model.displayedMonth, format: .dateTime.year().month(.wide))
+                    Text(model.displayedMonth, format: .dateTime.year().month(.wide).locale(language.locale))
                         .font(AppTypography.body(typography))
                         .foregroundStyle(theme.secondaryText.color)
                 }
                 HStack(spacing: 10) {
-                    TextField(AppLocalization.text("calendar.year", language: language), text: $yearText)
-                        .labelsHidden()
-                        .frame(width: 72)
-                        .accessibilityIdentifier("calendar-year")
-                        .onSubmit { commitYear() }
+                    CommitOnEndEditingTextField(
+                        text: $yearText,
+                        placeholder: AppLocalization.text("calendar.year", language: language),
+                        accessibilityIdentifier: "calendar-year",
+                        onCommit: commitYear
+                    )
+                    .frame(width: 72)
                     Picker(AppLocalization.text("calendar.month", language: language), selection: monthBinding) {
-                        ForEach(1...12, id: \.self) { Text(model.calendar.monthSymbols[$0 - 1]).tag($0) }
+                        ForEach(1...12, id: \.self) { Text(monthSymbols[$0 - 1]).tag($0) }
                     }
                     .labelsHidden().frame(width: 110).accessibilityIdentifier("calendar-month")
                     Button(AppLocalization.text("button.today", language: language)) {
@@ -55,14 +107,14 @@ struct CalendarView: View {
                         model.selectedDate = day.date
                         Task { await loadEntries() }
                     } label: {
-                        Text(day.date, format: .dateTime.day())
+                        Text(day.date, format: .dateTime.day().locale(language.locale))
                             .frame(maxWidth: .infinity, minHeight: 34)
                             .foregroundStyle(day.isInDisplayedMonth ? theme.primaryText.color : theme.secondaryText.color.opacity(0.55))
                             .background(model.calendar.isDate(day.date, inSameDayAs: model.selectedDate) ? theme.primaryAccent.color.opacity(0.18) : Color.clear, in: RoundedRectangle(cornerRadius: 8))
                     }
                     .buttonStyle(.plain)
                     .animation(selectionAnimation, value: model.selectedDate)
-                    .accessibilityLabel(day.date.formatted(date: .long, time: .omitted))
+                    .accessibilityLabel(day.date.formatted(.dateTime.year().month(.wide).day().locale(language.locale)))
                     .accessibilityAddTraits(model.calendar.isDate(day.date, inSameDayAs: model.selectedDate) ? .isSelected : [])
                     .accessibilityValue(AppLocalization.text(model.calendar.isDate(day.date, inSameDayAs: model.selectedDate) ? "accessibility.selected" : "accessibility.notSelected", language: language))
                     .accessibilityIdentifier("calendar-day-\(Int(day.date.timeIntervalSince1970))")
@@ -74,7 +126,7 @@ struct CalendarView: View {
             .accessibilityLabel(AppLocalization.text("accessibility.monthCalendar", language: language))
             .accessibilityIdentifier("calendar-grid")
             Divider()
-            Text(model.selectedDate, format: .dateTime.year().month().day())
+            Text(model.selectedDate, format: .dateTime.year().month().day().locale(language.locale))
                 .font(AppTypography.title(typography))
             let summary = SelectionSummary(entries: entries)
             HStack(spacing: 16) {
@@ -143,6 +195,7 @@ struct CalendarView: View {
             .frame(maxWidth: 980, alignment: .leading)
         }
         .accessibilityIdentifier("calendar-page-scroll")
+        .fadingAtTopEdge()
         .foregroundStyle(theme.primaryText.color)
         .background(theme.canvas.color)
         .task {
@@ -175,12 +228,20 @@ struct CalendarView: View {
     }
 
     private var weekdaySymbols: [String] {
-        let symbols = model.calendar.shortStandaloneWeekdaySymbols
-        let split = model.calendar.firstWeekday - 1
+        var calendar = model.calendar
+        calendar.locale = language.locale
+        let symbols = calendar.shortStandaloneWeekdaySymbols
+        let split = calendar.firstWeekday - 1
         return Array(symbols[split...] + symbols[..<split])
     }
 
-    private var monthBinding: Binding<Int> { Binding(get: { model.calendar.component(.month, from: model.displayedMonth) }, set: { model.select(year: model.calendar.component(.year, from: model.displayedMonth), month: $0); Task { await loadEntries() } }) }
+    private var monthSymbols: [String] {
+        var calendar = model.calendar
+        calendar.locale = language.locale
+        return calendar.monthSymbols
+    }
+
+    private var monthBinding: Binding<Int> { Binding(get: { model.calendar.component(.month, from: model.displayedMonth) }, set: { model.select(year: model.displayedYear, month: $0); Task { await loadEntries() } }) }
 
     private var selectionAnimation: Animation? {
         let policy = MotionPolicy.navigation(systemReduceMotion: systemReduceMotion)
@@ -188,11 +249,11 @@ struct CalendarView: View {
     }
 
     private func synchronizeYearText() {
-        yearText = String(model.calendar.component(.year, from: model.displayedMonth))
+        yearText = String(model.displayedYear)
     }
 
-    private func commitYear() {
-        guard let year = CalendarViewModel.validatedYear(from: yearText) else {
+    private func commitYear(_ input: String) {
+        guard let year = CalendarViewModel.validatedYear(from: input) else {
             synchronizeYearText()
             return
         }

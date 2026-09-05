@@ -7,8 +7,8 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     PRODUCT_BUNDLE_IDENTIFIER: com.romeoke.RomeoDailyLedger
-    MARKETING_VERSION: 1.0.3
-    CURRENT_PROJECT_VERSION: 4
+    MARKETING_VERSION: 1.1.0
+    CURRENT_PROJECT_VERSION: 5
 targets:
   RomeoDailyLedger:
     type: application
@@ -25,6 +25,7 @@ targets:
       path: RomeoDailyLedger/Resources/Info.plist
       properties:
         CFBundleDisplayName: Romeo Daily Ledger
+        CFBundleName: 罗密欧每日记账
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSApplicationCategoryType: public.app-category.finance

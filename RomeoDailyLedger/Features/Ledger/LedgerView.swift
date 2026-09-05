@@ -130,7 +130,7 @@ struct HistoryView: View {
                                 .accessibilityIdentifier("history-entry-\(entry.id.uuidString.lowercased())")
                             }
                         } header: {
-                            Text(group.date, format: .dateTime.year().month().day()).font(AppTypography.title(typography))
+                            Text(group.date, format: .dateTime.year().month().day().locale(language.locale)).font(AppTypography.title(typography))
                         }
                     }
                 }
@@ -165,7 +165,13 @@ struct HistoryView: View {
     }
 
     private var groupedEntries: [LedgerEntryGrouping.Group] {
-        let index = HistorySearchIndex(entries: model.entries, categoryNames: categoryNames, calendar: .autoupdatingCurrent)
+        let index = HistorySearchIndex(
+            entries: model.entries,
+            categoryNames: categoryNames,
+            calendar: .autoupdatingCurrent,
+            incomeName: AppLocalization.text("entry.income", language: language),
+            expenseName: AppLocalization.text("entry.expense", language: language)
+        )
         return LedgerEntryGrouping.groups(index.results(matching: searchText))
     }
 

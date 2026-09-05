@@ -29,7 +29,7 @@ struct EntryListView: View {
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(entry.note.isEmpty ? AppLocalization.text("entry.noNote", language: language) : entry.note)
                                     .font(AppTypography.body(typography))
-                                Text(entry.occurredAt, format: .dateTime.year().month().day())
+                                Text(entry.occurredAt, format: .dateTime.year().month().day().locale(language.locale))
                                     .font(AppTypography.caption(typography))
                                     .foregroundStyle(theme.secondaryText.color)
                                 Text("\(AppLocalization.text(entry.kind == .income ? "entry.income" : "entry.expense", language: language)) · \(localizedCategory(entry))")

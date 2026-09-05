@@ -4,21 +4,38 @@ import SwiftUI
 struct GeneralSettingsView: View {
     @Bindable var preferences: AppPreferences
     let storage: StorageCoordinator
-    let repository: LedgerRepository
     @State private var showingUpdateCheck = false
     @State private var storageMessage: String?
 
     var body: some View {
-        Form {
-            Section(AppLocalization.text("settings.general.regional", language: preferences.language)) {
-                CurrencyInputField(preferences: preferences)
-                Picker(AppLocalization.text("settings.general.language", language: preferences.language), selection: $preferences.language) {
-                    Text(AppLocalization.text("language.zhHans", language: preferences.language)).tag(AppLanguage.simplifiedChinese)
-                    Text(AppLocalization.text("language.zhHant", language: preferences.language)).tag(AppLanguage.traditionalChinese)
-                    Text(AppLocalization.text("language.en", language: preferences.language)).tag(AppLanguage.english)
-                }.pickerStyle(.segmented).frame(maxWidth: 360).accessibilityIdentifier("settings-language")
+        SettingsPageScroll {
+            SettingsPageSection(AppLocalization.text("settings.general.regional", language: preferences.language)) {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack(spacing: 12) {
+                        Text(AppLocalization.text("settings.general.currency", language: preferences.language))
+                            .frame(width: 110, alignment: .leading)
+                        CurrencyInputField(preferences: preferences)
+                        Spacer(minLength: 0)
+                    }
+                    Divider()
+                    HStack(spacing: 12) {
+                        Text(AppLocalization.text("settings.general.language", language: preferences.language))
+                            .frame(width: 80, alignment: .leading)
+                        Picker("", selection: $preferences.language) {
+                            Text(AppLocalization.text("language.zhHans", language: preferences.language)).tag(AppLanguage.simplifiedChinese)
+                            Text(AppLocalization.text("language.zhHant", language: preferences.language)).tag(AppLanguage.traditionalChinese)
+                            Text(AppLocalization.text("language.en", language: preferences.language)).tag(AppLanguage.english)
+                        }
+                        .labelsHidden()
+                        .pickerStyle(.segmented)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityLabel(AppLocalization.text("settings.general.language", language: preferences.language))
+                        .accessibilityIdentifier("settings-language")
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            Section(AppLocalization.text("settings.storage.title", language: preferences.language)) {
+            SettingsPageSection(AppLocalization.text("settings.storage.title", language: preferences.language)) {
                 Text(storage.activeDirectory.path).textSelection(.enabled)
                 if storage.pendingDirectory != nil { Text(AppLocalization.text("settings.storage.pending", language: preferences.language)).foregroundStyle(.secondary) }
                 HStack {
@@ -26,14 +43,17 @@ struct GeneralSettingsView: View {
                     Button(AppLocalization.text("settings.storage.showFinder", language: preferences.language)) { NSWorkspace.shared.activateFileViewerSelecting([storage.activeDirectory]) }
                     Button(AppLocalization.text("settings.storage.restore", language: preferences.language)) { storage.restoreDefaultOnNextLaunch() }
                 }
+                .controlSize(.small)
                 if let storageMessage { Text(storageMessage).foregroundStyle(.red) }
             }
-            Section(AppLocalization.text("settings.update.section", language: preferences.language)) {
+            SettingsPageSection(AppLocalization.text("settings.update.section", language: preferences.language)) {
                 Button(AppLocalization.text("settings.update.check", language: preferences.language)) { showingUpdateCheck = true }
                     .accessibilityIdentifier("settings-check-for-updates")
             }
         }
-        .formStyle(.grouped).navigationTitle(AppLocalization.text("settings.general.title", language: preferences.language)).padding(24)
+        .padding(SettingsPageLayout.contentInset)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .navigationTitle(AppLocalization.text("settings.general.title", language: preferences.language))
         .accessibilityIdentifier("settings-general")
         .sheet(isPresented: $showingUpdateCheck) { UpdateCheckView(language: preferences.language) }
     }

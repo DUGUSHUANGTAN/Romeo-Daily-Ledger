@@ -23,22 +23,6 @@ enum LedgerFormatting {
         return "\(code) "
     }
 
-    static func categoryName(_ category: Category) -> String {
-        if let customName = category.customName, !customName.isEmpty { return customName }
-        return switch category.systemKey {
-        case "clothing": "衣物"
-        case "food": "食物"
-        case "housing": "住宿"
-        case "transport": "行程"
-        case "entertainment": "娱乐"
-        case "salary": "工资"
-        case "bonus": "奖金"
-        case "investment": "投资"
-        case "refund": "退款"
-        default: "其他"
-        }
-    }
-
     static func categoryName(_ category: Category, language: AppLanguage) -> String {
         AppLocalization.categoryName(systemKey: category.systemKey, customName: category.customName, language: language)
     }

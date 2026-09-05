@@ -19,8 +19,8 @@ struct DataSettingsView: View {
     @State private var eraseMessage: String?
 
     var body: some View {
-        Form {
-            Section(AppLocalization.text("settings.data.export.title", language: language)) {
+        SettingsPageScroll {
+            SettingsPageSection(AppLocalization.text("settings.data.export.title", language: language)) {
                 Text(AppLocalization.text("settings.data.export.help", language: language))
                     .foregroundStyle(.secondary)
                 HStack {
@@ -30,14 +30,14 @@ struct DataSettingsView: View {
                         .accessibilityIdentifier("data-export-csv")
                 }
             }
-            Section(AppLocalization.text("settings.data.import.title", language: language)) {
+            SettingsPageSection(AppLocalization.text("settings.data.import.title", language: language)) {
                 Text(AppLocalization.text("settings.data.import.help", language: language)).foregroundStyle(.secondary)
                 Button(AppLocalization.text("settings.data.import.button", language: language)) { showImporter = true }
                     .accessibilityIdentifier("data-import-button")
                 if let preview { previewView(preview) }
                 if let importError { Text(importError).foregroundStyle(.red).accessibilityIdentifier("data-import-error") }
             }
-            Section {
+            SettingsPageSection {
                 Button(AppLocalization.text("settings.storage.erase", language: language), role: .destructive) {
                     showingEraseConfirmation = true
                 }
@@ -48,7 +48,8 @@ struct DataSettingsView: View {
                 if let eraseMessage { Text(eraseMessage).foregroundStyle(.red) }
             }
         }
-        .formStyle(.grouped)
+        .padding(SettingsPageLayout.contentInset)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .navigationTitle(AppLocalization.text("settings.data.title", language: language))
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("settings-data")

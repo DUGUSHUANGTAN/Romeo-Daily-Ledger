@@ -56,17 +56,33 @@ struct AIModelPreset: Codable, Equatable, Identifiable, Sendable {
     var name: String
     var configuration: AIConfiguration
     var connectionStatus: AIModelConnectionStatus
+    var lastConnectionCheckAt: Date?
 
     init(
         id: UUID = UUID(),
         name: String,
         configuration: AIConfiguration,
-        connectionStatus: AIModelConnectionStatus = .notConnected
+        connectionStatus: AIModelConnectionStatus = .notConnected,
+        lastConnectionCheckAt: Date? = nil
     ) {
         self.id = id
         self.name = name
         self.configuration = configuration
         self.connectionStatus = connectionStatus
+        self.lastConnectionCheckAt = lastConnectionCheckAt
+    }
+}
+
+enum AIModelStatusCache {
+    static let maximumAge: TimeInterval = 10 * 60
+
+    static func shouldCheck(
+        lastCheckedAt: Date?,
+        now: Date = .now,
+        maximumAge: TimeInterval = maximumAge
+    ) -> Bool {
+        guard let lastCheckedAt else { return true }
+        return now.timeIntervalSince(lastCheckedAt) >= maximumAge
     }
 }
 

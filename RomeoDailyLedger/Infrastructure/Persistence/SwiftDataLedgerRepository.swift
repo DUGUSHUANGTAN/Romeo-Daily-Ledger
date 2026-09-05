@@ -10,6 +10,7 @@ final class SwiftDataLedgerRepository: LedgerRepository {
 
     private let context: ModelContext
     private let dateNormalizer: AppDateNormalizer
+    private var didSeedDefaults = false
 
     init(
         context: ModelContext,
@@ -21,6 +22,7 @@ final class SwiftDataLedgerRepository: LedgerRepository {
     }
 
     func seedDefaultsIfNeeded() async throws {
+        guard !didSeedDefaults else { return }
         try DefaultCategorySeeder(context: context).seedIfNeeded()
         var changed = false
         for entry in try context.fetch(FetchDescriptor<LedgerEntry>()) {
@@ -31,6 +33,7 @@ final class SwiftDataLedgerRepository: LedgerRepository {
             }
         }
         if changed { try context.save() }
+        didSeedDefaults = true
     }
 
     func insert(_ draft: LedgerDraft) async throws -> LedgerEntry {
