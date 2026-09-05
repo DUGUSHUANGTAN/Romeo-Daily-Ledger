@@ -2,40 +2,77 @@
 
 [简体中文](README.md) | English
 
-Romeo Daily Ledger is a native, local-first personal ledger app for macOS. It requires no account and keeps ledger data on the Mac.
+> A native, local-first personal ledger app for macOS. No account required; your ledger stays on your Mac.
+
+## Overview
+
+- macOS 14 or later
+- Built with Swift 6, SwiftUI, and SwiftData
+- Current release: v1.1.0 (Apple Silicon / arm64)
+- MIT License
 
 ## Features
 
-- Income and expense entry, editing, deletion, calendar review, multi-selection totals, and monthly insights.
-- Category management, Simplified Chinese, Traditional Chinese, and English UI, plus light/dark themes that follow the system.
-- AI entry and analysis through OpenAI Chat Completions / Responses-compatible services. API keys are stored in a local `settings.json` file readable and writable only by the current macOS user, and are excluded from ledger exports.
-- JSON / CSV import and export with preview, duplicate handling, currency validation, and atomic batch insertion.
-- Manual GitHub Release update checks with no automatic installation.
+- Create, edit, and delete income and expense entries
+- Calendar review, multi-selection totals, and monthly insights
+- Custom category management
+- Simplified Chinese, Traditional Chinese, and English interfaces
+- Light and dark themes that follow the system
+- AI entry and analysis through OpenAI Chat Completions / Responses-compatible services
+- JSON / CSV import and export with preview, duplicate handling, currency validation, and atomic batch insertion
+- Manual GitHub Release update checks with no automatic installation
 
-## Install
+## Download and install
 
-Download the DMG from [GitHub Releases](https://github.com/DUGUSHUANGTAN/Romeo-Daily-Ledger/releases), open it, and drag Romeo Daily Ledger to Applications.
+1. Open [GitHub Releases](https://github.com/DUGUSHUANGTAN/Romeo-Daily-Ledger/releases) and download the latest DMG.
+2. Open the DMG and drag Romeo Daily Ledger to the Applications folder.
+3. If macOS cannot verify the developer on first launch, right-click the app in Finder and choose **Open**.
 
-V1.1.0 provides an Apple Silicon build. Without a Developer ID, the first launch may require right-clicking the app in Finder and choosing **Open**.
+The current release provides an Apple Silicon (arm64) build.
 
-## Data storage
+## Data and privacy
 
-The default data directory is `~/Library/Application Support/com.romeoke.RomeoDailyLedger/`, containing the SwiftData store and `settings.json`. Choose a different local parent folder under **Settings → General → Data & Storage**; the app creates a `Romeo Daily Ledger Data` subfolder and validates and migrates the data before the next launch.
+- No account is required. Ledger data is stored locally on the current Mac user account and is not uploaded or synchronized automatically.
+- The default data directory is:
+
+  ```text
+  ~/Library/Application Support/com.romeoke.RomeoDailyLedger/
+  ```
+
+- The ledger is stored in a local SwiftData database. App settings and API keys are stored in a local `settings.json` file readable and writable only by the current macOS user.
+- API keys are excluded from JSON / CSV ledger exports.
+- When AI features are enabled and used, the relevant request is sent to the API endpoint you configure. Review that provider's privacy policy before using the feature.
+- You can choose a different local parent folder under **Settings → General → Data & Storage**. The app creates a `Romeo Daily Ledger Data` subfolder and validates and migrates the data before the next launch.
 
 ## Development
 
-- Swift 6, SwiftUI, SwiftData
+### Requirements
+
 - macOS 14+
-- `RomeoDailyLedger.xcodeproj` is checked in; run `xcodegen generate` to regenerate it when needed.
+- Xcode with Swift 6 support
+- Optional: XcodeGen, to regenerate the Xcode project
+
+`RomeoDailyLedger.xcodeproj` is checked in. To regenerate it from `project.yml`:
 
 ```bash
+xcodegen generate
+```
+
+### Test, build, and package
+
+```bash
+# Run unit and UI tests
 xcodebuild test -project RomeoDailyLedger.xcodeproj -scheme RomeoDailyLedger -destination 'platform=macOS'
+
+# Build a Release version
 ./scripts/build_release.sh
+
+# Create a DMG
 ./scripts/create_dmg.sh
 ```
 
-Signing and notarization are optional through `SIGNING_IDENTITY` and `NOTARY_PROFILE`. Without a Developer ID, the release script applies a complete ad-hoc signature; a downloaded build may require one first launch via Finder's “Open” action.
+Signing and notarization are optional. Provide `SIGNING_IDENTITY` and `NOTARY_PROFILE` when needed. Without a Developer ID, the release script applies a complete Ad Hoc signature; a downloaded build may still require the Finder **Open** action on first launch.
 
 ## License
 
-[MIT License](LICENSE)
+This project is released under the [MIT License](LICENSE).
