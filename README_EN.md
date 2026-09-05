@@ -7,7 +7,7 @@ Romeo Daily Ledger is a native, local-first personal ledger app for macOS. It re
 ## Features
 
 - Income and expense entry, editing, deletion, calendar review, multi-selection totals, and monthly insights.
-- Category management, English and Simplified Chinese UI, and light/dark themes that follow the system.
+- Category management, Simplified Chinese, Traditional Chinese, and English UI, plus light/dark themes that follow the system.
 - AI entry and analysis through OpenAI Chat Completions / Responses-compatible services. API keys are stored in macOS Keychain and are excluded from ledger exports.
 - JSON / CSV import and export with preview, duplicate handling, currency validation, and atomic batch insertion.
 - Manual GitHub Release update checks with no automatic installation.
