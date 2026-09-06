@@ -27,11 +27,19 @@ struct RomeoDailyLedgerApp: App {
                 .keyboardShortcut(AppCommands.settingsShortcutKey, modifiers: .command)
             }
             CommandGroup(replacing: .appInfo) {
-                Button(Bundle.main.localizedString(forKey: "command.about", value: "About \(AppIdentity.englishName)", table: "Localizable")) {
+                Button(AppLocalization.replacingApplicationName(
+                    in: Bundle.main.localizedString(
+                        forKey: "command.about",
+                        value: "About \(AppIdentity.englishName)",
+                        table: "Localizable"
+                    ),
+                    language: dependencies.preferences.language
+                )) {
                     let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.1.0"
                     NSApp.orderFrontStandardAboutPanel(options: [
                         .applicationName: AppLocalization.text("app.name", language: dependencies.preferences.language),
-                        .version: AppLocalization.format("app.version", language: dependencies.preferences.language, version)
+                        .applicationVersion: AppLocalization.format("app.version", language: dependencies.preferences.language, version),
+                        .version: ""
                     ])
                 }
             }
@@ -40,12 +48,19 @@ struct RomeoDailyLedgerApp: App {
     }
 }
 
-final class AppLifecycleDelegate: NSObject, NSApplicationDelegate {
+@MainActor
+final class AppLifecycleDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
+        AppLocalization.installApplicationMenuDelegate(self)
         AppLocalization.updateApplicationMenuTitle(
             in: NSApp.mainMenu,
             language: AppPreferences.persistedLanguage()
         )
+    }
+
+    func menuWillOpen(_ menu: NSMenu) {
+        guard menu === NSApp.mainMenu?.items.first?.submenu else { return }
+        AppLocalization.refreshApplicationMenuTitle(in: NSApp.mainMenu)
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }

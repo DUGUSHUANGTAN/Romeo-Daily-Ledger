@@ -9,6 +9,12 @@ enum SidebarDestination: String, CaseIterable, Identifiable, Sendable {
         AppLocalization.text("nav.\(rawValue).title", language: language)
     }
 
+    func windowTitle(language: AppLanguage) -> String {
+        self == .settings
+            ? localizedTitle(language: language)
+            : AppLocalization.text("app.name", language: language)
+    }
+
     var icon: LucideIcon {
         switch self {
         case .ledger: .ledger
@@ -140,7 +146,6 @@ private struct RootContentView: View {
                     .accessibilityLabel("V\(version)")
                     .accessibilityIdentifier("app-version")
             }
-            .navigationTitle(AppLocalization.text("app.name", language: preferences.language))
             .scrollContentBackground(.hidden)
             .background(theme.chrome.color)
             .navigationSplitViewColumnWidth(min: 190, ideal: 220, max: 260)
@@ -171,6 +176,7 @@ private struct RootContentView: View {
             .background(theme.canvas.color)
             .animation(motion.pageAnimation, value: dependencies.selectedDestination)
         }
+        .navigationTitle(dependencies.selectedDestination.windowTitle(language: preferences.language))
         .windowToolbarBackgroundHidden()
         .tint(theme.primaryAccent.color)
         .environment(\.locale, preferences.language.locale)

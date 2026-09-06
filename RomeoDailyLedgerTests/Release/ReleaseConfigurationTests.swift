@@ -27,4 +27,21 @@ struct ReleaseConfigurationTests {
         #expect(dmgScript.contains("VERSION=\"${VERSION:-1.1.0}\""))
         #expect(buildScript.contains("ARCHS=arm64"))
     }
+
+    @Test func aboutPanelUsesMarketingVersionAsApplicationVersion() throws {
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let appSource = try String(contentsOf: root.appendingPathComponent("RomeoDailyLedger/App/RomeoDailyLedgerApp.swift"), encoding: .utf8)
+
+        #expect(appSource.contains(".applicationVersion: AppLocalization.format"))
+        #expect(appSource.contains(".version: AppLocalization.format") == false)
+        #expect(appSource.contains(".version: \"\""))
+    }
+
+    @Test func applicationMenuRefreshRunsBeforeTrackingStarts() throws {
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let appSource = try String(contentsOf: root.appendingPathComponent("RomeoDailyLedger/App/RomeoDailyLedgerApp.swift"), encoding: .utf8)
+
+        #expect(appSource.contains("func menuWillOpen(_ menu: NSMenu)"))
+        #expect(appSource.contains("NSMenu.didBeginTrackingNotification") == false)
+    }
 }

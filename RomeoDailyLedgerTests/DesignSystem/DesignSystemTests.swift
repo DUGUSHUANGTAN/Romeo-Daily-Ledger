@@ -231,8 +231,14 @@ struct DesignSystemTests {
             contentsOf: root.appendingPathComponent("RomeoDailyLedger/Features/Insights/InsightsView.swift"),
             encoding: .utf8
         )
+        let aiAssistant = try String(
+            contentsOf: root.appendingPathComponent("RomeoDailyLedger/Features/AI/AILedgerAssistantView.swift"),
+            encoding: .utf8
+        )
         #expect(calendar.contains("calendar.locale = language.locale"))
         #expect(insights.contains("calendar.locale = language.locale"))
+        #expect(aiAssistant.contains("AIAnalysisHistoryDateFormatting.text(item.createdAt, language: preferences.language)"))
+        #expect(!aiAssistant.contains("Text(item.createdAt, format:"))
     }
 
     @Test func settingsPagesUseTransparentGroupedContainersInsteadOfFormBackgrounds() throws {

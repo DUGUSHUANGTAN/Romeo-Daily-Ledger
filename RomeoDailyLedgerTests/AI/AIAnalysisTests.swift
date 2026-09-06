@@ -4,6 +4,19 @@ import Testing
 
 @Suite("AI analysis filtering")
 struct AIAnalysisTests {
+    @Test func historyTimestampUsesTheSelectedApplicationLanguage() throws {
+        let instant = try #require(ISO8601DateFormatter().date(from: "2026-09-04T14:30:00Z"))
+
+        let simplified = AIAnalysisHistoryDateFormatting.text(instant, language: .simplifiedChinese)
+        let traditional = AIAnalysisHistoryDateFormatting.text(instant, language: .traditionalChinese)
+        let english = AIAnalysisHistoryDateFormatting.text(instant, language: .english)
+
+        #expect(simplified.contains("年"))
+        #expect(traditional.contains("年"))
+        #expect(english.contains("Sep"))
+        #expect(!english.contains("年"))
+    }
+
     @Test(arguments: [
         (shiftPressed: false, hasMarkedText: false, expected: true),
         (shiftPressed: true, hasMarkedText: false, expected: false),

@@ -3,6 +3,9 @@ import Foundation
 import SwiftUI
 
 enum AppLocalization {
+    @MainActor private static var currentApplicationMenuLanguage = AppLanguage.simplifiedChinese
+    @MainActor private static weak var applicationMenuDelegate: NSMenuDelegate?
+
     static func text(_ key: String, language: AppLanguage) -> String {
         let localizedBundle: Bundle
         if let path = Bundle.main.path(forResource: language.rawValue, ofType: "lproj"),
@@ -26,40 +29,101 @@ enum AppLocalization {
         return localized == key ? systemKey : localized
     }
 
+    static func replacingApplicationName(in source: String, language: AppLanguage) -> String {
+        AppLanguage.allCases.reduce(source) { result, knownLanguage in
+            result.replacingOccurrences(
+                of: text("app.name", language: knownLanguage),
+                with: text("app.name", language: language)
+            )
+        }
+    }
+
+    @MainActor
+    static func installApplicationMenuDelegate(_ delegate: NSMenuDelegate) {
+        applicationMenuDelegate = delegate
+        NSApp.mainMenu?.items.first?.submenu?.delegate = delegate
+    }
+
     @MainActor
     static func updateApplicationMenuTitle(in menu: NSMenu?, language: AppLanguage) {
-        refreshApplicationMenu(in: menu, language: language)
+        currentApplicationMenuLanguage = language
+        refreshApplicationMenu(in: menu, language: language, replacingSystemItems: false)
         DispatchQueue.main.async {
-            refreshApplicationMenu(in: NSApp.mainMenu, language: language)
+            refreshApplicationMenu(in: NSApp.mainMenu, language: language, replacingSystemItems: false)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                refreshApplicationMenu(in: NSApp.mainMenu, language: language)
+                refreshApplicationMenu(in: NSApp.mainMenu, language: language, replacingSystemItems: false)
             }
         }
     }
 
     @MainActor
-    private static func refreshApplicationMenu(in menu: NSMenu?, language: AppLanguage) {
+    static func refreshApplicationMenuTitle(in menu: NSMenu?) {
+        refreshApplicationMenu(
+            in: menu,
+            language: currentApplicationMenuLanguage,
+            replacingSystemItems: true
+        )
+    }
+
+    @MainActor
+    static func updateWindowTitle(in window: NSWindow?, language: AppLanguage) {
+        window?.title = text("app.name", language: language)
+    }
+
+    @MainActor
+    private static func refreshApplicationMenu(
+        in menu: NSMenu?,
+        language: AppLanguage,
+        replacingSystemItems: Bool
+    ) {
         guard let menu,
               let currentItem = menu.items.first,
               let appMenu = currentItem.submenu else { return }
         let title = text("app.name", language: language)
 
+        appMenu.delegate = applicationMenuDelegate
         currentItem.title = title
         currentItem.attributedTitle = NSAttributedString(string: title)
         appMenu.title = title
-        localizeApplicationMenuItems(in: appMenu, language: language)
+        localizeApplicationMenuItems(
+            in: appMenu,
+            language: language,
+            replacingSystemItems: replacingSystemItems
+        )
     }
 
     @MainActor
-    private static func localizeApplicationMenuItems(in menu: NSMenu?, language: AppLanguage) {
+    private static func localizeApplicationMenuItems(
+        in menu: NSMenu?,
+        language: AppLanguage,
+        replacingSystemItems: Bool
+    ) {
         guard let menu else { return }
-        let appName = text("app.name", language: language)
-        let knownNames = AppLanguage.allCases.map { text("app.name", language: $0) }
-        for item in menu.items {
-            let title = knownNames.reduce(item.title) { result, knownName in
-                result.replacingOccurrences(of: knownName, with: appName)
+        for (index, item) in menu.items.enumerated() {
+            let displayedTitle = item.attributedTitle?.string.isEmpty == false
+                ? item.attributedTitle!.string
+                : item.title
+            let title = replacingApplicationName(in: displayedTitle, language: language)
+            guard displayedTitle != title || item.title != title else { continue }
+
+            if replacingSystemItems,
+               item.action == #selector(NSApplication.hide(_:))
+                || item.action == #selector(NSApplication.terminate(_:)) {
+                let replacement = NSMenuItem(title: title, action: item.action, keyEquivalent: item.keyEquivalent)
+                replacement.target = item.target
+                replacement.keyEquivalentModifierMask = item.keyEquivalentModifierMask
+                replacement.tag = item.tag
+                replacement.state = item.state
+                replacement.isEnabled = item.isEnabled
+                replacement.isHidden = item.isHidden
+                replacement.identifier = item.identifier
+                replacement.attributedTitle = NSAttributedString(string: title)
+                menu.removeItem(at: index)
+                menu.insertItem(replacement, at: index)
+            } else {
+                item.title = title
+                item.attributedTitle = NSAttributedString(string: title)
             }
-            if item.title != title { item.title = title }
         }
     }
 

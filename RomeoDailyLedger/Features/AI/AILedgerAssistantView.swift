@@ -590,6 +590,14 @@ private struct AILedgerPreviewView: View {
     }
 }
 
+enum AIAnalysisHistoryDateFormatting {
+    static func text(_ date: Date, language: AppLanguage) -> String {
+        date.formatted(
+            .dateTime.year().month().day().hour().minute().locale(language.locale)
+        )
+    }
+}
+
 private struct AIAnalysisHistoryView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appLanguage) private var language
@@ -606,7 +614,7 @@ private struct AIAnalysisHistoryView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 3) {
                         Text(item.question).lineLimit(2)
-                        Text(item.createdAt, format: .dateTime.year().month().day().hour().minute().locale(language.locale))
+                        Text(AIAnalysisHistoryDateFormatting.text(item.createdAt, language: preferences.language))
                             .font(AppTypography.caption(typography)).foregroundStyle(.secondary)
                     }
                     Spacer()
