@@ -36,7 +36,7 @@
 - 默认数据目录为：
 
   ```text
-  ~/Library/Application Support/com.romeoke.RomeoDailyLedger/
+  ~/Library/Application Support/com.user.RomeoDailyLedger/
   ```
 
 - 账本使用 SwiftData 本地数据库保存；应用设置和 API Key 保存在本地 `settings.json`，文件权限仅允许当前 macOS 用户读写。
